@@ -2,7 +2,7 @@ import { Feed } from "feed";
 import path from "path";
 import * as fs from "fs/promises";
 import { convertJsonToOPML } from "./toOPML.ts";
-import { RSS_FEEDS } from "./RSS_FEEDS.ts";
+import { ECOSYSTEM_FEEDS } from "./RSS_FEEDS.ts";
 // @ts-expect-error - subpath import from CJS package without exports field
 import type { SecurityAdvisoryEcosystem } from "@octokit/graphql-schema/schema";
 import { graphql } from "@octokit/graphql";
@@ -197,7 +197,7 @@ if (import.meta.main) {
         await fs.mkdir(distDir, {
             recursive: true
         });
-        for (const rssFeed of RSS_FEEDS) {
+        for (const rssFeed of ECOSYSTEM_FEEDS) {
             try {
                 const { ecosystem, ...options } = rssFeed;
                 const items = await search({
@@ -228,9 +228,9 @@ if (import.meta.main) {
                 console.log("But continue to next");
             }
         }
-        const opml = convertJsonToOPML(RSS_FEEDS);
+        const opml = convertJsonToOPML(ECOSYSTEM_FEEDS);
         await fs.writeFile(path.join(distDir, "index.opml"), opml, "utf-8");
-        const links = RSS_FEEDS.map((ecosystem) => {
+        const links = ECOSYSTEM_FEEDS.map((ecosystem) => {
             return `<li><code>${ecosystem.ecosystem}</code>: <a href="${ecosystem.link}">${
                 ecosystem.link
             }</a> (<a href="${ecosystem.link.replace(/\.json$/, ".rss")}">atom</a>)</li>`;
