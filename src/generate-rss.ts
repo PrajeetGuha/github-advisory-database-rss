@@ -1,18 +1,32 @@
+
 import { Feed } from "feed";
 import path from "path";
 import * as fs from "fs/promises";
 import { convertJsonToOPML } from "./toOPML.ts";
-import { ECOSYSTEM_FEEDS } from "./RSS_FEEDS.ts";
+import {
+    ECOSYSTEM_FEEDS,
+    CLASSIFICATION_FEEDS
+} from "./RSS_FEEDS.ts";
+
 // @ts-expect-error - subpath import from CJS package without exports field
-import type { SecurityAdvisoryEcosystem } from "@octokit/graphql-schema/schema";
+import type {
+    SecurityAdvisoryEcosystem,
+    SecurityAdvisoryClassification
+} from "@octokit/graphql-schema/schema";
+
 import { graphql } from "@octokit/graphql";
+import { createMarkdown } from "safe-marked";
+import dayjs from "dayjs";
 
 type SecurityAdvisoryReference = {
     url: string;
 };
+
 type SecurityVulnerabilityConnection = {
     nodes?: Array<{
-        package: { name: string };
+        package: {
+            name: string;
+        };
         advisory: {
             summary: string;
             description: string;
@@ -26,21 +40,35 @@ type SecurityVulnerabilityConnection = {
         vulnerableVersionRange: string;
     } | null> | null;
 };
-import { createMarkdown } from "safe-marked";
-import dayjs from "dayjs";
 
-const createBody = (descriptionMarkdown: string, references: SecurityAdvisoryReference[]) => {
+type SecurityAdvisoryConnection = {
+    nodes?: Array<{
+        summary: string;
+        description: string;
+        references: SecurityAdvisoryReference[];
+        permalink: string;
+        updatedAt: string;
+        publishedAt: string;
+        severity: string;
+    } | null> | null;
+};
+
+const createBody = (
+    descriptionMarkdown: string,
+    references: SecurityAdvisoryReference[]
+) => {
     const md = createMarkdown();
+
     const referencesMD = references.length
         ? "\n### References\n\n" +
           references
-              .map((ref) => {
-                  return `- <${ref.url}>`;
-              })
+              .map((ref) => `- <${ref.url}>`)
               .join("\n")
         : "";
+
     return md(descriptionMarkdown + referencesMD);
 };
+
 type Item = {
     url: string;
     title: string;
@@ -63,9 +91,12 @@ export type GenerateRSSOptions = {
     image?: string;
     favicon?: string;
     updated: Date;
-    filter?: (item: Item) => boolean; // if return true, it is included in the result
+    filter?: (item: Item) => boolean;
 };
 
+/**
+ * Search GitHub Security Vulnerabilities by ecosystem.
+ */
 export const search = ({
     ecosystem,
     GITHUB_TOKEN,
@@ -75,10 +106,15 @@ export const search = ({
     GITHUB_TOKEN: string;
     SIZE: number;
 }): Promise<Item[]> => {
-    return graphql<{ securityVulnerabilities: SecurityVulnerabilityConnection }>(
+    return graphql<{
+        securityVulnerabilities: SecurityVulnerabilityConnection;
+    }>(
         `
             query ($ECOSYSTEM: SecurityAdvisoryEcosystem!, $SIZE: Int!) {
-                securityVulnerabilities(ecosystem: $ECOSYSTEM, first: $SIZE) {
+                securityVulnerabilities(
+                    ecosystem: $ECOSYSTEM,
+                    first: $SIZE
+                ) {
                     nodes {
                         package {
                             name
@@ -109,10 +145,12 @@ export const search = ({
         }
     ).then((res) => {
         const nodes = res.securityVulnerabilities.nodes ?? [];
-        return nodes?.map((node) => {
+
+        return nodes.map((node) => {
             if (!node) {
                 throw new Error("Non node");
             }
+
             return {
                 url: node.advisory.permalink,
                 title: `[${node.package.name}] ${node.advisory.summary}`,
@@ -125,36 +163,128 @@ export const search = ({
                     login: "GitHub",
                     url: node.advisory.permalink
                 },
-                bodyHTML: createBody(node.advisory.description, node.advisory.references)
+                bodyHTML: createBody(
+                    node.advisory.description,
+                    node.advisory.references
+                )
             } as Item;
         });
     });
 };
 
-export const generateRSS = (items: Item[], options: GenerateRSSOptions) => {
+/**
+ * Search GitHub Security Advisories by classification.
+ * Used for feeds such as MALWARE.
+ */
+export const searchByClassification = ({
+    classification,
+    GITHUB_TOKEN,
+    SIZE = 20
+}: {
+    classification: SecurityAdvisoryClassification;
+    GITHUB_TOKEN: string;
+    SIZE: number;
+}): Promise<Item[]> => {
+    return graphql<{
+        securityAdvisories: SecurityAdvisoryConnection;
+    }>(
+        `
+            query (
+                $CLASSIFICATIONS: [SecurityAdvisoryClassification!]!,
+                $SIZE: Int!
+            ) {
+                securityAdvisories(
+                    classifications: $CLASSIFICATIONS,
+                    first: $SIZE
+                ) {
+                    nodes {
+                        summary
+                        description
+                        references {
+                            url
+                        }
+                        permalink
+                        updatedAt
+                        publishedAt
+                        severity
+                    }
+                }
+            }
+        `,
+        {
+            CLASSIFICATIONS: [classification],
+            SIZE,
+            headers: {
+                authorization: `token ${GITHUB_TOKEN}`
+            }
+        }
+    ).then((res) => {
+        const nodes = res.securityAdvisories.nodes ?? [];
+
+        return nodes.map((node) => {
+            if (!node) {
+                throw new Error("Non node");
+            }
+
+            return {
+                url: node.permalink,
+                title: `[${classification}] ${node.summary}`,
+                createdAt: node.publishedAt,
+                updatedAt: node.updatedAt,
+                severity: node.severity,
+                author: {
+                    avatarUrl: "",
+                    login: "GitHub",
+                    url: node.permalink
+                },
+                bodyHTML: createBody(
+                    node.description,
+                    node.references
+                )
+            } as Item;
+        });
+    });
+};
+
+/**
+ * Generate JSON Feed or Atom Feed.
+ */
+export const generateRSS = (
+    items: Item[],
+    options: GenerateRSSOptions
+) => {
     const feed = new Feed({
         title: options.title,
         description: options.description,
         id: options.link,
         link: options.homepage || options.link,
-        feedLinks: { json: options.link },
+        feedLinks: {
+            json: options.link
+        },
         image: options.image,
         favicon: options.favicon,
         copyright: "github-advisory-database-rss",
         updated: options.updated,
         generator: "github-advisory-database-rss"
     });
+
     feed.addCategory("CRITICAL");
     feed.addCategory("HIGH");
     feed.addCategory("MODERATE");
     feed.addCategory("LOW");
+
     const filter = options.filter;
-    const filteredItems = filter ? items.filter((item) => filter(item)) : items;
+    const filteredItems = filter
+        ? items.filter((item) => filter(item))
+        : items;
+
     filteredItems.forEach((item) => {
         const body = item.bodyHTML ?? "";
+
         const image = item.author.avatarUrl
             ? `<img src="${item.author.avatarUrl}" width="64" height="64" alt=""/><br/>`
             : "";
+
         feed.addItem({
             title: item.title,
             content: image + body,
@@ -176,65 +306,179 @@ export const generateRSS = (items: Item[], options: GenerateRSSOptions) => {
             date: dayjs(item.updatedAt).toDate()
         });
     });
+
     if (path.extname(options.link) === ".json") {
         return feed.json1();
-    } else {
-        return feed.atom1();
     }
+
+    return feed.atom1();
 };
 
 export type RSSItem = {
     query: string;
     SIZE?: number;
 } & Omit<GenerateRSSOptions, "updated" | "description">;
+
+/**
+ * Generate all RSS feeds.
+ */
 if (import.meta.main) {
     const distDir = path.join(import.meta.dirname, "../dist");
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+
     if (!GITHUB_TOKEN) {
         throw new Error("env.GITHUB_TOKEN required");
     }
+
     (async function () {
         await fs.mkdir(distDir, {
             recursive: true
         });
+
+        // ---------------------------------------------
+        // 1. Generate ecosystem feeds
+        // ---------------------------------------------
         for (const rssFeed of ECOSYSTEM_FEEDS) {
             try {
                 const { ecosystem, ...options } = rssFeed;
+
                 const items = await search({
                     ecosystem,
-                    GITHUB_TOKEN: GITHUB_TOKEN,
+                    GITHUB_TOKEN,
                     SIZE: 20
                 });
-                if (!items) {
-                    throw new Error("Can not found:" + ecosystem);
-                }
+
+                const description = `${rssFeed.title} on GitHub`;
+
                 const jsonRSS = generateRSS(items, {
                     ...options,
-                    description: `${rssFeed.title} on GitHub`,
-                    updated: new Date()
-                });
-                const atomRSS = generateRSS(items, {
-                    ...options,
-                    link: rssFeed.link.replace(/\.json$/, ".rss"),
-                    description: `${rssFeed.title} on GitHub`,
+                    description,
                     updated: new Date()
                 });
 
-                const filename = path.basename(rssFeed.link, ".json");
-                await fs.writeFile(path.join(distDir, filename + ".json"), jsonRSS, "utf-8");
-                await fs.writeFile(path.join(distDir, filename + ".rss"), atomRSS, "utf-8");
+                const atomRSS = generateRSS(items, {
+                    ...options,
+                    link: rssFeed.link.replace(/\.json$/, ".rss"),
+                    description,
+                    updated: new Date()
+                });
+
+                const filename = path.basename(
+                    rssFeed.link,
+                    ".json"
+                );
+
+                await fs.writeFile(
+                    path.join(distDir, filename + ".json"),
+                    jsonRSS,
+                    "utf-8"
+                );
+
+                await fs.writeFile(
+                    path.join(distDir, filename + ".rss"),
+                    atomRSS,
+                    "utf-8"
+                );
+
+                console.log(`Generated ecosystem feed: ${ecosystem}`);
             } catch (error) {
-                console.error(`Error on ${rssFeed.ecosystem}`, error);
+                console.error(
+                    `Error on ecosystem ${rssFeed.ecosystem}`,
+                    error
+                );
+
                 console.log("But continue to next");
             }
         }
+
+        // ---------------------------------------------
+        // 2. Generate classification feeds (e.g. MALWARE)
+        // ---------------------------------------------
+        for (const rssFeed of CLASSIFICATION_FEEDS) {
+            try {
+                const { classification, ...options } = rssFeed;
+
+                const items = await searchByClassification({
+                    classification,
+                    GITHUB_TOKEN,
+                    SIZE: 20
+                });
+
+                const description = `${rssFeed.title} on GitHub`;
+
+                const jsonRSS = generateRSS(items, {
+                    ...options,
+                    description,
+                    updated: new Date()
+                });
+
+                const atomRSS = generateRSS(items, {
+                    ...options,
+                    link: rssFeed.link.replace(/\.json$/, ".rss"),
+                    description,
+                    updated: new Date()
+                });
+
+                const filename = path.basename(
+                    rssFeed.link,
+                    ".json"
+                );
+
+                await fs.writeFile(
+                    path.join(distDir, filename + ".json"),
+                    jsonRSS,
+                    "utf-8"
+                );
+
+                await fs.writeFile(
+                    path.join(distDir, filename + ".rss"),
+                    atomRSS,
+                    "utf-8"
+                );
+
+                console.log(
+                    `Generated classification feed: ${classification}`
+                );
+            } catch (error) {
+                console.error(
+                    `Error on classification ${rssFeed.classification}`,
+                    error
+                );
+
+                console.log("But continue to next");
+            }
+        }
+
+        // ---------------------------------------------
+        // 3. Generate OPML
+        // ---------------------------------------------
         const opml = convertJsonToOPML(ECOSYSTEM_FEEDS);
-        await fs.writeFile(path.join(distDir, "index.opml"), opml, "utf-8");
-        const links = ECOSYSTEM_FEEDS.map((ecosystem) => {
-            return `<li><code>${ecosystem.ecosystem}</code>: <a href="${ecosystem.link}">${
-                ecosystem.link
-            }</a> (<a href="${ecosystem.link.replace(/\.json$/, ".rss")}">atom</a>)</li>`;
+
+        await fs.writeFile(
+            path.join(distDir, "index.opml"),
+            opml,
+            "utf-8"
+        );
+
+        // ---------------------------------------------
+        // 4. Generate index.html
+        // ---------------------------------------------
+        const ecosystemLinks = ECOSYSTEM_FEEDS.map((feed) => {
+            return `<li>
+                <code>${feed.ecosystem}</code>:
+                <a href="${feed.link}">${feed.link}</a>
+                (<a href="${feed.link.replace(/\.json$/, ".rss")}">atom</a>)
+            </li>`;
         }).join("\n");
+
+        const classificationLinks = CLASSIFICATION_FEEDS.map((feed) => {
+            return `<li>
+                <code>${feed.classification}</code>:
+                <a href="${feed.link}">${feed.link}</a>
+                (<a href="${feed.link.replace(/\.json$/, ".rss")}">atom</a>)
+            </li>`;
+        }).join("\n");
+
         const index = {
             html: `<!DOCTYPE html>
 <html lang="en">
@@ -244,25 +488,60 @@ if (import.meta.main) {
     <meta name="description" content="RSS Feeds for GitHub Advisory Database" />
 </head>
 <body>
-<a href="https://github.com/prajeetguha/github-advisory-database-rss"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
-<p>These RSS Feeds is a collection of <a href="https://github.com/advisories">GitHub Advisory Database</a>.</p>
+<a href="https://github.com/prajeetguha/github-advisory-database-rss">
+    <img
+        style="position: absolute; top: 0; right: 0; border: 0;"
+        src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png"
+        alt="Fork me on GitHub"
+    >
+</a>
+
+<p>
+    These RSS Feeds are a collection of
+    <a href="https://github.com/advisories">GitHub Advisory Database</a>.
+</p>
+
 <p>Supported Feed types</p>
 <ul>
     <li>JSON Feed</li>
     <li>Atom Feed</li>
 </ul>
-<p>OPML Feeds(All ecosystems): <a href="./index.opml">https://prajeetguha.github.io/github-advisory-database-rss/index.opml</a></p>
+
+<p>
+    OPML Feeds (all ecosystems):
+    <a href="./index.opml">
+        https://prajeetguha.github.io/github-advisory-database-rss/index.opml
+    </a>
+</p>
+
+<h3>Ecosystem Feeds</h3>
 <ul>
-${links}
+${ecosystemLinks}
 </ul>
+
+<h3>Classification Feeds</h3>
+<ul>
+${classificationLinks}
+</ul>
+
 <footer>
-<a href="https://github.com/prajeetguha/github-advisory-database-rss">Source Code</a>
+    <a href="https://github.com/prajeetguha/github-advisory-database-rss">
+        Source Code
+    </a>
 </footer>
 </body>
 </html>
 `
         };
-        await fs.writeFile(path.join(distDir, "index.html"), index.html, "utf-8");
+
+        await fs.writeFile(
+            path.join(distDir, "index.html"),
+            index.html,
+            "utf-8"
+        );
+
+        console.log("RSS feed generation completed.");
+
     })().catch((error) => {
         console.error(error);
         process.exit(1);
