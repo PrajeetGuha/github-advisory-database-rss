@@ -1,15 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?><opml version="2.0">
+<?xml version="1.0" encoding="UTF-8"?>
+<opml version="2.0">
     <head>
-    <title>GitHub Search Subscriptions</title>
-    <dateCreated>2026-10-31T18:33:24.388Z</dateCreated>
+    <title>GitHub Advisory Database Subscriptions</title>
+    <dateCreated>2026-10-31T18:35:03.173Z</dateCreated>
 </head>
     <body>
-    <outline title="Subscriptions">
+    <outline title="GitHub Advisory Database Feeds">
         <outline>
-            <outline type="rss" title="Security Advisory for Java artifacts hosted at the Maven central repository" htmlUrl="https://prajeetguha.github.io/github-advisory-database-rss/maven.json" xmlUrl="https://prajeetguha.github.io/github-advisory-database-rss/maven.json"/>
-            <outline type="rss" title="Security Advisory for JavaScript packages hosted at npmjs.com" htmlUrl="https://prajeetguha.github.io/github-advisory-database-rss/npm.json" xmlUrl="https://prajeetguha.github.io/github-advisory-database-rss/npm.json"/>
-            <outline type="rss" title="Security Advisory for .NET packages hosted at the NuGet Gallery" htmlUrl="https://prajeetguha.github.io/github-advisory-database-rss/nuget.json" xmlUrl="https://prajeetguha.github.io/github-advisory-database-rss/nuget.json"/>
-            <outline type="rss" title="Security Advisory for Python packages hosted at PyPI.org" htmlUrl="https://prajeetguha.github.io/github-advisory-database-rss/pip.json" xmlUrl="https://prajeetguha.github.io/github-advisory-database-rss/pip.json"/>
+            <outline type="rss" title="Security Advisory for Java artifacts hosted at the Maven central repository" htmlUrl="https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven" xmlUrl="https://prajeetguha.github.io/github-advisory-database-rss/maven.json"/>
+            <outline type="rss" title="Security Advisory for JavaScript packages hosted at npmjs.com" htmlUrl="https://github.com/advisories?query=type%3Areviewed+ecosystem%3Anpm" xmlUrl="https://prajeetguha.github.io/github-advisory-database-rss/npm.json"/>
+            <outline type="rss" title="Security Advisory for .NET packages hosted at the NuGet Gallery" htmlUrl="https://github.com/advisories?query=type%3Areviewed+ecosystem%3Anuget" xmlUrl="https://prajeetguha.github.io/github-advisory-database-rss/nuget.json"/>
+            <outline type="rss" title="Security Advisory for Python packages hosted at PyPI.org" htmlUrl="https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip" xmlUrl="https://prajeetguha.github.io/github-advisory-database-rss/pip.json"/>
         </outline>
     </outline>
 </body>
