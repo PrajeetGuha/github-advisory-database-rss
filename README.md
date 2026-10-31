@@ -4,7 +4,7 @@ RSS Feeds for [GitHub Advisory Database](https://github.com/advisories).
 
 ## Usage
 
-1. Visit <https://azu.github.io/github-advisory-database-rss/>
+1. Visit <https://prajeetguha.github.io/github-advisory-database-rss/>
 2. Subscribe RSS Feeds
 
 :memo: It outputs [JSON Feed](https://www.jsonfeed.org/) and Atom Feed.
