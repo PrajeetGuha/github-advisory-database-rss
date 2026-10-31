@@ -452,7 +452,9 @@ if (import.meta.main) {
         // ---------------------------------------------
         // 3. Generate OPML
         // ---------------------------------------------
-        const opml = convertJsonToOPML(ECOSYSTEM_FEEDS);
+        const opml = convertJsonToOPML([
+        ...ECOSYSTEM_FEEDS,
+        ...CLASSIFICATION_FEEDS]);
 
         await fs.writeFile(
             path.join(distDir, "index.opml"),
