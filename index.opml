@@ -1,23 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?><opml version="2.0">
     <head>
     <title>GitHub Search Subscriptions</title>
-    <dateCreated>2026-10-31T18:15:53.025Z</dateCreated>
+    <dateCreated>2026-10-31T18:33:24.388Z</dateCreated>
 </head>
     <body>
     <outline title="Subscriptions">
         <outline>
-            <outline type="rss" title="Security Advisory for PHP packages hosted at packagist.org" htmlUrl="https://azu.github.io/github-advisory-database-rss/composer.json" xmlUrl="https://azu.github.io/github-advisory-database-rss/composer.json"/>
-            <outline type="rss" title="Security Advisory for Go modules" htmlUrl="https://azu.github.io/github-advisory-database-rss/go.json" xmlUrl="https://azu.github.io/github-advisory-database-rss/go.json"/>
-            <outline type="rss" title="Security Advisory for Java artifacts hosted at the Maven central repository" htmlUrl="https://azu.github.io/github-advisory-database-rss/maven.json" xmlUrl="https://azu.github.io/github-advisory-database-rss/maven.json"/>
-            <outline type="rss" title="Security Advisory for JavaScript packages hosted at npmjs.com" htmlUrl="https://azu.github.io/github-advisory-database-rss/npm.json" xmlUrl="https://azu.github.io/github-advisory-database-rss/npm.json"/>
-            <outline type="rss" title="Security Advisory for .NET packages hosted at the NuGet Gallery" htmlUrl="https://azu.github.io/github-advisory-database-rss/nuget.json" xmlUrl="https://azu.github.io/github-advisory-database-rss/nuget.json"/>
-            <outline type="rss" title="Security Advisory for Python packages hosted at PyPI.org" htmlUrl="https://azu.github.io/github-advisory-database-rss/pip.json" xmlUrl="https://azu.github.io/github-advisory-database-rss/pip.json"/>
-            <outline type="rss" title="Security Advisory for Dart packages hosted at pub.dev" htmlUrl="https://azu.github.io/github-advisory-database-rss/pub.json" xmlUrl="https://azu.github.io/github-advisory-database-rss/pub.json"/>
-            <outline type="rss" title="Security Advisory for Ruby gems hosted at RubyGems.org" htmlUrl="https://azu.github.io/github-advisory-database-rss/rubygems.json" xmlUrl="https://azu.github.io/github-advisory-database-rss/rubygems.json"/>
-            <outline type="rss" title="Security Advisory for Rust crates" htmlUrl="https://azu.github.io/github-advisory-database-rss/rust.json" xmlUrl="https://azu.github.io/github-advisory-database-rss/rust.json"/>
-            <outline type="rss" title="Security Advisory for Erlang/Elixir packages hosted at hex.pm" htmlUrl="https://azu.github.io/github-advisory-database-rss/erlang.json" xmlUrl="https://azu.github.io/github-advisory-database-rss/erlang.json"/>
-            <outline type="rss" title="Security Advisory for Github Actions" htmlUrl="https://azu.github.io/github-advisory-database-rss/actions.json" xmlUrl="https://azu.github.io/github-advisory-database-rss/actions.json"/>
-            <outline type="rss" title="Security Advisory for Swift" htmlUrl="https://azu.github.io/github-advisory-database-rss/swift.json" xmlUrl="https://azu.github.io/github-advisory-database-rss/swift.json"/>
+            <outline type="rss" title="Security Advisory for Java artifacts hosted at the Maven central repository" htmlUrl="https://prajeetguha.github.io/github-advisory-database-rss/maven.json" xmlUrl="https://prajeetguha.github.io/github-advisory-database-rss/maven.json"/>
+            <outline type="rss" title="Security Advisory for JavaScript packages hosted at npmjs.com" htmlUrl="https://prajeetguha.github.io/github-advisory-database-rss/npm.json" xmlUrl="https://prajeetguha.github.io/github-advisory-database-rss/npm.json"/>
+            <outline type="rss" title="Security Advisory for .NET packages hosted at the NuGet Gallery" htmlUrl="https://prajeetguha.github.io/github-advisory-database-rss/nuget.json" xmlUrl="https://prajeetguha.github.io/github-advisory-database-rss/nuget.json"/>
+            <outline type="rss" title="Security Advisory for Python packages hosted at PyPI.org" htmlUrl="https://prajeetguha.github.io/github-advisory-database-rss/pip.json" xmlUrl="https://prajeetguha.github.io/github-advisory-database-rss/pip.json"/>
         </outline>
     </outline>
 </body>
