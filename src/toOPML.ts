@@ -1,7 +1,7 @@
 import xml from "xml";
-import type { RSS_FEED } from "./RSS_FEEDS.ts";
+import type { ECOSYSTEM_FEED } from "./RSS_FEEDS.ts";
 
-const convertItemToOutline = (item: RSS_FEED) => {
+const convertItemToOutline = (item: ECOSYSTEM_FEED) => {
     return {
         outline: {
             _attr: {
@@ -13,7 +13,7 @@ const convertItemToOutline = (item: RSS_FEED) => {
         }
     };
 };
-export const convertJsonToOPML = (items: RSS_FEED[]) => {
+export const convertJsonToOPML = (items: ECOSYSTEM_FEED[]) => {
     const head = {
         head: [
             {
