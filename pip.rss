@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://prajeetguha.github.io/github-advisory-database-rss/pip.rss</id>
     <title>Security Advisory for Python packages hosted at PyPI.org</title>
-    <updated>2026-11-05T11:54:43.841Z</updated>
+    <updated>2026-11-05T13:30:34.650Z</updated>
     <generator>github-advisory-database-rss</generator>
     <link rel="alternate" href="https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"/>
     <subtitle>Security Advisory for Python packages hosted at PyPI.org on GitHub</subtitle>
@@ -16,7 +16,18 @@
         <id>https://github.com/advisories/GHSA-469j-vmhf-r6v7</id>
         <link href="https://github.com/advisories/GHSA-469j-vmhf-r6v7"/>
         <updated>2026-11-04T03:13:59.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="vulnerability-description">Vulnerability Description</h2>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>nltk</td>
+<td><code>&lt; 3.9.4</code></td>
+<td><code>3.9.4</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="vulnerability-description">Vulnerability Description</h2>
 <p>The NLTK downloader does not validate the <code>subdir</code> and <code>id</code> attributes when processing remote XML index files. Attackers can control a remote XML index server to provide malicious values containing path traversal sequences (such as <code>../</code>), which can lead to:</p>
 <ol>
 <li><strong>Arbitrary Directory Creation</strong>: Create directories at arbitrary locations in the file system</li>
@@ -212,7 +223,18 @@ if __name__ == "__main__":
         <id>https://github.com/advisories/GHSA-68j8-pq59-fqgm</id>
         <link href="https://github.com/advisories/GHSA-68j8-pq59-fqgm"/>
         <updated>2026-11-04T03:13:12.000Z</updated>
-        <content type="html"><![CDATA[<p>A vulnerability in NLTK versions up to and including 3.9.2 allows arbitrary file read via path traversal in multiple CorpusReader classes, including WordListCorpusReader, TaggedCorpusReader, and BracketParseCorpusReader. These classes fail to properly sanitize or validate file paths, enabling attackers to traverse directories and access sensitive files on the server. This issue is particularly critical in scenarios where user-controlled file inputs are processed, such as in machine learning APIs, chatbots, or NLP pipelines. Exploitation of this vulnerability can lead to unauthorized access to sensitive files, including system files, SSH private keys, and API tokens, and may potentially escalate to remote code execution when combined with other vulnerabilities.</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>nltk</td>
+<td><code>&lt;= 3.9.2</code></td>
+<td><code>3.9.3</code></td>
+</tr>
+</tbody>
+</table>
+<p>A vulnerability in NLTK versions up to and including 3.9.2 allows arbitrary file read via path traversal in multiple CorpusReader classes, including WordListCorpusReader, TaggedCorpusReader, and BracketParseCorpusReader. These classes fail to properly sanitize or validate file paths, enabling attackers to traverse directories and access sensitive files on the server. This issue is particularly critical in scenarios where user-controlled file inputs are processed, such as in machine learning APIs, chatbots, or NLP pipelines. Exploitation of this vulnerability can lead to unauthorized access to sensitive files, including system files, SSH private keys, and API tokens, and may potentially escalate to remote code execution when combined with other vulnerabilities.</p>
 <h3 id="references">References</h3>
 <ul>
 <li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-0847">https://nvd.nist.gov/vuln/detail/CVE-2026-0847</a></li>
@@ -239,7 +261,18 @@ if __name__ == "__main__":
         <id>https://github.com/advisories/GHSA-63cw-57p8-fm3p</id>
         <link href="https://github.com/advisories/GHSA-63cw-57p8-fm3p"/>
         <updated>2026-11-04T03:06:49.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="summary">Summary</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>torch</td>
+<td><code>&lt; 2.10.0</code></td>
+<td><code>2.10.0</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="summary">Summary</h3>
 <p>A vulnerability in PyTorch's <code>weights_only</code> unpickler allows an attacker to craft a malicious checkpoint file (<code>.pth</code>) that, when loaded with <code>torch.load(..., weights_only=True)</code>, can corrupt memory and potentially lead to arbitrary code execution.</p>
 <h3 id="vulnerability-details">Vulnerability Details</h3>
 <p>The <code>weights_only=True</code> unpickler failed to properly validate pickle opcodes and storage metadata, allowing:</p>
@@ -282,7 +315,18 @@ if __name__ == "__main__":
         <id>https://github.com/advisories/GHSA-57q6-fvp4-pqmm</id>
         <link href="https://github.com/advisories/GHSA-57q6-fvp4-pqmm"/>
         <updated>2026-11-03T21:48:50.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="summary">Summary</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>open-webui</td>
+<td><code>&lt; 0.9.0</code></td>
+<td><code>0.9.0</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="summary">Summary</h3>
 <p>Open WebUI allows admins to restrict which API endpoints an API key can access. When an API key is restricted from <code>/api/v1/messages</code>, requests using the <code>Authorization: Bearer sk-...</code> header are correctly blocked with 403. However, the same key sent via the <code>x-api-key</code> header bypasses the restriction entirely — the request is authenticated, the model is invoked, and a full response is returned.</p>
 <h3 id="details">Details</h3>
 <p>Open WebUI's Anthropic-compatible API path accepts authentication via <code>x-api-key</code> header (standard for the Anthropic API). The endpoint restriction check only applies to keys presented via the <code>Authorization</code> header. When the same <code>sk-...</code> key is supplied in <code>x-api-key</code>, the restriction check is skipped but the key is still valid for authentication.</p>
@@ -344,7 +388,18 @@ curl -s -X POST http://target:8080/api/v1/messages \
         <id>https://github.com/advisories/GHSA-q63x-9pfm-mjx4</id>
         <link href="https://github.com/advisories/GHSA-q63x-9pfm-mjx4"/>
         <updated>2026-11-03T21:20:57.000Z</updated>
-        <content type="html"><![CDATA[<p>Feast before 0.63.0 contains an unsafe deserialization vulnerability that allows unauthenticated or unauthorized attackers to achieve remote code execution by sending a crafted gRPC request to the registry server. The user_defined_function.body field of an OnDemandFeatureView spec is decoded from base64 and passed to dill.loads() before any authorization check is performed, enabling attackers to embed a malicious serialized Python object with an arbitrary <strong>reduce</strong> method to execute OS commands as the feast service account.</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>feast</td>
+<td><code>&lt; 0.63.0</code></td>
+<td><code>0.63.0</code></td>
+</tr>
+</tbody>
+</table>
+<p>Feast before 0.63.0 contains an unsafe deserialization vulnerability that allows unauthenticated or unauthorized attackers to achieve remote code execution by sending a crafted gRPC request to the registry server. The user_defined_function.body field of an OnDemandFeatureView spec is decoded from base64 and passed to dill.loads() before any authorization check is performed, enabling attackers to embed a malicious serialized Python object with an arbitrary <strong>reduce</strong> method to execute OS commands as the feast service account.</p>
 <h3 id="references">References</h3>
 <ul>
 <li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-56121">https://nvd.nist.gov/vuln/detail/CVE-2026-56121</a></li>
@@ -372,7 +427,18 @@ curl -s -X POST http://target:8080/api/v1/messages \
         <id>https://github.com/advisories/GHSA-7pm4-56h2-5rxr</id>
         <link href="https://github.com/advisories/GHSA-7pm4-56h2-5rxr"/>
         <updated>2026-11-03T21:18:14.000Z</updated>
-        <content type="html"><![CDATA[<p>Prefect versions 3.1.11 through 3.6.24 are vulnerable to remote code execution due to improper handling of user-controlled input in the <code>GitRepository</code> storage class. The <code>commit_sha</code> parameter, which is passed to git commands, lacks validation and does not include a <code>--</code> separator to distinguish user input from git flags. This allows attackers to inject arbitrary git flags, such as <code>--upload-pack</code>, enabling execution of external programs. Additionally, the <code>directories</code> parameter can be exploited to inject git flags during sparse-checkout operations. These vulnerabilities allow any user with deployment creation permissions to execute arbitrary commands on worker machines, compromising shared work pools in multi-tenant environments.</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>prefect</td>
+<td><code>&gt;= 3.1.11, &lt; 3.6.25</code></td>
+<td><code>3.6.25</code></td>
+</tr>
+</tbody>
+</table>
+<p>Prefect versions 3.1.11 through 3.6.24 are vulnerable to remote code execution due to improper handling of user-controlled input in the <code>GitRepository</code> storage class. The <code>commit_sha</code> parameter, which is passed to git commands, lacks validation and does not include a <code>--</code> separator to distinguish user input from git flags. This allows attackers to inject arbitrary git flags, such as <code>--upload-pack</code>, enabling execution of external programs. Additionally, the <code>directories</code> parameter can be exploited to inject git flags during sparse-checkout operations. These vulnerabilities allow any user with deployment creation permissions to execute arbitrary commands on worker machines, compromising shared work pools in multi-tenant environments.</p>
 <h3 id="references">References</h3>
 <ul>
 <li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-5366">https://nvd.nist.gov/vuln/detail/CVE-2026-5366</a></li>
@@ -395,7 +461,18 @@ curl -s -X POST http://target:8080/api/v1/messages \
         <id>https://github.com/advisories/GHSA-gh9r-c94j-cmp5</id>
         <link href="https://github.com/advisories/GHSA-gh9r-c94j-cmp5"/>
         <updated>2026-11-03T20:29:16.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="tldr">TL;DR</h2>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>stanza</td>
+<td><code>= 1.14.0</code></td>
+<td><code>1.15.0</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="tldr">TL;DR</h2>
 <p>Loading an attacker-supplied lemma <code>.pt</code> runs arbitrary code as the loading user. Since 1.14.0 the lemmatizer stores <code>pos_dict</code> as a gzip-compressed pickle in the checkpoint's <code>dicts</code> field (a <code>bytes</code> value). <code>torch.load(weights_only=True)</code> treats <code>bytes</code> as a primitive and passes it through unexamined, so its allowlist never sees the inner stream. <code>Trainer.load</code> then feeds those bytes to an <strong>unrestricted <code>pickle.loads</code></strong>: the only bare <code>pickle.loads</code> in the tree. Result: <code>weights_only=True</code> gives no protection here, and model loading executes code.</p>
 <p>Confirmed end-to-end against stanza 1.14.0 / PyTorch 2.13.0 / CPython 3.13.7: a crafted checkpoint whose payload <code>__reduce__</code> returns <code>(os.system, (cmd,))</code> ran the command at load time (marker file showed <code>uid=501(...)</code>, <code>executed_by=...</code>).</p>
 <p>A downstream user is vulnerable whenever they build a pipeline that loads a caller-supplied lemmatizer checkpoint. i.e. <code>stanza.Pipeline(lang=..., processors="tokenize,pos,lemma", lemma_model_path="&lt;attacker-influenced .pt&gt;")</code> (or any equivalent load of an untrusted/shared lemma model through a custom registry) - since that call routes straight into <code>Trainer.load</code> -&gt; <code>_unpack_pos_dict</code> and executes the embedded pickle at construction time.</p>
@@ -473,7 +550,18 @@ def _unpack_pos_dict(data):
         <id>https://github.com/advisories/GHSA-mq7r-vm99-p7vx</id>
         <link href="https://github.com/advisories/GHSA-mq7r-vm99-p7vx"/>
         <updated>2026-11-03T17:37:07.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="duplicate-advisory">Duplicate Advisory</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>picklescan</td>
+<td><code>&lt; 0.0.30</code></td>
+<td><code>0.0.30</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="duplicate-advisory">Duplicate Advisory</h3>
 <p>This advisory has been withdrawn because it is a duplicate of GHSA-3gf5-cxq9-w223. This link is maintained to preserve external references.</p>
 <h3 id="original-description">Original Description</h3>
 <p>picklescan through 0.0.26 fails to detect malicious pickle files that invoke idlelib.pyshell.ModifiedInterpreter.runcode in <strong>reduce</strong> methods. Attackers can embed undetected code in pickle files that executes arbitrary commands when the file is loaded via pickle.load(), enabling supply chain attacks on PyTorch models and saved Python objects. This is fixed in version 0.0.30.</p>
@@ -498,7 +586,18 @@ def _unpack_pos_dict(data):
         <id>https://github.com/advisories/GHSA-gg2p-37pv-v7fq</id>
         <link href="https://github.com/advisories/GHSA-gg2p-37pv-v7fq"/>
         <updated>2026-11-03T16:23:47.000Z</updated>
-        <content type="html"><![CDATA[<p>A flaw was found in Feast. The system improperly deserializes user-defined functions (UDFs) stored in its registry, which are serialized using the 'dill' library. This allows a remote attacker to store a malicious UDF, leading to unauthenticated arbitrary code execution on the feature server in default configurations. An authenticated attacker can also achieve arbitrary code execution on the registry server by bypassing authorization checks during deserialization. This vulnerability can result in cross-tenant data access and lateral movement within the system.</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>feast</td>
+<td><code>&lt; 0.67.0</code></td>
+<td><code>0.67.0</code></td>
+</tr>
+</tbody>
+</table>
+<p>A flaw was found in Feast. The system improperly deserializes user-defined functions (UDFs) stored in its registry, which are serialized using the 'dill' library. This allows a remote attacker to store a malicious UDF, leading to unauthenticated arbitrary code execution on the feature server in default configurations. An authenticated attacker can also achieve arbitrary code execution on the registry server by bypassing authorization checks during deserialization. This vulnerability can result in cross-tenant data access and lateral movement within the system.</p>
 <h3 id="references">References</h3>
 <ul>
 <li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-18948">https://nvd.nist.gov/vuln/detail/CVE-2026-18948</a></li>
@@ -528,7 +627,18 @@ def _unpack_pos_dict(data):
         <id>https://github.com/advisories/GHSA-6hcw-qqr8-pjj8</id>
         <link href="https://github.com/advisories/GHSA-6hcw-qqr8-pjj8"/>
         <updated>2026-11-02T23:08:07.000Z</updated>
-        <content type="html"><![CDATA[<p>A bug in the login redirect route in Apache Airflow allowed authenticated users to craft URLs that bypassed the <code>is_safe_url</code> check, enabling redirection from a trusted Airflow domain to an attacker-controlled origin. Users are advised to upgrade to <code>apache-airflow</code> 3.2.2 or later. As a defense-in-depth mitigation, deployment operators can place Airflow behind a reverse proxy that strips off-domain <code>next=</code> query parameters before they reach the login endpoint.</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>apache-airflow</td>
+<td><code>&gt;= 3.0.0b3, &lt; 3.2.2</code></td>
+<td><code>3.2.2</code></td>
+</tr>
+</tbody>
+</table>
+<p>A bug in the login redirect route in Apache Airflow allowed authenticated users to craft URLs that bypassed the <code>is_safe_url</code> check, enabling redirection from a trusted Airflow domain to an attacker-controlled origin. Users are advised to upgrade to <code>apache-airflow</code> 3.2.2 or later. As a defense-in-depth mitigation, deployment operators can place Airflow behind a reverse proxy that strips off-domain <code>next=</code> query parameters before they reach the login endpoint.</p>
 <h3 id="references">References</h3>
 <ul>
 <li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-40961">https://nvd.nist.gov/vuln/detail/CVE-2026-40961</a></li>
@@ -555,7 +665,18 @@ def _unpack_pos_dict(data):
         <id>https://github.com/advisories/GHSA-8mgp-746c-j5xp</id>
         <link href="https://github.com/advisories/GHSA-8mgp-746c-j5xp"/>
         <updated>2026-11-02T22:06:21.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="summary">Summary</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>nltk</td>
+<td><code>&lt;= 3.10.3</code></td>
+<td><code>3.10.4</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="summary">Summary</h3>
 <p>Several model-artifact APIs still treat caller-controlled model paths as ordinary filenames even when NLTK path security is enforced. The same outside-root paths are rejected by guarded helpers, but these public read and write flows still use raw file APIs.</p>
 <h3 id="details">Details</h3>
 <ul>
@@ -623,7 +744,18 @@ maxent_save wrote ['alwayson.tab', 'labels.txt']
         <id>https://github.com/advisories/GHSA-5849-834g-hvw5</id>
         <link href="https://github.com/advisories/GHSA-5849-834g-hvw5"/>
         <updated>2026-10-30T23:13:17.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="impact">Impact</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>pypdf</td>
+<td><code>&lt; 6.21.4</code></td>
+<td><code>6.21.4</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="impact">Impact</h3>
 <p>An attacker who uses this vulnerability can craft a PDF which leads to an infinite loop. This requires opening an incomplete file without a <code>trailer</code>.</p>
 <h3 id="patches">Patches</h3>
 <p>This has been fixed in <a href="https://github.com/py-pdf/pypdf/releases/tag/6.21.4">pypdf==6.21.4</a>.</p>
@@ -652,7 +784,18 @@ maxent_save wrote ['alwayson.tab', 'labels.txt']
         <id>https://github.com/advisories/GHSA-cggf-277g-3q54</id>
         <link href="https://github.com/advisories/GHSA-cggf-277g-3q54"/>
         <updated>2026-10-30T23:13:02.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="impact">Impact</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>pypdf</td>
+<td><code>&lt; 6.21.4</code></td>
+<td><code>6.21.4</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="impact">Impact</h3>
 <p>An attacker who uses this vulnerability can craft a PDF which leads to large memory usage. This requires parsing the page tree with many shared resources.</p>
 <h3 id="patches">Patches</h3>
 <p>This has been fixed in <a href="https://github.com/py-pdf/pypdf/releases/tag/6.21.4">pypdf==6.21.4</a>.</p>
@@ -681,7 +824,18 @@ maxent_save wrote ['alwayson.tab', 'labels.txt']
         <id>https://github.com/advisories/GHSA-mfr5-77xh-9j7h</id>
         <link href="https://github.com/advisories/GHSA-mfr5-77xh-9j7h"/>
         <updated>2026-10-30T23:12:21.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="impact">Impact</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>pypdf</td>
+<td><code>&lt; 6.21.4</code></td>
+<td><code>6.21.4</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="impact">Impact</h3>
 <p>An attacker who uses this vulnerability can craft a PDF which leads to an infinite loop. This requires cloning/duplicating a <code>DictionaryObject</code>.</p>
 <h3 id="patches">Patches</h3>
 <p>This has been fixed in <a href="https://github.com/py-pdf/pypdf/releases/tag/6.21.4">pypdf==6.21.4</a>.</p>
@@ -710,7 +864,18 @@ maxent_save wrote ['alwayson.tab', 'labels.txt']
         <id>https://github.com/advisories/GHSA-c73q-w75p-j82v</id>
         <link href="https://github.com/advisories/GHSA-c73q-w75p-j82v"/>
         <updated>2026-10-30T23:09:05.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="description">Description</h2>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>Authlib</td>
+<td><code>&gt;= 0.15, &lt;= 1.9.0</code></td>
+<td><code>1.9.1</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="description">Description</h2>
 <h3 id="summary">Summary</h3>
 <p>RFC 7592 (OAuth 2.0 Dynamic Client Registration Management Protocol) lets a previously registered client read, update, or delete its own registration, authenticated by a <code>registration_access_token</code> issued specifically to that client at registration time. The entire security model of this protocol depends on the server verifying that the token presented in the request actually belongs to the client identified in the request, not merely that the token is valid for some client.</p>
 <p>Authlib's <code>ClientConfigurationEndpoint</code> implements the control flow correctly in structure, calling <code>authenticate_token</code>, then <code>authenticate_client</code>, then <code>check_permission</code>, and treats all three as abstract methods that "Developers MUST implement in subclass." The problem is that the documented example implementations for these methods, taken together exactly as written, never perform the one check that matters: binding the authenticated token to the specific client being accessed. A developer who implements these methods by following the provided examples ends up with a complete authorization bypass on this endpoint.</p>
@@ -812,7 +977,18 @@ maxent_save wrote ['alwayson.tab', 'labels.txt']
         <id>https://github.com/advisories/GHSA-42gh-23hr-vphw</id>
         <link href="https://github.com/advisories/GHSA-42gh-23hr-vphw"/>
         <updated>2026-10-30T23:08:56.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="impact">Impact</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>pypdf</td>
+<td><code>&lt; 6.21.3</code></td>
+<td><code>6.21.3</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="impact">Impact</h3>
 <p>An attacker who uses this vulnerability can craft a PDF which leads to large runtimes. This requires retrieving the page labels of a file.</p>
 <h3 id="patches">Patches</h3>
 <p>This has been fixed in <a href="https://github.com/py-pdf/pypdf/releases/tag/6.21.3">pypdf==6.21.3</a>.</p>
@@ -841,7 +1017,18 @@ maxent_save wrote ['alwayson.tab', 'labels.txt']
         <id>https://github.com/advisories/GHSA-4vqv-7265-gm2w</id>
         <link href="https://github.com/advisories/GHSA-4vqv-7265-gm2w"/>
         <updated>2026-10-30T23:08:40.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="impact">Impact</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>pypdf</td>
+<td><code>&lt; 6.21.3</code></td>
+<td><code>6.21.3</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="impact">Impact</h3>
 <p>An attacker who uses this vulnerability can craft a PDF which leads to large memory usage. This requires loading an invalid dictionary.</p>
 <h3 id="patches">Patches</h3>
 <p>This has been fixed in <a href="https://github.com/py-pdf/pypdf/releases/tag/6.21.3">pypdf==6.21.3</a>.</p>
@@ -870,7 +1057,18 @@ maxent_save wrote ['alwayson.tab', 'labels.txt']
         <id>https://github.com/advisories/GHSA-62m5-6wh8-28x7</id>
         <link href="https://github.com/advisories/GHSA-62m5-6wh8-28x7"/>
         <updated>2026-10-30T23:08:25.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="impact">Impact</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>pypdf</td>
+<td><code>&lt; 6.21.3</code></td>
+<td><code>6.21.3</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="impact">Impact</h3>
 <p>An attacker who uses this vulnerability can craft a PDF which leads to large runtimes/memory usage. This requires accessing the page count of an encrypted PDF file, which itself declares a wrong <code>/Count</code> value.</p>
 <h3 id="patches">Patches</h3>
 <p>This has been fixed in <a href="https://github.com/py-pdf/pypdf/releases/tag/6.21.3">pypdf==6.21.3</a>.</p>
@@ -899,7 +1097,18 @@ maxent_save wrote ['alwayson.tab', 'labels.txt']
         <id>https://github.com/advisories/GHSA-x3rh-gjgm-fmqc</id>
         <link href="https://github.com/advisories/GHSA-x3rh-gjgm-fmqc"/>
         <updated>2026-10-30T23:07:30.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="impact">Impact</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>pypdf</td>
+<td><code>&lt; 6.21.3</code></td>
+<td><code>6.21.3</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="impact">Impact</h3>
 <p>An attacker who uses this vulnerability can craft a PDF which leads to large memory usage. This requires opening a file with cross-reference streams.</p>
 <h3 id="patches">Patches</h3>
 <p>This has been fixed in <a href="https://github.com/py-pdf/pypdf/releases/tag/6.21.3">pypdf==6.21.3</a>.</p>
@@ -928,7 +1137,18 @@ maxent_save wrote ['alwayson.tab', 'labels.txt']
         <id>https://github.com/advisories/GHSA-2qm8-x737-gmw5</id>
         <link href="https://github.com/advisories/GHSA-2qm8-x737-gmw5"/>
         <updated>2026-10-30T23:07:05.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="summary">Summary</h2>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>pyasn1</td>
+<td><code>&lt;= 0.6.4</code></td>
+<td><code>0.6.5</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="summary">Summary</h2>
 <p>In pyasn1 through 0.6.4, decoding a constructed BIT STRING with many fragments repeatedly shifts and copies the entire value accumulated so far. For fixed-size fragments, CPU time grows quadratically with the encoded input size. An application that passes sufficiently large, attacker-controlled ASN.1 data to an affected decoder can suffer CPU exhaustion during <code>decode()</code>; no conversion or formatting of the decoded value is required.</p>
 <p>The BER and CER decoders reach this path for constructed BIT STRING values, with or without an <code>asn1Spec</code>. The DER decoder rejects constructed BIT STRING in schema-less decoding, but its schema-driven path accepts a <strong>definite-length</strong> constructed BIT STRING when given a matching <code>asn1Spec</code> and reaches the same vulnerable code. Constructed BIT STRING is not valid DER; this DER exposure is due to decoder permissiveness. DER rejects the indefinite-length form.</p>
 <p>This is a separate decoder path from the OBJECT IDENTIFIER accumulation fixed in <a href="https://github.com/advisories/GHSA-8ppf-4f7h-5ppj">CVE-2026-59885</a>.</p>

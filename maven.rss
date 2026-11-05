@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://prajeetguha.github.io/github-advisory-database-rss/maven.rss</id>
     <title>Security Advisory for Java artifacts hosted at the Maven central repository</title>
-    <updated>2026-11-05T11:54:40.614Z</updated>
+    <updated>2026-11-05T13:30:31.711Z</updated>
     <generator>github-advisory-database-rss</generator>
     <link rel="alternate" href="https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"/>
     <subtitle>Security Advisory for Java artifacts hosted at the Maven central repository on GitHub</subtitle>
@@ -16,7 +16,18 @@
         <id>https://github.com/advisories/GHSA-8v4x-mgvp-p658</id>
         <link href="https://github.com/advisories/GHSA-8v4x-mgvp-p658"/>
         <updated>2026-11-04T21:17:20.000Z</updated>
-        <content type="html"><![CDATA[<p>A flaw was found in Undertow. This vulnerability allows a remote attacker to construct specially crafted requests where header names are parsed differently by Undertow compared to upstream proxies. This discrepancy in header interpretation can be exploited to launch request smuggling attacks, potentially bypassing security controls and accessing unauthorized resources.</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>io.undertow:undertow-core</td>
+<td><code>&gt;= 2.3.0.Final, &lt; 2.3.25.Final</code></td>
+<td><code>2.3.25.Final</code></td>
+</tr>
+</tbody>
+</table>
+<p>A flaw was found in Undertow. This vulnerability allows a remote attacker to construct specially crafted requests where header names are parsed differently by Undertow compared to upstream proxies. This discrepancy in header interpretation can be exploited to launch request smuggling attacks, potentially bypassing security controls and accessing unauthorized resources.</p>
 <h3 id="references">References</h3>
 <ul>
 <li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-28368">https://nvd.nist.gov/vuln/detail/CVE-2026-28368</a></li>
@@ -43,7 +54,18 @@
         <id>https://github.com/advisories/GHSA-8v4x-mgvp-p658</id>
         <link href="https://github.com/advisories/GHSA-8v4x-mgvp-p658"/>
         <updated>2026-11-04T21:17:20.000Z</updated>
-        <content type="html"><![CDATA[<p>A flaw was found in Undertow. This vulnerability allows a remote attacker to construct specially crafted requests where header names are parsed differently by Undertow compared to upstream proxies. This discrepancy in header interpretation can be exploited to launch request smuggling attacks, potentially bypassing security controls and accessing unauthorized resources.</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>io.undertow:undertow-core</td>
+<td><code>&lt; 2.2.40.Final</code></td>
+<td><code>2.2.40.Final</code></td>
+</tr>
+</tbody>
+</table>
+<p>A flaw was found in Undertow. This vulnerability allows a remote attacker to construct specially crafted requests where header names are parsed differently by Undertow compared to upstream proxies. This discrepancy in header interpretation can be exploited to launch request smuggling attacks, potentially bypassing security controls and accessing unauthorized resources.</p>
 <h3 id="references">References</h3>
 <ul>
 <li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-28368">https://nvd.nist.gov/vuln/detail/CVE-2026-28368</a></li>
@@ -70,7 +92,18 @@
         <id>https://github.com/advisories/GHSA-3gv6-g396-9v4r</id>
         <link href="https://github.com/advisories/GHSA-3gv6-g396-9v4r"/>
         <updated>2026-11-04T21:12:32.000Z</updated>
-        <content type="html"><![CDATA[<p>A flaw was found in Undertow. A remote attacker can exploit this vulnerability by sending <code>\r\r\r</code> as a header block terminator. This can be used for request smuggling with certain proxy servers, such as older versions of Apache Traffic Server and Google Cloud Classic Application Load Balancer, potentially leading to unauthorized access or manipulation of web requests.</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>io.undertow:undertow-core</td>
+<td><code>&lt; 2.2.40.Final</code></td>
+<td><code>2.2.40.Final</code></td>
+</tr>
+</tbody>
+</table>
+<p>A flaw was found in Undertow. A remote attacker can exploit this vulnerability by sending <code>\r\r\r</code> as a header block terminator. This can be used for request smuggling with certain proxy servers, such as older versions of Apache Traffic Server and Google Cloud Classic Application Load Balancer, potentially leading to unauthorized access or manipulation of web requests.</p>
 <h3 id="references">References</h3>
 <ul>
 <li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-28367">https://nvd.nist.gov/vuln/detail/CVE-2026-28367</a></li>
@@ -97,7 +130,18 @@
         <id>https://github.com/advisories/GHSA-3gv6-g396-9v4r</id>
         <link href="https://github.com/advisories/GHSA-3gv6-g396-9v4r"/>
         <updated>2026-11-04T21:12:32.000Z</updated>
-        <content type="html"><![CDATA[<p>A flaw was found in Undertow. A remote attacker can exploit this vulnerability by sending <code>\r\r\r</code> as a header block terminator. This can be used for request smuggling with certain proxy servers, such as older versions of Apache Traffic Server and Google Cloud Classic Application Load Balancer, potentially leading to unauthorized access or manipulation of web requests.</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>io.undertow:undertow-core</td>
+<td><code>&gt;= 2.3.0.Final, &lt; 2.3.25.Final</code></td>
+<td><code>2.3.25.Final</code></td>
+</tr>
+</tbody>
+</table>
+<p>A flaw was found in Undertow. A remote attacker can exploit this vulnerability by sending <code>\r\r\r</code> as a header block terminator. This can be used for request smuggling with certain proxy servers, such as older versions of Apache Traffic Server and Google Cloud Classic Application Load Balancer, potentially leading to unauthorized access or manipulation of web requests.</p>
 <h3 id="references">References</h3>
 <ul>
 <li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-28367">https://nvd.nist.gov/vuln/detail/CVE-2026-28367</a></li>
@@ -124,7 +168,18 @@
         <id>https://github.com/advisories/GHSA-vqqj-9cmv-hx43</id>
         <link href="https://github.com/advisories/GHSA-vqqj-9cmv-hx43"/>
         <updated>2026-11-04T20:42:49.000Z</updated>
-        <content type="html"><![CDATA[<p>A flaw was found in Undertow. When Undertow receives an HTTP request where the first header line starts with one or more spaces, it incorrectly processes the request by stripping these leading spaces. This behavior, which violates HTTP standards, can be exploited by a remote attacker to perform request smuggling. Request smuggling allows an attacker to bypass security mechanisms, access restricted information, or manipulate web caches, potentially leading to unauthorized actions or data exposure.</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>io.undertow:undertow-core</td>
+<td><code>&gt;= 2.3.0.Final, &lt; 2.3.25.Final</code></td>
+<td><code>2.3.25.Final</code></td>
+</tr>
+</tbody>
+</table>
+<p>A flaw was found in Undertow. When Undertow receives an HTTP request where the first header line starts with one or more spaces, it incorrectly processes the request by stripping these leading spaces. This behavior, which violates HTTP standards, can be exploited by a remote attacker to perform request smuggling. Request smuggling allows an attacker to bypass security mechanisms, access restricted information, or manipulate web caches, potentially leading to unauthorized actions or data exposure.</p>
 <h3 id="references">References</h3>
 <ul>
 <li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-28369">https://nvd.nist.gov/vuln/detail/CVE-2026-28369</a></li>
@@ -151,7 +206,18 @@
         <id>https://github.com/advisories/GHSA-vqqj-9cmv-hx43</id>
         <link href="https://github.com/advisories/GHSA-vqqj-9cmv-hx43"/>
         <updated>2026-11-04T20:42:49.000Z</updated>
-        <content type="html"><![CDATA[<p>A flaw was found in Undertow. When Undertow receives an HTTP request where the first header line starts with one or more spaces, it incorrectly processes the request by stripping these leading spaces. This behavior, which violates HTTP standards, can be exploited by a remote attacker to perform request smuggling. Request smuggling allows an attacker to bypass security mechanisms, access restricted information, or manipulate web caches, potentially leading to unauthorized actions or data exposure.</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>io.undertow:undertow-core</td>
+<td><code>&lt; 2.2.40.Final</code></td>
+<td><code>2.2.40.Final</code></td>
+</tr>
+</tbody>
+</table>
+<p>A flaw was found in Undertow. When Undertow receives an HTTP request where the first header line starts with one or more spaces, it incorrectly processes the request by stripping these leading spaces. This behavior, which violates HTTP standards, can be exploited by a remote attacker to perform request smuggling. Request smuggling allows an attacker to bypass security mechanisms, access restricted information, or manipulate web caches, potentially leading to unauthorized actions or data exposure.</p>
 <h3 id="references">References</h3>
 <ul>
 <li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-28369">https://nvd.nist.gov/vuln/detail/CVE-2026-28369</a></li>
@@ -178,7 +244,18 @@
         <id>https://github.com/advisories/GHSA-748j-wm96-4wh5</id>
         <link href="https://github.com/advisories/GHSA-748j-wm96-4wh5"/>
         <updated>2026-11-04T18:12:09.000Z</updated>
-        <content type="html"><![CDATA[<p>A flaw was found in Apicurio Registry. The DocumentBuilderAccessor correctly blocks external DTD and schema access but does not disable DOCTYPE declarations or enable FEATURE_SECURE_PROCESSING. An attacker with artifact-write permission can upload XML documents with internal entity-expansion payloads (billion-laughs variant) that cause CPU and heap exhaustion, partially mitigated by the JAXP default 64,000 entity-expansion limit.</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>io.apicurio:apicurio-registry-schema-util-xml</td>
+<td><code>&lt; 3.2.6</code></td>
+<td><code>3.2.6</code></td>
+</tr>
+</tbody>
+</table>
+<p>A flaw was found in Apicurio Registry. The DocumentBuilderAccessor correctly blocks external DTD and schema access but does not disable DOCTYPE declarations or enable FEATURE_SECURE_PROCESSING. An attacker with artifact-write permission can upload XML documents with internal entity-expansion payloads (billion-laughs variant) that cause CPU and heap exhaustion, partially mitigated by the JAXP default 64,000 entity-expansion limit.</p>
 <h3 id="references">References</h3>
 <ul>
 <li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-12993">https://nvd.nist.gov/vuln/detail/CVE-2026-12993</a></li>
@@ -207,7 +284,18 @@
         <id>https://github.com/advisories/GHSA-748j-wm96-4wh5</id>
         <link href="https://github.com/advisories/GHSA-748j-wm96-4wh5"/>
         <updated>2026-11-04T18:12:09.000Z</updated>
-        <content type="html"><![CDATA[<p>A flaw was found in Apicurio Registry. The DocumentBuilderAccessor correctly blocks external DTD and schema access but does not disable DOCTYPE declarations or enable FEATURE_SECURE_PROCESSING. An attacker with artifact-write permission can upload XML documents with internal entity-expansion payloads (billion-laughs variant) that cause CPU and heap exhaustion, partially mitigated by the JAXP default 64,000 entity-expansion limit.</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>io.apicurio:apicurio-registry-schema-util-xml</td>
+<td><code>&gt;= 3.3.0, &lt; 3.3.1</code></td>
+<td><code>3.3.1</code></td>
+</tr>
+</tbody>
+</table>
+<p>A flaw was found in Apicurio Registry. The DocumentBuilderAccessor correctly blocks external DTD and schema access but does not disable DOCTYPE declarations or enable FEATURE_SECURE_PROCESSING. An attacker with artifact-write permission can upload XML documents with internal entity-expansion payloads (billion-laughs variant) that cause CPU and heap exhaustion, partially mitigated by the JAXP default 64,000 entity-expansion limit.</p>
 <h3 id="references">References</h3>
 <ul>
 <li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-12993">https://nvd.nist.gov/vuln/detail/CVE-2026-12993</a></li>
@@ -236,7 +324,18 @@
         <id>https://github.com/advisories/GHSA-rcmh-vfq7-8gf4</id>
         <link href="https://github.com/advisories/GHSA-rcmh-vfq7-8gf4"/>
         <updated>2026-11-04T18:10:07.000Z</updated>
-        <content type="html"><![CDATA[<p>A flaw was found in Apicurio Registry. The WSDLReaderAccessor creates a wsdl4j WSDLReader without disabling the javax.wsdl.importDocuments feature. When the VALIDITY rule is set to FULL, an attacker with Developer-role access can upload a WSDL document containing attacker-controlled import locations, causing the registry to issue HTTP requests to arbitrary internal URLs (server-side request forgery).</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>io.apicurio:apicurio-registry-schema-util-wsdl</td>
+<td><code>&lt; 3.2.6</code></td>
+<td><code>3.2.6</code></td>
+</tr>
+</tbody>
+</table>
+<p>A flaw was found in Apicurio Registry. The WSDLReaderAccessor creates a wsdl4j WSDLReader without disabling the javax.wsdl.importDocuments feature. When the VALIDITY rule is set to FULL, an attacker with Developer-role access can upload a WSDL document containing attacker-controlled import locations, causing the registry to issue HTTP requests to arbitrary internal URLs (server-side request forgery).</p>
 <h3 id="references">References</h3>
 <ul>
 <li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-12992">https://nvd.nist.gov/vuln/detail/CVE-2026-12992</a></li>
@@ -266,7 +365,18 @@
         <id>https://github.com/advisories/GHSA-rcmh-vfq7-8gf4</id>
         <link href="https://github.com/advisories/GHSA-rcmh-vfq7-8gf4"/>
         <updated>2026-11-04T18:10:07.000Z</updated>
-        <content type="html"><![CDATA[<p>A flaw was found in Apicurio Registry. The WSDLReaderAccessor creates a wsdl4j WSDLReader without disabling the javax.wsdl.importDocuments feature. When the VALIDITY rule is set to FULL, an attacker with Developer-role access can upload a WSDL document containing attacker-controlled import locations, causing the registry to issue HTTP requests to arbitrary internal URLs (server-side request forgery).</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>io.apicurio:apicurio-registry-schema-util-wsdl</td>
+<td><code>&gt;= 3.3.0, &lt; 3.3.1</code></td>
+<td><code>3.3.1</code></td>
+</tr>
+</tbody>
+</table>
+<p>A flaw was found in Apicurio Registry. The WSDLReaderAccessor creates a wsdl4j WSDLReader without disabling the javax.wsdl.importDocuments feature. When the VALIDITY rule is set to FULL, an attacker with Developer-role access can upload a WSDL document containing attacker-controlled import locations, causing the registry to issue HTTP requests to arbitrary internal URLs (server-side request forgery).</p>
 <h3 id="references">References</h3>
 <ul>
 <li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-12992">https://nvd.nist.gov/vuln/detail/CVE-2026-12992</a></li>
@@ -296,7 +406,18 @@
         <id>https://github.com/advisories/GHSA-7g64-f2hm-vjxp</id>
         <link href="https://github.com/advisories/GHSA-7g64-f2hm-vjxp"/>
         <updated>2026-11-04T17:49:19.000Z</updated>
-        <content type="html"><![CDATA[<p>A flaw was found in Apicurio Registry. The ContentTypeUtil.isParsableXml() method creates a SAXParserFactory without enabling secure processing features or disabling external entity resolution. An attacker with artifact-write permission (or unauthenticated when the registry runs with default configuration) can upload a crafted XML document to trigger blind server-side request forgery (SSRF) via external DTD/entity fetch, or cause denial of service via entity expansion.</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>io.apicurio:apicurio-registry-schema-util-common</td>
+<td><code>&lt; 3.2.6</code></td>
+<td><code>3.2.6</code></td>
+</tr>
+</tbody>
+</table>
+<p>A flaw was found in Apicurio Registry. The ContentTypeUtil.isParsableXml() method creates a SAXParserFactory without enabling secure processing features or disabling external entity resolution. An attacker with artifact-write permission (or unauthenticated when the registry runs with default configuration) can upload a crafted XML document to trigger blind server-side request forgery (SSRF) via external DTD/entity fetch, or cause denial of service via entity expansion.</p>
 <h3 id="references">References</h3>
 <ul>
 <li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-12975">https://nvd.nist.gov/vuln/detail/CVE-2026-12975</a></li>
@@ -326,7 +447,18 @@
         <id>https://github.com/advisories/GHSA-7g64-f2hm-vjxp</id>
         <link href="https://github.com/advisories/GHSA-7g64-f2hm-vjxp"/>
         <updated>2026-11-04T17:49:19.000Z</updated>
-        <content type="html"><![CDATA[<p>A flaw was found in Apicurio Registry. The ContentTypeUtil.isParsableXml() method creates a SAXParserFactory without enabling secure processing features or disabling external entity resolution. An attacker with artifact-write permission (or unauthenticated when the registry runs with default configuration) can upload a crafted XML document to trigger blind server-side request forgery (SSRF) via external DTD/entity fetch, or cause denial of service via entity expansion.</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>io.apicurio:apicurio-registry-schema-util-common</td>
+<td><code>&gt;= 3.3.0, &lt; 3.3.1</code></td>
+<td><code>3.3.1</code></td>
+</tr>
+</tbody>
+</table>
+<p>A flaw was found in Apicurio Registry. The ContentTypeUtil.isParsableXml() method creates a SAXParserFactory without enabling secure processing features or disabling external entity resolution. An attacker with artifact-write permission (or unauthenticated when the registry runs with default configuration) can upload a crafted XML document to trigger blind server-side request forgery (SSRF) via external DTD/entity fetch, or cause denial of service via entity expansion.</p>
 <h3 id="references">References</h3>
 <ul>
 <li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-12975">https://nvd.nist.gov/vuln/detail/CVE-2026-12975</a></li>
@@ -356,7 +488,18 @@
         <id>https://github.com/advisories/GHSA-pg42-rg8c-j886</id>
         <link href="https://github.com/advisories/GHSA-pg42-rg8c-j886"/>
         <updated>2026-11-04T16:45:30.000Z</updated>
-        <content type="html"><![CDATA[<p>Improper Neutralization of Script-Related HTML Tags in a Web Page (Basic XSS) vulnerability in the number guess example for Apache Tomcat.</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>org.apache.tomcat:tomcat</td>
+<td><code>&lt;= 7.0.109</code></td>
+<td>No fix available</td>
+</tr>
+</tbody>
+</table>
+<p>Improper Neutralization of Script-Related HTML Tags in a Web Page (Basic XSS) vulnerability in the number guess example for Apache Tomcat.</p>
 <p>This issue affects Apache Tomcat: from 11.0.0-M1 through 11.0.22, from 10.1.0-M1 through 10.1.55, from 9.0.0.M1 through 9.0.118, from 8.5.0 through 8.5.100, from 7.0.0 through 7.0.109. Other versions that have reached end of support may also be affected.</p>
 <p>Users are recommended to upgrade to version 11.0.23, 10.1.56 or 9.0.119, which fix the issue.</p>
 <h3 id="references">References</h3>
@@ -386,7 +529,18 @@
         <id>https://github.com/advisories/GHSA-pg42-rg8c-j886</id>
         <link href="https://github.com/advisories/GHSA-pg42-rg8c-j886"/>
         <updated>2026-11-04T16:45:30.000Z</updated>
-        <content type="html"><![CDATA[<p>Improper Neutralization of Script-Related HTML Tags in a Web Page (Basic XSS) vulnerability in the number guess example for Apache Tomcat.</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>org.apache.tomcat:tomcat</td>
+<td><code>&gt;= 8.5.0, &lt;= 8.5.100</code></td>
+<td>No fix available</td>
+</tr>
+</tbody>
+</table>
+<p>Improper Neutralization of Script-Related HTML Tags in a Web Page (Basic XSS) vulnerability in the number guess example for Apache Tomcat.</p>
 <p>This issue affects Apache Tomcat: from 11.0.0-M1 through 11.0.22, from 10.1.0-M1 through 10.1.55, from 9.0.0.M1 through 9.0.118, from 8.5.0 through 8.5.100, from 7.0.0 through 7.0.109. Other versions that have reached end of support may also be affected.</p>
 <p>Users are recommended to upgrade to version 11.0.23, 10.1.56 or 9.0.119, which fix the issue.</p>
 <h3 id="references">References</h3>
@@ -416,7 +570,18 @@
         <id>https://github.com/advisories/GHSA-pg42-rg8c-j886</id>
         <link href="https://github.com/advisories/GHSA-pg42-rg8c-j886"/>
         <updated>2026-11-04T16:45:30.000Z</updated>
-        <content type="html"><![CDATA[<p>Improper Neutralization of Script-Related HTML Tags in a Web Page (Basic XSS) vulnerability in the number guess example for Apache Tomcat.</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>org.apache.tomcat:tomcat</td>
+<td><code>&gt;= 9.0.0.M1, &lt; 9.0.119</code></td>
+<td><code>9.0.119</code></td>
+</tr>
+</tbody>
+</table>
+<p>Improper Neutralization of Script-Related HTML Tags in a Web Page (Basic XSS) vulnerability in the number guess example for Apache Tomcat.</p>
 <p>This issue affects Apache Tomcat: from 11.0.0-M1 through 11.0.22, from 10.1.0-M1 through 10.1.55, from 9.0.0.M1 through 9.0.118, from 8.5.0 through 8.5.100, from 7.0.0 through 7.0.109. Other versions that have reached end of support may also be affected.</p>
 <p>Users are recommended to upgrade to version 11.0.23, 10.1.56 or 9.0.119, which fix the issue.</p>
 <h3 id="references">References</h3>
@@ -446,7 +611,18 @@
         <id>https://github.com/advisories/GHSA-pg42-rg8c-j886</id>
         <link href="https://github.com/advisories/GHSA-pg42-rg8c-j886"/>
         <updated>2026-11-04T16:45:30.000Z</updated>
-        <content type="html"><![CDATA[<p>Improper Neutralization of Script-Related HTML Tags in a Web Page (Basic XSS) vulnerability in the number guess example for Apache Tomcat.</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>org.apache.tomcat:tomcat</td>
+<td><code>&gt;= 10.1.0-M1, &lt; 10.1.56</code></td>
+<td><code>10.1.56</code></td>
+</tr>
+</tbody>
+</table>
+<p>Improper Neutralization of Script-Related HTML Tags in a Web Page (Basic XSS) vulnerability in the number guess example for Apache Tomcat.</p>
 <p>This issue affects Apache Tomcat: from 11.0.0-M1 through 11.0.22, from 10.1.0-M1 through 10.1.55, from 9.0.0.M1 through 9.0.118, from 8.5.0 through 8.5.100, from 7.0.0 through 7.0.109. Other versions that have reached end of support may also be affected.</p>
 <p>Users are recommended to upgrade to version 11.0.23, 10.1.56 or 9.0.119, which fix the issue.</p>
 <h3 id="references">References</h3>
@@ -476,7 +652,18 @@
         <id>https://github.com/advisories/GHSA-pg42-rg8c-j886</id>
         <link href="https://github.com/advisories/GHSA-pg42-rg8c-j886"/>
         <updated>2026-11-04T16:45:30.000Z</updated>
-        <content type="html"><![CDATA[<p>Improper Neutralization of Script-Related HTML Tags in a Web Page (Basic XSS) vulnerability in the number guess example for Apache Tomcat.</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>org.apache.tomcat:tomcat</td>
+<td><code>&gt;= 11.0.0-M1, &lt; 11.0.23</code></td>
+<td><code>11.0.23</code></td>
+</tr>
+</tbody>
+</table>
+<p>Improper Neutralization of Script-Related HTML Tags in a Web Page (Basic XSS) vulnerability in the number guess example for Apache Tomcat.</p>
 <p>This issue affects Apache Tomcat: from 11.0.0-M1 through 11.0.22, from 10.1.0-M1 through 10.1.55, from 9.0.0.M1 through 9.0.118, from 8.5.0 through 8.5.100, from 7.0.0 through 7.0.109. Other versions that have reached end of support may also be affected.</p>
 <p>Users are recommended to upgrade to version 11.0.23, 10.1.56 or 9.0.119, which fix the issue.</p>
 <h3 id="references">References</h3>
@@ -506,7 +693,18 @@
         <id>https://github.com/advisories/GHSA-h792-v28v-ppgr</id>
         <link href="https://github.com/advisories/GHSA-h792-v28v-ppgr"/>
         <updated>2026-11-04T16:43:25.000Z</updated>
-        <content type="html"><![CDATA[<p>Always-Incorrect Control Flow Implementation vulnerability in Apache Tomcat's rewrite valve meant that if the first condition in an OR chain matched, subsequent non-OR conditions were skipped.</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>org.apache.tomcat:tomcat-catalina</td>
+<td><code>&gt;= 8.5.0, &lt;= 8.5.100</code></td>
+<td>No fix available</td>
+</tr>
+</tbody>
+</table>
+<p>Always-Incorrect Control Flow Implementation vulnerability in Apache Tomcat's rewrite valve meant that if the first condition in an OR chain matched, subsequent non-OR conditions were skipped.</p>
 <p>This issue affects Apache Tomcat: from 11.0.0-M1 through 11.0.22, from 10.1.0-M1 through 10.1.55, from 9.0.0.M1 through 9.0.118, from 8.5.0 through 8.5.100. Other versions that have reached end of support may also be affected.</p>
 <p>Users are recommended to upgrade to version 11.0.23, 10.1.56 or 9.0.119, which fix the issue.</p>
 <h3 id="references">References</h3>
@@ -536,7 +734,18 @@
         <id>https://github.com/advisories/GHSA-h792-v28v-ppgr</id>
         <link href="https://github.com/advisories/GHSA-h792-v28v-ppgr"/>
         <updated>2026-11-04T16:43:25.000Z</updated>
-        <content type="html"><![CDATA[<p>Always-Incorrect Control Flow Implementation vulnerability in Apache Tomcat's rewrite valve meant that if the first condition in an OR chain matched, subsequent non-OR conditions were skipped.</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>org.apache.tomcat:tomcat-catalina</td>
+<td><code>&gt;= 9.0.0.M1, &lt; 9.0.119</code></td>
+<td><code>9.0.119</code></td>
+</tr>
+</tbody>
+</table>
+<p>Always-Incorrect Control Flow Implementation vulnerability in Apache Tomcat's rewrite valve meant that if the first condition in an OR chain matched, subsequent non-OR conditions were skipped.</p>
 <p>This issue affects Apache Tomcat: from 11.0.0-M1 through 11.0.22, from 10.1.0-M1 through 10.1.55, from 9.0.0.M1 through 9.0.118, from 8.5.0 through 8.5.100. Other versions that have reached end of support may also be affected.</p>
 <p>Users are recommended to upgrade to version 11.0.23, 10.1.56 or 9.0.119, which fix the issue.</p>
 <h3 id="references">References</h3>
@@ -566,7 +775,18 @@
         <id>https://github.com/advisories/GHSA-h792-v28v-ppgr</id>
         <link href="https://github.com/advisories/GHSA-h792-v28v-ppgr"/>
         <updated>2026-11-04T16:43:25.000Z</updated>
-        <content type="html"><![CDATA[<p>Always-Incorrect Control Flow Implementation vulnerability in Apache Tomcat's rewrite valve meant that if the first condition in an OR chain matched, subsequent non-OR conditions were skipped.</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>org.apache.tomcat:tomcat-catalina</td>
+<td><code>&gt;= 10.1.0-M1, &lt; 10.1.56</code></td>
+<td><code>10.1.56</code></td>
+</tr>
+</tbody>
+</table>
+<p>Always-Incorrect Control Flow Implementation vulnerability in Apache Tomcat's rewrite valve meant that if the first condition in an OR chain matched, subsequent non-OR conditions were skipped.</p>
 <p>This issue affects Apache Tomcat: from 11.0.0-M1 through 11.0.22, from 10.1.0-M1 through 10.1.55, from 9.0.0.M1 through 9.0.118, from 8.5.0 through 8.5.100. Other versions that have reached end of support may also be affected.</p>
 <p>Users are recommended to upgrade to version 11.0.23, 10.1.56 or 9.0.119, which fix the issue.</p>
 <h3 id="references">References</h3>

@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://prajeetguha.github.io/github-advisory-database-rss/npm.rss</id>
     <title>Security Advisory for JavaScript packages hosted at npmjs.com</title>
-    <updated>2026-11-05T11:54:41.691Z</updated>
+    <updated>2026-11-05T13:30:32.731Z</updated>
     <generator>github-advisory-database-rss</generator>
     <link rel="alternate" href="https://github.com/advisories?query=type%3Areviewed+ecosystem%3Anpm"/>
     <subtitle>Security Advisory for JavaScript packages hosted at npmjs.com on GitHub</subtitle>
@@ -16,7 +16,18 @@
         <id>https://github.com/advisories/GHSA-xq3m-2v4x-88gg</id>
         <link href="https://github.com/advisories/GHSA-xq3m-2v4x-88gg"/>
         <updated>2026-11-04T17:14:43.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="summary">Summary</h2>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>protobufjs</td>
+<td><code>&lt; 6.11.6</code></td>
+<td><code>6.11.6</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="summary">Summary</h2>
 <p>protobufjs could execute generated JavaScript code derived from protobuf schema metadata. When loading a crafted JSON descriptor, schema-controlled type names and type references could reach runtime code generation without sufficient validation.</p>
 <h2 id="impact">Impact</h2>
 <p>An attacker who can provide a malicious protobuf definition or JSON descriptor to an application may be able to execute arbitrary JavaScript in the context of the process using protobufjs.</p>
@@ -63,7 +74,18 @@
         <id>https://github.com/advisories/GHSA-xq3m-2v4x-88gg</id>
         <link href="https://github.com/advisories/GHSA-xq3m-2v4x-88gg"/>
         <updated>2026-11-04T17:14:43.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="summary">Summary</h2>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>protobufjs</td>
+<td><code>&gt;= 7.0.0, &lt; 7.5.5</code></td>
+<td><code>7.5.5</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="summary">Summary</h2>
 <p>protobufjs could execute generated JavaScript code derived from protobuf schema metadata. When loading a crafted JSON descriptor, schema-controlled type names and type references could reach runtime code generation without sufficient validation.</p>
 <h2 id="impact">Impact</h2>
 <p>An attacker who can provide a malicious protobuf definition or JSON descriptor to an application may be able to execute arbitrary JavaScript in the context of the process using protobufjs.</p>
@@ -110,7 +132,18 @@
         <id>https://github.com/advisories/GHSA-mc8m-rr6c-r5qr</id>
         <link href="https://github.com/advisories/GHSA-mc8m-rr6c-r5qr"/>
         <updated>2026-11-04T17:00:40.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="impact">Impact</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>@payloadcms/storage-vercel-blob</td>
+<td><code>&gt;= 4.0.0-canary.0, &lt; 4.0.0-canary.34</code></td>
+<td><code>4.0.0-canary.34</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="impact">Impact</h3>
 <p>In affected configurations, client upload access does not consistently align with the associated collection’s access configuration.</p>
 <p>You are affected if:</p>
 <ul>
@@ -146,7 +179,18 @@
         <id>https://github.com/advisories/GHSA-mc8m-rr6c-r5qr</id>
         <link href="https://github.com/advisories/GHSA-mc8m-rr6c-r5qr"/>
         <updated>2026-11-04T17:00:40.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="impact">Impact</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>@payloadcms/storage-vercel-blob</td>
+<td><code>&gt;= 3.25.0, &lt; 3.90.0</code></td>
+<td><code>3.90.0</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="impact">Impact</h3>
 <p>In affected configurations, client upload access does not consistently align with the associated collection’s access configuration.</p>
 <p>You are affected if:</p>
 <ul>
@@ -182,7 +226,18 @@
         <id>https://github.com/advisories/GHSA-g3hv-75wg-m249</id>
         <link href="https://github.com/advisories/GHSA-g3hv-75wg-m249"/>
         <updated>2026-11-04T16:50:04.000Z</updated>
-        <content type="html"><![CDATA[<p>minimatch 10.2.6 contains an attacker-controlled pattern amplification in firstPhasePreProcess() when optimizationLevel &gt;= 2.</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>minimatch</td>
+<td><code>&gt;= 7.0.0, &lt; 11.0.1</code></td>
+<td><code>11.0.1</code></td>
+</tr>
+</tbody>
+</table>
+<p>minimatch 10.2.6 contains an attacker-controlled pattern amplification in firstPhasePreProcess() when optimizationLevel &gt;= 2.</p>
 <p>researcher: Reid Downing (b1nv0id)
 files: </p>
 <ul>
@@ -230,7 +285,18 @@ globParts.push(other)
         <id>https://github.com/advisories/GHSA-3cgg-c5pp-57h6</id>
         <link href="https://github.com/advisories/GHSA-3cgg-c5pp-57h6"/>
         <updated>2026-11-04T16:14:35.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="summary">Summary</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>odf-kit</td>
+<td><code>&gt;= 0.6.0, &lt; 0.14.2</code></td>
+<td><code>0.14.2</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="summary">Summary</h3>
 <p>ODF style attribute values are interpolated into <code>style="..."</code> attributes without HTML-escaping in <strong>both</strong> of odf-kit's to-HTML renderers (<code>odtToHtml</code> and <code>odsToHtml</code>). A double-quote character inside an attacker-controlled style value breaks out of the attribute, allowing arbitrary HTML/attribute injection — and therefore script execution (XSS) — from a crafted <code>.odt</code> or <code>.ods</code> file wherever the rendered output is inserted as HTML, which is the documented purpose of both functions.</p>
 <h3 id="details">Details</h3>
 <h4 id="odt-renderer-srcodtto-htmlhtml-rendererts">ODT renderer (<code>src/odt/to-html/html-renderer.ts</code>)</h4>
@@ -370,7 +436,18 @@ console.log(odsToHtml(bytes('poc3.ods')));
         <id>https://github.com/advisories/GHSA-wp3c-266w-4qfq</id>
         <link href="https://github.com/advisories/GHSA-wp3c-266w-4qfq"/>
         <updated>2026-11-04T03:41:52.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="summary">Summary</h2>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>js-toml</td>
+<td><code>&lt;= 1.1.1</code></td>
+<td><code>1.1.2</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="summary">Summary</h2>
 <p><code>js-toml</code> versions up to and including <strong>1.1.0</strong> parse hexadecimal / octal / binary integer literals via a hand-written <code>parseBigInt</code> loop that multiplies a <code>BigInt</code> accumulator by the radix once per input digit. Each iteration performs a <code>BigInt * BigInt</code> operation on an accumulator that grows linearly with the number of digits already consumed, so the whole loop is <strong>O(n²)</strong> in the literal length. The lexer regex places <strong>no upper bound on the literal length</strong>, so a single TOML document containing one <del>500 kB hex literal pins one CPU core for **</del>40 seconds** on a modern laptop (Apple M-series, Node v22). Memory amplification is bounded but CPU amplification is severe and grows quadratically: doubling the literal length quadruples the work.</p>
 <p>A caller that invokes <code>load()</code> on attacker-controlled TOML (configuration upload endpoints, CI/CD systems ingesting third-party <code>*.toml</code>, IDE plugins, build tools) is exposed to a single-request CPU exhaustion DoS.</p>
 <p>CWE-1333 (Inefficient Regular Expression Complexity → here, inefficient parser complexity), CWE-400 (Uncontrolled Resource Consumption), CWE-407 (Inefficient Algorithmic Complexity).</p>
@@ -593,7 +670,18 @@ hex 500,000 digits: 7.1ms bits=2000000
         <id>https://github.com/advisories/GHSA-55hx-c926-fr95</id>
         <link href="https://github.com/advisories/GHSA-55hx-c926-fr95"/>
         <updated>2026-11-04T03:29:32.000Z</updated>
-        <content type="html"><![CDATA[<p>In vm2 v3.10.4 on Node.js v24.13.0, <code>SuppressedError</code> allows attackers to escape the sandbox and run arbitrary code.</p>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>vm2</td>
+<td><code>&lt; 3.11.0</code></td>
+<td><code>3.11.0</code></td>
+</tr>
+</tbody>
+</table>
+<p>In vm2 v3.10.4 on Node.js v24.13.0, <code>SuppressedError</code> allows attackers to escape the sandbox and run arbitrary code.</p>
 <h3 id="poc">PoC</h3>
 <pre><code class="language-js">const { VM } = require("vm2");
 
@@ -646,7 +734,18 @@ try {
         <id>https://github.com/advisories/GHSA-grj5-jjm8-h35p</id>
         <link href="https://github.com/advisories/GHSA-grj5-jjm8-h35p"/>
         <updated>2026-11-04T03:28:54.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="summary">Summary</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>vm2</td>
+<td><code>&lt; 3.11.0</code></td>
+<td><code>3.11.0</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="summary">Summary</h3>
 <p>VM2 suffers from a sandbox breakout vulnerability. This allows attackers to write code which can escape from the VM2 sandbox and execute arbitrary commands on the host system.</p>
 <h3 id="details">Details</h3>
 <p>The <code>__lookupGetter__</code> method allows to read the getter of an object. It is special in VM2 since it will switch between the host and sandbox version of the method when passed to the other context.
@@ -693,7 +792,18 @@ Object.getOwnPropertyDescriptor(p.call(a),'constructor').value('return process')
         <id>https://github.com/advisories/GHSA-v37h-5mfm-c47c</id>
         <link href="https://github.com/advisories/GHSA-v37h-5mfm-c47c"/>
         <updated>2026-11-04T03:28:26.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="summary">Summary</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>vm2</td>
+<td><code>&lt; 3.11.0</code></td>
+<td><code>3.11.0</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="summary">Summary</h3>
 <p>VM2 suffers from a sandbox breakout vulnerability through the <code>inspect</code> function. This allows attackers to write code which can escape from the VM2 sandbox and execute arbitrary commands on the host system.</p>
 <h3 id="details">Details</h3>
 <p>The node <code>inspect</code> method allows to log details of objects. To get to the details, the implementation unwraps proxies. The unwrapped values can be extracted using the <code>this.seen</code> of the <code>stylize</code> function. This allows to get access to the internal proxy handler of VM2 which contains the sandbox object. Since the access to the handler is itself wrapped by a VM2 proxy, accessing the sandbox object in the proxy handler will result in a wrapped sandbox object given into the sandbox. This allows to write a wrapped host object to the wrapped sandbox object and read the raw host object from the raw sandbox object bypassing the proxy bridge.</p>
@@ -742,7 +852,18 @@ obj.l.x.constructor("return process")().mainModule.require('child_process').exec
         <id>https://github.com/advisories/GHSA-xxjr-mmjv-4gpg</id>
         <link href="https://github.com/advisories/GHSA-xxjr-mmjv-4gpg"/>
         <updated>2026-11-04T03:08:57.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="impact">Impact</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>lodash.unset</td>
+<td><code>&gt;= 4.0.0, &lt; 4.18.0</code></td>
+<td><code>4.18.0</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="impact">Impact</h3>
 <p>The <code>_.unset</code>, <code>_.omit</code>, and <code>_.pullAt</code> functions are vulnerable to prototype pollution. An attacker can pass crafted paths which cause Lodash to delete methods from global prototypes.</p>
 <p>The issue permits deletion of properties but does not allow overwriting their original behavior.</p>
 <h3 id="patches">Patches</h3>
@@ -859,7 +980,18 @@ obj.l.x.constructor("return process")().mainModule.require('child_process').exec
         <id>https://github.com/advisories/GHSA-xxjr-mmjv-4gpg</id>
         <link href="https://github.com/advisories/GHSA-xxjr-mmjv-4gpg"/>
         <updated>2026-11-04T03:08:57.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="impact">Impact</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>lodash.omit</td>
+<td><code>&gt;= 4.0.0, &lt; 4.18.0</code></td>
+<td><code>4.18.0</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="impact">Impact</h3>
 <p>The <code>_.unset</code>, <code>_.omit</code>, and <code>_.pullAt</code> functions are vulnerable to prototype pollution. An attacker can pass crafted paths which cause Lodash to delete methods from global prototypes.</p>
 <p>The issue permits deletion of properties but does not allow overwriting their original behavior.</p>
 <h3 id="patches">Patches</h3>
@@ -976,7 +1108,18 @@ obj.l.x.constructor("return process")().mainModule.require('child_process').exec
         <id>https://github.com/advisories/GHSA-xxjr-mmjv-4gpg</id>
         <link href="https://github.com/advisories/GHSA-xxjr-mmjv-4gpg"/>
         <updated>2026-11-04T03:08:57.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="impact">Impact</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>lodash-es</td>
+<td><code>&gt;= 4.0.0, &lt; 4.17.23</code></td>
+<td><code>4.17.23</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="impact">Impact</h3>
 <p>The <code>_.unset</code>, <code>_.omit</code>, and <code>_.pullAt</code> functions are vulnerable to prototype pollution. An attacker can pass crafted paths which cause Lodash to delete methods from global prototypes.</p>
 <p>The issue permits deletion of properties but does not allow overwriting their original behavior.</p>
 <h3 id="patches">Patches</h3>
@@ -1093,7 +1236,18 @@ obj.l.x.constructor("return process")().mainModule.require('child_process').exec
         <id>https://github.com/advisories/GHSA-33r5-xmm8-v6x5</id>
         <link href="https://github.com/advisories/GHSA-33r5-xmm8-v6x5"/>
         <updated>2026-11-03T17:53:43.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="summary">Summary</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>@enspirit/elo</td>
+<td><code>&lt;= 1.0.0</code></td>
+<td><code>1.0.1</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="summary">Summary</h3>
 <p>An unauthenticated attacker who controls a string passed to any Elo JavaScript-emission path — <code>defaultFormats.elo.parse()</code>, the <code>bin/elo</code> CLI, or the live browser playground at <code>elo-lang.org/try</code> — can execute arbitrary code in the host JavaScript runtime. A payload built from the <code>.constructor.constructor</code> chain compiles, without modification, to a live <code>Function</code> invocation in the emitted JavaScript, escaping any sandbox assumption around "Elo is a safe data/DSL language."</p>
 <h3 id="vulnerable-sink-and-root-cause">Vulnerable sink and root cause</h3>
 <p>Three interacting sites in <code>src/</code> produce the bug at commit <code>749af7b</code>:</p>
@@ -1174,7 +1328,18 @@ node bin/elo -e "_" -d @payload.elo -f elo
         <id>https://github.com/advisories/GHSA-7w38-ggh5-v542</id>
         <link href="https://github.com/advisories/GHSA-7w38-ggh5-v542"/>
         <updated>2026-11-03T17:51:30.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="summary">Summary</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>@enspirit/elo</td>
+<td><code>&lt;= 1.0.0</code></td>
+<td><code>1.0.1</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="summary">Summary</h3>
 <p>Elo's Ruby backend emits attacker-controlled text into Ruby double-quoted strings without escaping the <code>#</code> character. Because <code>#</code> begins Ruby's interpolation sequences — <code>#{expr}</code>, <code>#@ivar</code>, <code>#@@cvar</code>, <code>#$gvar</code> — and any expression wrapped in <code>#{...}</code> may use backticks for shell execution, an Elo program that contains a crafted string literal or a labelled subtype constraint compiles to Ruby that evaluates attacker-chosen Ruby, and through backticks runs attacker-chosen shell commands, at runtime.</p>
 <p>The same Elo source compiled to JavaScript, Python, or SQL is benign, so the bug also breaks the cross-target portability guarantee the rest of the compiler honours.</p>
 <h3 id="vulnerable-sinks">Vulnerable sinks</h3>
@@ -1252,7 +1417,18 @@ let X = Int(i | '#{`touch /tmp/pwned2`}': i &gt; 0) in X(-1)
         <id>https://github.com/advisories/GHSA-x9rp-7wh3-2rj5</id>
         <link href="https://github.com/advisories/GHSA-x9rp-7wh3-2rj5"/>
         <updated>2026-11-03T17:48:09.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="summary">Summary</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>@enspirit/elo</td>
+<td><code>&lt;= 1.0.0</code></td>
+<td><code>1.0.1</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="summary">Summary</h3>
 <p>Elo's programmatic AST API accepts arbitrary values in many node fields without runtime type or syntax validation. Each backend's emit stage interpolates those values straight into the generated source with no escape pass. An integrator that populates the AST from JSON-deserialised input, plugin output, or any other untyped source therefore exposes a code-injection primitive that flows through to the emitted JavaScript, Ruby, Python, or SQL.</p>
 <p>The same pattern was previously addressed in <strong>0.9.7 (2026-01-27)</strong>, which patched the date/datetime/duration literal emitters via <code>JSON.stringify()</code> after a report by <strong>naoyashiga</strong>. This advisory generalises that fix to the remaining AST surface — at least 23 emission sites across six node-field categories and four backends.</p>
 <h3 id="vulnerable-sinks">Vulnerable sinks</h3>
@@ -1348,7 +1524,18 @@ let X = Int(i | '#{`touch /tmp/pwned2`}': i &gt; 0) in X(-1)
         <id>https://github.com/advisories/GHSA-c3hj-m5hq-59xw</id>
         <link href="https://github.com/advisories/GHSA-c3hj-m5hq-59xw"/>
         <updated>2026-11-03T17:36:50.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="duplicate-advisory">Duplicate Advisory</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>flowise</td>
+<td><code>&lt;= 2.2.7</code></td>
+<td>No fix available</td>
+</tr>
+</tbody>
+</table>
+<h3 id="duplicate-advisory">Duplicate Advisory</h3>
 <p>This advisory has been withdrawn because it is a duplicate of GHSA-8vvx-qvq9-5948. This link is maintained to preserve external references.</p>
 <h3 id="original-description">Original Description</h3>
 <p>Flowise contains a path traversal vulnerability in the /api/v1/document-store/loader/process endpoint that allows unauthenticated attackers to write arbitrary files to the filesystem. Attackers can exploit unsanitized fileName parameters with ../ sequences to overwrite critical files like package.json and achieve remote code execution when the application restarts.</p>
@@ -1374,7 +1561,18 @@ let X = Int(i | '#{`touch /tmp/pwned2`}': i &gt; 0) in X(-1)
         <id>https://github.com/advisories/GHSA-q2xp-j85q-883h</id>
         <link href="https://github.com/advisories/GHSA-q2xp-j85q-883h"/>
         <updated>2026-11-03T17:36:24.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="duplicate-advisory">Duplicate Advisory</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>flowise</td>
+<td><code>&gt;= 2.2.7-patch.1, &lt; 3.0.6</code></td>
+<td><code>3.0.6</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="duplicate-advisory">Duplicate Advisory</h3>
 <p>This advisory has been withdrawn because it is a duplicate of GHSA-6933-jpx5-q87q. This link is maintained to preserve external references.</p>
 <h3 id="original-description">Original Description</h3>
 <p>Flowise before 3.0.6 (affected versions 2.2.7-patch.1 and earlier) contains an unsandboxed remote code execution vulnerability in the Custom MCP feature, which is designed to execute OS commands such as launching local MCP servers. Because Flowise's authentication and authorization model is minimal and lacks role-based access control, and the default installation runs without authentication unless FLOWISE_USERNAME and FLOWISE_PASSWORD are set, an attacker can send a crafted JSON payload with the header 'x-request-from: internal' to the /api/v1/node-load-method/customMCP endpoint to execute arbitrary OS commands, resulting in complete compromise of the platform container or server.</p>
@@ -1399,7 +1597,18 @@ let X = Int(i | '#{`touch /tmp/pwned2`}': i &gt; 0) in X(-1)
         <id>https://github.com/advisories/GHSA-w5r9-j49j-2m55</id>
         <link href="https://github.com/advisories/GHSA-w5r9-j49j-2m55"/>
         <updated>2026-11-03T17:35:34.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="duplicate-advisory">Duplicate Advisory</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>flowise</td>
+<td><code>&gt;= 2.2.8, &lt; 3.0.6</code></td>
+<td><code>3.0.6</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="duplicate-advisory">Duplicate Advisory</h3>
 <p>This advisory has been withdrawn because it is a duplicate of GHSA-q67q-549q-p849. This link is maintained to preserve external references.</p>
 <h3 id="original-description">Original Description</h3>
 <p>Flowise before 3.0.6 (affected versions 2.2.8 and earlier) contains an arbitrary file access vulnerability due to missing validation that the chatflowId and chatId parameters are UUIDs or numbers in file handling operations. By supplying a path-traversal value (e.g., '../../../../../tmp') as the chatflow id, an unauthenticated attacker can use the /api/v1/chatflows endpoint (via addBase64FilesToStorage) to write arbitrary files, and the /api/v1/get-upload-file and /api/v1/openai-assistants-file/download endpoints (via streamStorageFile) to read arbitrary files. Arbitrary file write may lead to remote code execution.</p>
@@ -1426,7 +1635,18 @@ let X = Int(i | '#{`touch /tmp/pwned2`}': i &gt; 0) in X(-1)
         <id>https://github.com/advisories/GHSA-f23m-r3pf-42rh</id>
         <link href="https://github.com/advisories/GHSA-f23m-r3pf-42rh"/>
         <updated>2026-11-03T15:37:13.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="impact">Impact</h3>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>lodash.omit</td>
+<td><code>&lt; 4.18.0</code></td>
+<td><code>4.18.0</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="impact">Impact</h3>
 <p>The <code>_.unset</code>, <code>_.omit</code>, and <code>_.pullAt</code> functions are vulnerable to prototype pollution. The fix for <a href="https://github.com/lodash/lodash/security/advisories/GHSA-xxjr-mmjv-4gpg">CVE-2025-13465</a> only guards against string key members, so an attacker can bypass the check by passing array-wrapped path segments. This allows deletion of properties from built-in prototypes such as <code>Object.prototype</code>, <code>Number.prototype</code>, and <code>String.prototype</code>.</p>
 <p>The issue permits deletion of prototype properties but does not allow overwriting their original behavior.</p>
 <h3 id="patches">Patches</h3>
