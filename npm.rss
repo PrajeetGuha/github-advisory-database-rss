@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://prajeetguha.github.io/github-advisory-database-rss/npm.rss</id>
     <title>Security Advisory for JavaScript packages hosted at npmjs.com</title>
-    <updated>2026-11-05T13:30:32.731Z</updated>
+    <updated>2026-11-05T19:35:19.346Z</updated>
     <generator>github-advisory-database-rss</generator>
     <link rel="alternate" href="https://github.com/advisories?query=type%3Areviewed+ecosystem%3Anpm"/>
     <subtitle>Security Advisory for JavaScript packages hosted at npmjs.com on GitHub</subtitle>
@@ -11,6 +11,217 @@
     <category term="HIGH"/>
     <category term="MODERATE"/>
     <category term="LOW"/>
+    <entry>
+        <title type="html"><![CDATA[[filecoin-pin] filecoin-pin: Unbounded DAG pinning can exhaust server resources]]></title>
+        <id>https://github.com/advisories/GHSA-m5ph-mmg5-6w5h</id>
+        <link href="https://github.com/advisories/GHSA-m5ph-mmg5-6w5h"/>
+        <updated>2026-11-05T18:07:31.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>filecoin-pin</td>
+<td><code>&lt;= 1.1.0</code></td>
+<td><code>1.1.1</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="summary">Summary</h2>
+<p>The IPFS Pinning Service API implementation accepts a caller-controlled CID through <code>POST /pins</code>, queues background processing, and then recursively fetches the full DAG with <code>helia.pins.add(cid)</code>. The route and background pinning path do not enforce a request rate limit, per-user quota, maximum DAG byte count, maximum block count, traversal timeout, or concurrent pinning limit.</p>
+<p>An authenticated caller, or an unauthenticated caller when the server is started with <code>ALLOW_NO_AUTH=true</code>, can submit one or more pins whose CIDs resolve to very large DAGs. The server writes fetched blocks to CAR files under <code>carStoragePath</code> and can consume disk, network, CPU, and libp2p resources until the process or host becomes unavailable.</p>
+<h2 id="details">Details</h2>
+<p><code>POST /pins</code> validates only that the request body contains a syntactically valid CID string, then forwards it to the pin store:</p>
+<ul>
+<li><code>src/filecoin-pinning-server.ts:304-342</code> accepts the request, parses <code>cid</code> with <code>CID.parse</code>, and calls <code>pinStore.pin(request.user, cidObject, parsed.options)</code>.</li>
+<li><code>src/filecoin-pin-store.ts:153-188</code> stores the pin as <code>queued</code> and schedules <code>_processPinInBackground</code> with <code>setTimeout</code>. There is no queue, semaphore, or global cap around this scheduling.</li>
+<li><code>src/filecoin-pin-store.ts:211-217</code> creates a per-pin Helia node and forwards caller-supplied <code>origins</code>.</li>
+<li><code>src/filecoin-pin-store.ts:260-274</code> walks the full DAG with <code>for await (const pinnedCid of helia.pins.add(cid))</code>.</li>
+<li><code>src/create-pinning-helia.ts:47-80</code> creates a libp2p/Helia node with the Bitswap block broker and no application-level resource limits.</li>
+<li><code>src/core/car/car-blockstore-base.ts:65-107</code> writes every fetched block and updates <code>stats.totalSize</code> only after writing.</li>
+<li><code>src/core/car/car-file-backend.ts:84-93</code> streams blocks to the CAR writer on disk.</li>
+</ul>
+<p>The Helia node created for each pin has no bootstrap or mDNS configuration (<code>src/create-pinning-helia.ts:57</code>). A public CID alone may therefore not be fetchable unless the node can reach a content source. In practice, the API also accepts <code>origins</code>, so an attacker can supply a reachable attacker-controlled libp2p origin that serves a large DAG and cause the server to retrieve it.</p>
+<h2 id="impact">Impact</h2>
+<p>Successful exploitation affects availability:</p>
+<ul>
+<li>Disk exhaustion from unbounded CAR files in <code>carStoragePath</code>.</li>
+<li>Network exhaustion from recursive Bitswap retrieval.</li>
+<li>CPU and memory pressure from concurrent libp2p/Helia pin operations.</li>
+<li>Service degradation or process failure for other users of the daemon.</li>
+<li>Operational cost and manual recovery burden from large partial CAR files.</li>
+</ul>
+<p>The default daemon configuration reduces exposure because the server binds to <code>localhost</code> and refuses to start without an access token unless <code>ALLOW_NO_AUTH=true</code>. The finding is most significant when the daemon is exposed beyond localhost, when the token is shared across untrusted users, or when the no-auth mode is enabled.</p>
+<h2 id="poc">PoC</h2>
+<pre><code class="language-bash">curl -X POST "https://target.example/pins" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "cid": "CID_OF_LARGE_DAG",
+    "origins": ["/ip4/203.0.113.10/tcp/4001/p2p/ATTACKER_PEER_ID"],
+    "meta": { "purpose": "resource-exhaustion-validation" }
+  }'
+</code></pre>
+<p>Submitting many such requests concurrently accelerates resource pressure because each request schedules independent background processing.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/filecoin-project/filecoin-pin/security/advisories/GHSA-m5ph-mmg5-6w5h">https://github.com/filecoin-project/filecoin-pin/security/advisories/GHSA-m5ph-mmg5-6w5h</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-62300">https://nvd.nist.gov/vuln/detail/CVE-2026-62300</a></li>
+<li><a href="https://github.com/filecoin-project/filecoin-pin/commit/8db22b47899deb78dadf415fc477cae4bd6e82c2">https://github.com/filecoin-project/filecoin-pin/commit/8db22b47899deb78dadf415fc477cae4bd6e82c2</a></li>
+<li><a href="https://github.com/filecoin-project/filecoin-pin/commit/afa019307db23a703737675e94316edcc6572050">https://github.com/filecoin-project/filecoin-pin/commit/afa019307db23a703737675e94316edcc6572050</a></li>
+<li><a href="https://github.com/filecoin-project/filecoin-pin/releases/tag/v1.1.1">https://github.com/filecoin-project/filecoin-pin/releases/tag/v1.1.1</a></li>
+<li><a href="https://github.com/advisories/GHSA-m5ph-mmg5-6w5h">https://github.com/advisories/GHSA-m5ph-mmg5-6w5h</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-m5ph-mmg5-6w5h</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2026-11-05T18:07:30.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[@siteboon/claude-code-ui] @siteboon/claude-code-ui is Vulnerable to Command Injection via Multiple Parameters]]></title>
+        <id>https://github.com/advisories/GHSA-f2fc-vc88-6w7q</id>
+        <link href="https://github.com/advisories/GHSA-f2fc-vc88-6w7q"/>
+        <updated>2026-11-05T17:56:40.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>@siteboon/claude-code-ui</td>
+<td><code>&lt;= 1.23.0</code></td>
+<td><code>1.24.0</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="summary">Summary</h3>
+<p>Multiple Git-related API endpoints use execAsync() with string interpolation of user-controlled parameters (file, branch, message, commit), allowing authenticated attackers to execute arbitrary OS commands.</p>
+<h3 id="details">Details</h3>
+<p>The claudecodeui application provides Git integration through various API endpoints. These endpoints accept user-controlled parameters such as file paths, branch names, commit messages, and commit hashes, which are directly interpolated into shell command strings passed to execAsync().</p>
+<p>The application attempts to escape double quotes in some parameters, but this protection is trivially bypassable using other shell metacharacters such as:</p>
+<p>Command substitution: $(command) or `command`
+Command chaining: ;, &amp;&amp;, ||
+Newlines and other control characters</p>
+<h3 id="affected-endpoints">Affected Endpoints</h3>
+<p><code>GET /api/git/diff - file parameter</code>
+<code>GET /api/git/status - file parameter</code>
+<code>POST /api/git/commit - files array and message parameter</code>
+<code>POST /api/git/checkout - branch parameter</code>
+<code>POST /api/git/create-branch - branch parameter</code>
+<code>GET /api/git/commits - commit hash parameter</code>
+<code>GET /api/git/commit-diff - commit parameter</code></p>
+<h3 id="vulnerable-code">Vulnerable Code</h3>
+<p>File: server/routes/git.js</p>
+<pre><code>// Line 205 - git status with file parameter
+const { stdout: statusOutput } = await execAsync(
+  `git status --porcelain "${file}"`,  // INJECTION via file
+  { cwd: projectPath }
+);
+</code></pre>
+<pre><code>// Lines 375-379 - git commit with files array and message
+for (const file of files) {
+  await execAsync(`git add "${file}"`, { cwd: projectPath });  // INJECTION via files[]
+}
+const { stdout } = await execAsync(
+  `git commit -m "${message.replace(/"/g, '\\"')}"`,  // INJECTION via message (bypass with $())
+  { cwd: projectPath }
+);
+</code></pre>
+<pre><code>// Lines 541-543 - git show with commit parameter (no quotes!)
+const { stdout } = await execAsync(
+  `git show ${commit}`,  // INJECTION via commit
+  { cwd: projectPath }
+);
+</code></pre>
+<h3 id="impact">Impact</h3>
+<ul>
+<li>Remote Code Execution as the Node.js process user</li>
+<li>Full server compromise</li>
+<li>Data exfiltration</li>
+<li>Supply chain attacks - modify committed code to inject malware</li>
+</ul>
+<hr>
+<h3 id="fix">Fix</h3>
+<p><strong>Commit:</strong> siteboon/claudecodeui@55567f4</p>
+<h4 id="root-cause-remediation">Root cause remediation</h4>
+<p>All vulnerable <code>execAsync()</code> calls have been replaced with the existing <code>spawnAsync()</code> helper (which uses <code>child_process.spawn</code> with <code>shell: false</code>). Arguments are passed as an array directly to the OS — shell metacharacters in user input are inert.</p>
+<p><strong>Endpoints patched in <code>server/routes/git.js</code>:</strong></p>
+<ul>
+<li><code>GET /api/git/diff</code> — <code>file</code> (4 calls)</li>
+<li><code>GET /api/git/file-with-diff</code> — <code>file</code> (3 calls)</li>
+<li><code>POST /api/git/commit</code> — <code>files[]</code>, <code>message</code></li>
+<li><code>POST /api/git/checkout</code> — <code>branch</code></li>
+<li><code>POST /api/git/create-branch</code> — <code>branch</code></li>
+<li><code>GET /api/git/commits</code> — <code>commit.hash</code></li>
+<li><code>GET /api/git/commit-diff</code> — <code>commit</code></li>
+<li><code>POST /api/git/generate-commit-message</code> — <code>file</code></li>
+<li><code>POST /api/git/discard</code> — <code>file</code> (3 calls)</li>
+<li><code>POST /api/git/delete-untracked</code> — <code>file</code></li>
+<li><code>POST /api/git/publish</code> — <code>branch</code></li>
+</ul>
+<p>A strict allowlist regex (<code>/^[0-9a-f]{4,64}$/i</code>) was also added to validate the <code>commit</code> parameter in <code>/api/git/commit-diff</code> before it reaches the git process.</p>
+<h4 id="before--after">Before / After</h4>
+<pre><code class="language-js">// BEFORE — shell interprets the string, injection possible
+const { stdout } = await execAsync(`git show ${commit}`, { cwd: projectPath });
+
+// AFTER — no shell, args passed directly to the process
+const { stdout } = await spawnAsync('git', ['show', commit], { cwd: projectPath });
+</code></pre>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/siteboon/claudecodeui/security/advisories/GHSA-f2fc-vc88-6w7q">https://github.com/siteboon/claudecodeui/security/advisories/GHSA-f2fc-vc88-6w7q</a></li>
+<li><a href="https://github.com/siteboon/claudecodeui/releases/tag/v1.24.0">https://github.com/siteboon/claudecodeui/releases/tag/v1.24.0</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-31862">https://nvd.nist.gov/vuln/detail/CVE-2026-31862</a></li>
+<li><a href="https://github.com/advisories/GHSA-f2fc-vc88-6w7q">https://github.com/advisories/GHSA-f2fc-vc88-6w7q</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-f2fc-vc88-6w7q</uri>
+        </author>
+        <category label="severity" term="CRITICAL"/>
+        <published>2026-03-11T00:25:43.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[flowise] Duplicate Advisory: INVITED users auto-promoted via SSO email match (invite-token bypass)]]></title>
+        <id>https://github.com/advisories/GHSA-mgrx-3hqw-485h</id>
+        <link href="https://github.com/advisories/GHSA-mgrx-3hqw-485h"/>
+        <updated>2026-11-05T15:18:09.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>flowise</td>
+<td><code>&lt;= 3.1.4</code></td>
+<td>No fix available</td>
+</tr>
+</tbody>
+</table>
+<h3 id="duplicate-advisory">Duplicate Advisory</h3>
+<p>This advisory has been withdrawn because it is a duplicate of GHSA-vf3j-89vf-r697. This link is maintained to preserve external references.</p>
+<h3 id="original-description">Original Description</h3>
+<p>Flowise through 3.1.4 (Enterprise/platform mode with SSO enabled) contains an authentication bypass in the SSO login path. When an SSO callback arrives with an email matching a user whose status is INVITED, verifyAndLogin (SSOBase.ts:80-94) copies the user record from the database — including the server-stored single-use invitation tempToken — into the data passed to AccountService.register(). The register handler's token lookup, email match, and expiry checks therefore pass trivially against the server's own token instead of a caller-supplied one, and the account and its organization membership are flipped to ACTIVE. As a result, anyone able to authenticate at any configured SSO provider using a pending invitee's email address as the email claim can take over that invitation and obtain the invited user's access to the organization without ever possessing the emailed invitation token, for as long as the invitation is valid (24 hours by default). At the time of the advisory no patched version was available.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/FlowiseAI/Flowise/security/advisories/GHSA-vf3j-89vf-r697">https://github.com/FlowiseAI/Flowise/security/advisories/GHSA-vf3j-89vf-r697</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-100606">https://nvd.nist.gov/vuln/detail/CVE-2026-100606</a></li>
+<li><a href="https://www.vulncheck.com/advisories/flowise-through-3.1.4-authentication-bypass-via-sso-email-match">https://www.vulncheck.com/advisories/flowise-through-3.1.4-authentication-bypass-via-sso-email-match</a></li>
+<li><a href="https://github.com/advisories/GHSA-mgrx-3hqw-485h">https://github.com/advisories/GHSA-mgrx-3hqw-485h</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-mgrx-3hqw-485h</uri>
+        </author>
+        <category label="severity" term="CRITICAL"/>
+        <published>2026-09-26T15:31:13.000Z</published>
+    </entry>
     <entry>
         <title type="html"><![CDATA[[protobufjs] protobufjs has an arbitrary code execution issue]]></title>
         <id>https://github.com/advisories/GHSA-xq3m-2v4x-88gg</id>
@@ -1555,129 +1766,5 @@ let X = Int(i | '#{`touch /tmp/pwned2`}': i &gt; 0) in X(-1)
         </author>
         <category label="severity" term="CRITICAL"/>
         <published>2026-06-26T00:32:05.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[flowise] Duplicate Advisory: Flowise has unsandboxed remote code execution via Custom MCP]]></title>
-        <id>https://github.com/advisories/GHSA-q2xp-j85q-883h</id>
-        <link href="https://github.com/advisories/GHSA-q2xp-j85q-883h"/>
-        <updated>2026-11-03T17:36:24.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>flowise</td>
-<td><code>&gt;= 2.2.7-patch.1, &lt; 3.0.6</code></td>
-<td><code>3.0.6</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="duplicate-advisory">Duplicate Advisory</h3>
-<p>This advisory has been withdrawn because it is a duplicate of GHSA-6933-jpx5-q87q. This link is maintained to preserve external references.</p>
-<h3 id="original-description">Original Description</h3>
-<p>Flowise before 3.0.6 (affected versions 2.2.7-patch.1 and earlier) contains an unsandboxed remote code execution vulnerability in the Custom MCP feature, which is designed to execute OS commands such as launching local MCP servers. Because Flowise's authentication and authorization model is minimal and lacks role-based access control, and the default installation runs without authentication unless FLOWISE_USERNAME and FLOWISE_PASSWORD are set, an attacker can send a crafted JSON payload with the header 'x-request-from: internal' to the /api/v1/node-load-method/customMCP endpoint to execute arbitrary OS commands, resulting in complete compromise of the platform container or server.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/FlowiseAI/Flowise/security/advisories/GHSA-6933-jpx5-q87q">https://github.com/FlowiseAI/Flowise/security/advisories/GHSA-6933-jpx5-q87q</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2025-71336">https://nvd.nist.gov/vuln/detail/CVE-2025-71336</a></li>
-<li><a href="https://www.vulncheck.com/advisories/flowise-unsandboxed-remote-code-execution-via-custom-mcp">https://www.vulncheck.com/advisories/flowise-unsandboxed-remote-code-execution-via-custom-mcp</a></li>
-<li><a href="https://github.com/advisories/GHSA-q2xp-j85q-883h">https://github.com/advisories/GHSA-q2xp-j85q-883h</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-q2xp-j85q-883h</uri>
-        </author>
-        <category label="severity" term="CRITICAL"/>
-        <published>2026-06-26T00:32:05.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[flowise] Duplicate Advisory : Flowise has arbitrary file access due to missing chat flow id validation]]></title>
-        <id>https://github.com/advisories/GHSA-w5r9-j49j-2m55</id>
-        <link href="https://github.com/advisories/GHSA-w5r9-j49j-2m55"/>
-        <updated>2026-11-03T17:35:34.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>flowise</td>
-<td><code>&gt;= 2.2.8, &lt; 3.0.6</code></td>
-<td><code>3.0.6</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="duplicate-advisory">Duplicate Advisory</h3>
-<p>This advisory has been withdrawn because it is a duplicate of GHSA-q67q-549q-p849. This link is maintained to preserve external references.</p>
-<h3 id="original-description">Original Description</h3>
-<p>Flowise before 3.0.6 (affected versions 2.2.8 and earlier) contains an arbitrary file access vulnerability due to missing validation that the chatflowId and chatId parameters are UUIDs or numbers in file handling operations. By supplying a path-traversal value (e.g., '../../../../../tmp') as the chatflow id, an unauthenticated attacker can use the /api/v1/chatflows endpoint (via addBase64FilesToStorage) to write arbitrary files, and the /api/v1/get-upload-file and /api/v1/openai-assistants-file/download endpoints (via streamStorageFile) to read arbitrary files. Arbitrary file write may lead to remote code execution.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/FlowiseAI/Flowise/security/advisories/GHSA-q67q-549q-p849">https://github.com/FlowiseAI/Flowise/security/advisories/GHSA-q67q-549q-p849</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2025-71334">https://nvd.nist.gov/vuln/detail/CVE-2025-71334</a></li>
-<li><a href="https://github.com/FlowiseAI/Flowise/commit/8bd3de41533de78e4ef6c980e5704a1f9cb7ae6f">https://github.com/FlowiseAI/Flowise/commit/8bd3de41533de78e4ef6c980e5704a1f9cb7ae6f</a></li>
-<li><a href="https://github.com/FlowiseAI/Flowise/commit/c2b830f279e454e8b758da441016b2234f220ac7">https://github.com/FlowiseAI/Flowise/commit/c2b830f279e454e8b758da441016b2234f220ac7</a></li>
-<li><a href="https://www.vulncheck.com/advisories/flowise-arbitrary-file-access-via-missing-chat-flow-id-validation">https://www.vulncheck.com/advisories/flowise-arbitrary-file-access-via-missing-chat-flow-id-validation</a></li>
-<li><a href="https://github.com/advisories/GHSA-w5r9-j49j-2m55">https://github.com/advisories/GHSA-w5r9-j49j-2m55</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-w5r9-j49j-2m55</uri>
-        </author>
-        <category label="severity" term="CRITICAL"/>
-        <published>2026-06-26T00:32:05.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[lodash.omit] lodash vulnerable to prototype pollution via array-path bypass in `_.unset`, `_.omit`, and `_.pullAt]]></title>
-        <id>https://github.com/advisories/GHSA-f23m-r3pf-42rh</id>
-        <link href="https://github.com/advisories/GHSA-f23m-r3pf-42rh"/>
-        <updated>2026-11-03T15:37:13.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>lodash.omit</td>
-<td><code>&lt; 4.18.0</code></td>
-<td><code>4.18.0</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="impact">Impact</h3>
-<p>The <code>_.unset</code>, <code>_.omit</code>, and <code>_.pullAt</code> functions are vulnerable to prototype pollution. The fix for <a href="https://github.com/lodash/lodash/security/advisories/GHSA-xxjr-mmjv-4gpg">CVE-2025-13465</a> only guards against string key members, so an attacker can bypass the check by passing array-wrapped path segments. This allows deletion of properties from built-in prototypes such as <code>Object.prototype</code>, <code>Number.prototype</code>, and <code>String.prototype</code>.</p>
-<p>The issue permits deletion of prototype properties but does not allow overwriting their original behavior.</p>
-<h3 id="patches">Patches</h3>
-<p>The issue is patched from 4.18.0 to 4.18.1 depending on the package: <code>lodash</code>, <code>lodash-es</code>, and <code>lodash-amd</code> in 4.18.1, and the standalone <code>lodash.unset</code> and <code>lodash.omit</code> packages in 4.18.0.</p>
-<h3 id="workarounds">Workarounds</h3>
-<p>None. Upgrade to the patched version.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/lodash/lodash/security/advisories/GHSA-xxjr-mmjv-4gpg">CVE-2025-13465 / GHSA-xxjr-mmjv-4gpg</a> (original fix that this bypasses)</li>
-</ul>
-<h3 id="references-1">References</h3>
-<ul>
-<li><a href="https://github.com/lodash/lodash/security/advisories/GHSA-f23m-r3pf-42rh">https://github.com/lodash/lodash/security/advisories/GHSA-f23m-r3pf-42rh</a></li>
-<li><a href="https://github.com/lodash/lodash/security/advisories/GHSA-xxjr-mmjv-4gpg">https://github.com/lodash/lodash/security/advisories/GHSA-xxjr-mmjv-4gpg</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-2950">https://nvd.nist.gov/vuln/detail/CVE-2026-2950</a></li>
-<li><a href="https://github.com/lodash/lodash/commit/4f0e376589e1889e8993e212a5c9041112ad178e">https://github.com/lodash/lodash/commit/4f0e376589e1889e8993e212a5c9041112ad178e</a></li>
-<li><a href="https://github.com/lodash/lodash/commit/87e6676934f7b4450fad68c35f0325ba165b48f8">https://github.com/lodash/lodash/commit/87e6676934f7b4450fad68c35f0325ba165b48f8</a></li>
-<li><a href="https://github.com/lodash/lodash/commit/bbcf0036d27ef936f175bf26e73e247994d8e1e4">https://github.com/lodash/lodash/commit/bbcf0036d27ef936f175bf26e73e247994d8e1e4</a></li>
-<li><a href="https://github.com/lodash/lodash/commit/db27b6bb14b12a1451b20edf87dfe307b87a337d">https://github.com/lodash/lodash/commit/db27b6bb14b12a1451b20edf87dfe307b87a337d</a></li>
-<li><a href="https://github.com/lodash/lodash/commit/fe8d32eda854377349a4f922ab7655c8e5df9a0b">https://github.com/lodash/lodash/commit/fe8d32eda854377349a4f922ab7655c8e5df9a0b</a></li>
-<li><a href="https://cna.openjsf.org/security-advisories.html">https://cna.openjsf.org/security-advisories.html</a></li>
-<li><a href="https://github.com/lodash/lodash/releases/tag/4.18.1">https://github.com/lodash/lodash/releases/tag/4.18.1</a></li>
-<li><a href="https://github.com/advisories/GHSA-f23m-r3pf-42rh">https://github.com/advisories/GHSA-f23m-r3pf-42rh</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-f23m-r3pf-42rh</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-04-01T23:50:27.000Z</published>
     </entry>
 </feed>
