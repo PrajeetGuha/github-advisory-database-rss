@@ -1,4 +1,3 @@
-
 import { Feed } from "feed";
 import path from "path";
 import * as fs from "fs/promises";
@@ -22,6 +21,13 @@ type SecurityAdvisoryReference = {
     url: string;
 };
 
+type VulnerabilityVersionInfo = {
+    packageName: string;
+    ecosystem?: string;
+    vulnerableVersionRange: string;
+    firstPatchedVersion: string | null;
+};
+
 type SecurityVulnerabilityConnection = {
     nodes?: Array<{
         package: {
@@ -38,6 +44,9 @@ type SecurityVulnerabilityConnection = {
         severity: string;
         updatedAt: string;
         vulnerableVersionRange: string;
+        firstPatchedVersion: {
+            identifier: string;
+        } | null;
     } | null> | null;
 };
 
@@ -50,12 +59,67 @@ type SecurityAdvisoryConnection = {
         updatedAt: string;
         publishedAt: string;
         severity: string;
+        vulnerabilities: {
+            nodes?: Array<{
+                package: {
+                    name: string;
+                    ecosystem: string;
+                };
+                vulnerableVersionRange: string;
+                firstPatchedVersion: {
+                    identifier: string;
+                } | null;
+            } | null> | null;
+        };
     } | null> | null;
+};
+
+const escapeHtml = (s: string) =>
+    s
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+
+/**
+ * Build an HTML table of affected / patched versions.
+ * Version ranges contain "<" and ">", so everything is escaped.
+ */
+const createVersionsHTML = (versions: VulnerabilityVersionInfo[]) => {
+    if (!versions.length) {
+        return "";
+    }
+
+    const rows = versions
+        .map(
+            (v) => `<tr>
+<td>${escapeHtml(v.packageName)}${
+                v.ecosystem ? ` (${escapeHtml(v.ecosystem)})` : ""
+            }</td>
+<td><code>${escapeHtml(v.vulnerableVersionRange || "unknown")}</code></td>
+<td>${
+                v.firstPatchedVersion
+                    ? `<code>${escapeHtml(v.firstPatchedVersion)}</code>`
+                    : "No fix available"
+            }</td>
+</tr>`
+        )
+        .join("\n");
+
+    return `<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+${rows}
+</tbody>
+</table>
+`;
 };
 
 const createBody = (
     descriptionMarkdown: string,
-    references: SecurityAdvisoryReference[]
+    references: SecurityAdvisoryReference[],
+    versions: VulnerabilityVersionInfo[] = []
 ) => {
     const md = createMarkdown();
 
@@ -66,7 +130,7 @@ const createBody = (
               .join("\n")
         : "";
 
-    return md(descriptionMarkdown + referencesMD);
+    return createVersionsHTML(versions) + md(descriptionMarkdown + referencesMD);
 };
 
 type Item = {
@@ -80,6 +144,7 @@ type Item = {
         login: string;
         url: string;
     };
+    versions: VulnerabilityVersionInfo[];
     bodyHTML: string;
 };
 
@@ -132,6 +197,9 @@ export const search = ({
                         severity
                         updatedAt
                         vulnerableVersionRange
+                        firstPatchedVersion {
+                            identifier
+                        }
                     }
                 }
             }
@@ -151,6 +219,15 @@ export const search = ({
                 throw new Error("Non node");
             }
 
+            const versions: VulnerabilityVersionInfo[] = [
+                {
+                    packageName: node.package.name,
+                    vulnerableVersionRange: node.vulnerableVersionRange,
+                    firstPatchedVersion:
+                        node.firstPatchedVersion?.identifier ?? null
+                }
+            ];
+
             return {
                 url: node.advisory.permalink,
                 title: `[${node.package.name}] ${node.advisory.summary}`,
@@ -163,9 +240,11 @@ export const search = ({
                     login: "GitHub",
                     url: node.advisory.permalink
                 },
+                versions,
                 bodyHTML: createBody(
                     node.advisory.description,
-                    node.advisory.references
+                    node.advisory.references,
+                    versions
                 )
             } as Item;
         });
@@ -207,6 +286,18 @@ export const searchByClassification = ({
                         updatedAt
                         publishedAt
                         severity
+                        vulnerabilities(first: 10) {
+                            nodes {
+                                package {
+                                    name
+                                    ecosystem
+                                }
+                                vulnerableVersionRange
+                                firstPatchedVersion {
+                                    identifier
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -226,6 +317,18 @@ export const searchByClassification = ({
                 throw new Error("Non node");
             }
 
+            const versions: VulnerabilityVersionInfo[] = (
+                node.vulnerabilities?.nodes ?? []
+            )
+                .filter((v): v is NonNullable<typeof v> => v !== null)
+                .map((v) => ({
+                    packageName: v.package.name,
+                    ecosystem: v.package.ecosystem,
+                    vulnerableVersionRange: v.vulnerableVersionRange,
+                    firstPatchedVersion:
+                        v.firstPatchedVersion?.identifier ?? null
+                }));
+
             return {
                 url: node.permalink,
                 title: `[${classification}] ${node.summary}`,
@@ -237,9 +340,11 @@ export const searchByClassification = ({
                     login: "GitHub",
                     url: node.permalink
                 },
+                versions,
                 bodyHTML: createBody(
                     node.description,
-                    node.references
+                    node.references,
+                    versions
                 )
             } as Item;
         });
@@ -453,8 +558,9 @@ if (import.meta.main) {
         // 3. Generate OPML
         // ---------------------------------------------
         const opml = convertJsonToOPML([
-        ...ECOSYSTEM_FEEDS,
-        ...CLASSIFICATION_FEEDS]);
+            ...ECOSYSTEM_FEEDS,
+            ...CLASSIFICATION_FEEDS
+        ]);
 
         await fs.writeFile(
             path.join(distDir, "index.opml"),
