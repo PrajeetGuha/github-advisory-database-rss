@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://prajeetguha.github.io/github-advisory-database-rss/npm.rss</id>
     <title>Security Advisory for JavaScript packages hosted at npmjs.com</title>
-    <updated>2026-11-05T19:35:19.346Z</updated>
+    <updated>2026-11-06T00:48:26.177Z</updated>
     <generator>github-advisory-database-rss</generator>
     <link rel="alternate" href="https://github.com/advisories?query=type%3Areviewed+ecosystem%3Anpm"/>
     <subtitle>Security Advisory for JavaScript packages hosted at npmjs.com on GitHub</subtitle>
@@ -11,6 +11,73 @@
     <category term="HIGH"/>
     <category term="MODERATE"/>
     <category term="LOW"/>
+    <entry>
+        <title type="html"><![CDATA[[qwc2] QGIS QWC2 Cross-Site Scripting vulnerability]]></title>
+        <id>https://github.com/advisories/GHSA-gxp8-m5rq-3m38</id>
+        <link href="https://github.com/advisories/GHSA-gxp8-m5rq-3m38"/>
+        <updated>2026-11-05T21:07:15.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>qwc2</td>
+<td><code>&lt; 2025.8.14</code></td>
+<td><code>2025.8.14</code></td>
+</tr>
+</tbody>
+</table>
+<p>Cross-Site Scripting vulnerability in attribute table in QGIS QWC2 &lt; 2025.08.14 allows an authorized attacker to plant arbitrary JavaScript code in the page.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2025-11183">https://nvd.nist.gov/vuln/detail/CVE-2025-11183</a></li>
+<li><a href="https://hub.ntc.swiss/ntcf-2025-4286">https://hub.ntc.swiss/ntcf-2025-4286</a></li>
+<li><a href="https://github.com/advisories/GHSA-gxp8-m5rq-3m38">https://github.com/advisories/GHSA-gxp8-m5rq-3m38</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-gxp8-m5rq-3m38</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2025-10-13T12:31:10.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[openclaw] OpenClaw is vulnerable to Path Traversal through path validation bypass]]></title>
+        <id>https://github.com/advisories/GHSA-hggm-x7r9-mm7v</id>
+        <link href="https://github.com/advisories/GHSA-hggm-x7r9-mm7v"/>
+        <updated>2026-11-05T20:48:29.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>openclaw</td>
+<td><code>&lt;= 2026.3.23</code></td>
+<td><code>2026.3.28</code></td>
+</tr>
+</tbody>
+</table>
+<p>OpenClaw through 2026.3.23 (fixed in commit 4797bbc) contains a path traversal vulnerability in media parsing that allows attackers to read arbitrary files by bypassing path validation in the isLikelyLocalPath() and isValidMedia() functions. Attackers can exploit incomplete validation and the allowBareFilename bypass to reference files outside the intended application sandbox, resulting in disclosure of sensitive information including system files, environment files, and SSH keys.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/openclaw/openclaw/security/advisories/GHSA-f6pf-4gjx-c94r">https://github.com/openclaw/openclaw/security/advisories/GHSA-f6pf-4gjx-c94r</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-32846">https://nvd.nist.gov/vuln/detail/CVE-2026-32846</a></li>
+<li><a href="https://github.com/openclaw/openclaw/pull/54642">https://github.com/openclaw/openclaw/pull/54642</a></li>
+<li><a href="https://github.com/openclaw/openclaw/commit/4797bbc5b96e2cca5532e43b58915c051746fe37">https://github.com/openclaw/openclaw/commit/4797bbc5b96e2cca5532e43b58915c051746fe37</a></li>
+<li><a href="https://www.vulncheck.com/advisories/openclaw-media-parsing-path-traversal-to-arbitrary-file-read">https://www.vulncheck.com/advisories/openclaw-media-parsing-path-traversal-to-arbitrary-file-read</a></li>
+<li><a href="https://github.com/advisories/GHSA-hggm-x7r9-mm7v">https://github.com/advisories/GHSA-hggm-x7r9-mm7v</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-hggm-x7r9-mm7v</uri>
+        </author>
+        <category label="severity" term="HIGH"/>
+        <published>2026-03-26T18:31:41.000Z</published>
+    </entry>
     <entry>
         <title type="html"><![CDATA[[filecoin-pin] filecoin-pin: Unbounded DAG pinning can exhaust server resources]]></title>
         <id>https://github.com/advisories/GHSA-m5ph-mmg5-6w5h</id>
@@ -1622,149 +1689,5 @@ let X = Int(i | '#{`touch /tmp/pwned2`}': i &gt; 0) in X(-1)
         </author>
         <category label="severity" term="CRITICAL"/>
         <published>2026-11-03T17:51:30.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[@enspirit/elo] Elo backends have code injection via unvalidated emission of programmatic AST fields]]></title>
-        <id>https://github.com/advisories/GHSA-x9rp-7wh3-2rj5</id>
-        <link href="https://github.com/advisories/GHSA-x9rp-7wh3-2rj5"/>
-        <updated>2026-11-03T17:48:09.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>@enspirit/elo</td>
-<td><code>&lt;= 1.0.0</code></td>
-<td><code>1.0.1</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p>Elo's programmatic AST API accepts arbitrary values in many node fields without runtime type or syntax validation. Each backend's emit stage interpolates those values straight into the generated source with no escape pass. An integrator that populates the AST from JSON-deserialised input, plugin output, or any other untyped source therefore exposes a code-injection primitive that flows through to the emitted JavaScript, Ruby, Python, or SQL.</p>
-<p>The same pattern was previously addressed in <strong>0.9.7 (2026-01-27)</strong>, which patched the date/datetime/duration literal emitters via <code>JSON.stringify()</code> after a report by <strong>naoyashiga</strong>. This advisory generalises that fix to the remaining AST surface — at least 23 emission sites across six node-field categories and four backends.</p>
-<h3 id="vulnerable-sinks">Vulnerable sinks</h3>
-<p>Each row is a category of sinks that share the same shape: TypeScript signature erased at runtime → AST-API consumer passes a crafted value → emit interpolates the value verbatim.</p>
-<table>
-<thead>
-<tr>
-<th>#</th>
-<th>AST field</th>
-<th>Affected backends</th>
-<th>Resulting injection</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>1</td>
-<td><code>int_literal</code> / <code>float_literal</code> <code>.value</code></td>
-<td>JS, Ruby, Python, SQL</td>
-<td>Arbitrary expression in the emitted numeric position (RCE on JS/Ruby/Python; SQL expression injection)</td>
-</tr>
-<tr>
-<td>2</td>
-<td><code>variable.name</code></td>
-<td>JS, Ruby, Python, SQL</td>
-<td>Identifier-position injection; on SQL, raw SQL injection because undefined identifiers are intentionally emitted as column references</td>
-</tr>
-<tr>
-<td>3</td>
-<td><code>member_access.property</code></td>
-<td>JS, Ruby, Python, SQL</td>
-<td>Property access escaped into expression (RCE)</td>
-</tr>
-<tr>
-<td>4</td>
-<td><code>object_literal</code> key</td>
-<td>JS, Ruby, SQL</td>
-<td>Computed-key / extra-property injection (RCE on JS/Ruby; SQL injection)</td>
-</tr>
-<tr>
-<td>5</td>
-<td><code>datapath</code> segment</td>
-<td>JS, Ruby, Python, SQL</td>
-<td>Ruby symbol-list injection allows backtick shell exec; SQL string-segment unquoted in single-quote context allows SQL injection</td>
-</tr>
-<tr>
-<td>6</td>
-<td><code>lambda.params[].name</code></td>
-<td>JS, Ruby, Python</td>
-<td>Parameter-list structural injection (RCE)</td>
-</tr>
-<tr>
-<td>7</td>
-<td>SQL <code>let</code> binding <code>name</code></td>
-<td>SQL</td>
-<td>Identifier injection in <code>… AS &lt;name&gt;</code> clause</td>
-</tr>
-</tbody></table>
-<h3 id="proof-of-concept">Proof of Concept</h3>
-<p>End-to-end execution was verified at commit <code>749af7b</code> for representative cases per backend. Examples:</p>
-<p><strong>Numeric literal injection (all four backends).</strong> Feeding the following AST through <code>compileToJavaScript</code> emits a live <code>console.log</code> on call:</p>
-<pre><code class="language-js">{ type: 'literal', value: "(console.log('PWN_INT_JS'),1)" }
-// emits: (function(_) { return (console.log('PWN_INT_JS'),1); })(null);
-</code></pre>
-<p>The same AST against Ruby with <code>"(system('touch /tmp/pwn_int_ruby'); 1)"</code> creates the file; Python with <code>"(print('PWN_INT_PY') or 1)"</code> prints the sentinel; SQL emits the raw string into the numeric position.</p>
-<p><strong>SQL <code>variable.name</code> injection:</strong></p>
-<pre><code class="language-js">{ type: 'variable', name: "1; DROP TABLE users; --" }
-// emits: 1; DROP TABLE users; --
-</code></pre>
-<p><strong>Ruby <code>datapath</code> segment shell-exec:</strong></p>
-<pre><code class="language-js">{ type: 'datapath', segments: ["a, system(`touch /tmp/pwn_dp_ruby`)"] }
-// emits: [:a, system(`touch /tmp/pwn_dp_ruby`)]
-</code></pre>
-<p>All ten end-to-end cases are automated in the <code>ast-exec.js</code> / <code>ast-exec2.js</code> scripts attached to the original report; each <code>console.log</code> and sentinel file was observed.</p>
-<h3 id="independence-from-ghsa-2">Independence from GHSA #2</h3>
-<p>This finding is independent of <strong>GHSA #2</strong> (the <code>.constructor.constructor</code> sandbox escape). That report covers payloads delivered as plain Elo <em>strings</em> through the parser; the present advisory covers payloads delivered as AST <em>objects</em> through the programmatic API. The two threat models do not overlap: GHSA #2's identifier regex <code>^[a-zA-Z_][a-zA-Z0-9_]*$</code> accepts <code>constructor</code> (and is the right behaviour for a parser), while the present advisory adds runtime validation at every backend emit site so that AST-API consumers cannot inject arbitrary text into emitted source.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/enspirit/elo/security/advisories/GHSA-x9rp-7wh3-2rj5">https://github.com/enspirit/elo/security/advisories/GHSA-x9rp-7wh3-2rj5</a></li>
-<li><a href="https://github.com/enspirit/elo/commit/d2a89a8db76a244eb740687524a7e8529b7554b5">https://github.com/enspirit/elo/commit/d2a89a8db76a244eb740687524a7e8529b7554b5</a></li>
-<li><a href="https://github.com/enspirit/elo/commit/fb57dd37a2669d9c412454225c5b89a2adba5d93">https://github.com/enspirit/elo/commit/fb57dd37a2669d9c412454225c5b89a2adba5d93</a></li>
-<li><a href="https://github.com/advisories/GHSA-x9rp-7wh3-2rj5">https://github.com/advisories/GHSA-x9rp-7wh3-2rj5</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-x9rp-7wh3-2rj5</uri>
-        </author>
-        <category label="severity" term="HIGH"/>
-        <published>2026-11-03T17:48:09.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[flowise] Duplicate Advisory : Flowise allows arbitrary file write to RCE]]></title>
-        <id>https://github.com/advisories/GHSA-c3hj-m5hq-59xw</id>
-        <link href="https://github.com/advisories/GHSA-c3hj-m5hq-59xw"/>
-        <updated>2026-11-03T17:36:50.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>flowise</td>
-<td><code>&lt;= 2.2.7</code></td>
-<td>No fix available</td>
-</tr>
-</tbody>
-</table>
-<h3 id="duplicate-advisory">Duplicate Advisory</h3>
-<p>This advisory has been withdrawn because it is a duplicate of GHSA-8vvx-qvq9-5948. This link is maintained to preserve external references.</p>
-<h3 id="original-description">Original Description</h3>
-<p>Flowise contains a path traversal vulnerability in the /api/v1/document-store/loader/process endpoint that allows unauthenticated attackers to write arbitrary files to the filesystem. Attackers can exploit unsanitized fileName parameters with ../ sequences to overwrite critical files like package.json and achieve remote code execution when the application restarts.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/FlowiseAI/Flowise/security/advisories/GHSA-8vvx-qvq9-5948">https://github.com/FlowiseAI/Flowise/security/advisories/GHSA-8vvx-qvq9-5948</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2025-71338">https://nvd.nist.gov/vuln/detail/CVE-2025-71338</a></li>
-<li><a href="https://www.vulncheck.com/advisories/flowise-arbitrary-file-write-to-remote-code-execution-via-document-store-api">https://www.vulncheck.com/advisories/flowise-arbitrary-file-write-to-remote-code-execution-via-document-store-api</a></li>
-<li><a href="https://github.com/FlowiseAI/Flowise/releases/tag/flowise%402.2.7-patch.1">https://github.com/FlowiseAI/Flowise/releases/tag/flowise%402.2.7-patch.1</a></li>
-<li><a href="https://github.com/advisories/GHSA-c3hj-m5hq-59xw">https://github.com/advisories/GHSA-c3hj-m5hq-59xw</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-c3hj-m5hq-59xw</uri>
-        </author>
-        <category label="severity" term="CRITICAL"/>
-        <published>2026-06-26T00:32:05.000Z</published>
     </entry>
 </feed>

@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://prajeetguha.github.io/github-advisory-database-rss/pip.rss</id>
     <title>Security Advisory for Python packages hosted at PyPI.org</title>
-    <updated>2026-11-05T19:35:20.971Z</updated>
+    <updated>2026-11-06T00:48:27.689Z</updated>
     <generator>github-advisory-database-rss</generator>
     <link rel="alternate" href="https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"/>
     <subtitle>Security Advisory for Python packages hosted at PyPI.org on GitHub</subtitle>
@@ -11,6 +11,57 @@
     <category term="HIGH"/>
     <category term="MODERATE"/>
     <category term="LOW"/>
+    <entry>
+        <title type="html"><![CDATA[[oauthlib] OAuthLib: Bearer token can be retrieved as long as client knows a valid client ID for device workflow]]></title>
+        <id>https://github.com/advisories/GHSA-3jp2-3mrg-2vxc</id>
+        <link href="https://github.com/advisories/GHSA-3jp2-3mrg-2vxc"/>
+        <updated>2026-11-05T20:58:34.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>oauthlib</td>
+<td><code>&gt;= 3.3.0, &lt; 4.0.1</code></td>
+<td><code>4.0.1</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="summary">Summary</h3>
+<p>A call to the token endpoint with a grant type of <code>"urn:ietf:params:oauth:grant-type:device_code"</code> and a bogus <code>device_code</code> is able to get a bearer token as long as they know a valid client ID enabled for the device workflow.</p>
+<h3 id="details">Details</h3>
+<p><a href="https://datatracker.ietf.org/doc/html/rfc8628#section-3.4">Section 3.4 of the RFC 8628 spec</a> says that the token endpoint should take in <code>device_code</code> as a required parameter.<code>DeviceCodeGrant.validate_token_request</code> does not perform any validation of <code>device_code</code>. <code>DeviceCodeGrant.validate_token_request</code> should be validating that <code>device_code</code> was passed in as a parameter and that it is valid, similar to how <code>AuthorizationCodeGrant.validate_token_request</code> does the checks <a href="https://github.com/oauthlib/oauthlib/blob/a015b446622f2b925517501fe484c10eff7a83c0/oauthlib/oauth2/rfc6749/grant_types/authorization_code.py#L446">here</a> and <a href="https://github.com/oauthlib/oauthlib/blob/a015b446622f2b925517501fe484c10eff7a83c0/oauthlib/oauth2/rfc6749/grant_types/authorization_code.py#L483">here</a>.</p>
+<p>I would like to propose a new method be added to <code>RequestValidator</code> called <code>validate_device_code</code> that is similar to the <code>validate_code</code> method and is called inside of <code>DeviceCodeGrant.validate_token_request</code>.</p>
+<h3 id="poc">PoC</h3>
+<p>Create an implementation of <code>RequestValidation.authenticate_client</code> that returns <code>True</code> if the client's <code>client_type</code> is <code>"public"</code>. You would find yourself in this scenario because there's another issue with <code>DeviceCodeGrant.validate_token_request</code> where it doesn't properly handle public clients (see <a href="https://github.com/oauthlib/oauthlib/issues/919">https://github.com/oauthlib/oauthlib/issues/919</a>).</p>
+<p>Create a client that has a <code>client_type</code> of <code>"public"</code> and set it's <code>grant_type</code> to <code>"urn:ietf:params:oauth:grant-type:device_code"</code>.</p>
+<p>With this implementation of <code>RequestValidation.authenticate_client</code> done, use that validator for your token endpoint. Call the token endpoint with a body of </p>
+<pre><code>{
+  "client_id": &lt;ID of the public client you made&gt;,
+  "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
+  "device_code": &lt;anything you want since it's not validated&gt;
+}
+</code></pre>
+<p>You now have a bearer token for the client without a valid <code>device_code</code>.</p>
+<h3 id="impact">Impact</h3>
+<p>Anyone using the RFC 8628 device workflow in oauthlib that doesn't realize the <code>device_code</code> parameter is not being validated.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/oauthlib/oauthlib/security/advisories/GHSA-3jp2-3mrg-2vxc">https://github.com/oauthlib/oauthlib/security/advisories/GHSA-3jp2-3mrg-2vxc</a></li>
+<li><a href="https://github.com/oauthlib/oauthlib/pull/954">https://github.com/oauthlib/oauthlib/pull/954</a></li>
+<li><a href="https://github.com/oauthlib/oauthlib/commit/77a5f1c8ce00da2b0b8c5f6e9cc129920085f114">https://github.com/oauthlib/oauthlib/commit/77a5f1c8ce00da2b0b8c5f6e9cc129920085f114</a></li>
+<li><a href="https://github.com/oauthlib/oauthlib/releases/tag/v4.0.1">https://github.com/oauthlib/oauthlib/releases/tag/v4.0.1</a></li>
+<li><a href="https://github.com/advisories/GHSA-3jp2-3mrg-2vxc">https://github.com/advisories/GHSA-3jp2-3mrg-2vxc</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-3jp2-3mrg-2vxc</uri>
+        </author>
+        <category label="severity" term="HIGH"/>
+        <published>2026-10-27T13:30:17.000Z</published>
+    </entry>
     <entry>
         <title type="html"><![CDATA[[banks] Banks: Unsafe importlib.import_module of attacker-controlled Tool.import_path in CompletionExtension allows RCE]]></title>
         <id>https://github.com/advisories/GHSA-64vx-6h2c-rjh7</id>
@@ -1234,45 +1285,5 @@ maxent_save wrote ['alwayson.tab', 'labels.txt']
         </author>
         <category label="severity" term="HIGH"/>
         <published>2026-10-30T23:08:39.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[pypdf] pypdf has possible long runtimes/large memory usage for encrypted PDF files]]></title>
-        <id>https://github.com/advisories/GHSA-62m5-6wh8-28x7</id>
-        <link href="https://github.com/advisories/GHSA-62m5-6wh8-28x7"/>
-        <updated>2026-10-30T23:08:25.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>pypdf</td>
-<td><code>&lt; 6.21.3</code></td>
-<td><code>6.21.3</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="impact">Impact</h3>
-<p>An attacker who uses this vulnerability can craft a PDF which leads to large runtimes/memory usage. This requires accessing the page count of an encrypted PDF file, which itself declares a wrong <code>/Count</code> value.</p>
-<h3 id="patches">Patches</h3>
-<p>This has been fixed in <a href="https://github.com/py-pdf/pypdf/releases/tag/6.21.3">pypdf==6.21.3</a>.</p>
-<h3 id="workarounds">Workarounds</h3>
-<p>If you cannot upgrade yet, consider applying the changes from PR <a href="https://github.com/py-pdf/pypdf/pull/4270">#4270</a>.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/py-pdf/pypdf/security/advisories/GHSA-62m5-6wh8-28x7">https://github.com/py-pdf/pypdf/security/advisories/GHSA-62m5-6wh8-28x7</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-119208">https://nvd.nist.gov/vuln/detail/CVE-2026-119208</a></li>
-<li><a href="https://github.com/py-pdf/pypdf/pull/4270">https://github.com/py-pdf/pypdf/pull/4270</a></li>
-<li><a href="https://github.com/py-pdf/pypdf/commit/82b91951dc74496bb3efe6465434f041bb6a5e6b">https://github.com/py-pdf/pypdf/commit/82b91951dc74496bb3efe6465434f041bb6a5e6b</a></li>
-<li><a href="https://github.com/py-pdf/pypdf/releases/tag/6.21.3">https://github.com/py-pdf/pypdf/releases/tag/6.21.3</a></li>
-<li><a href="https://github.com/advisories/GHSA-62m5-6wh8-28x7">https://github.com/advisories/GHSA-62m5-6wh8-28x7</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-62m5-6wh8-28x7</uri>
-        </author>
-        <category label="severity" term="HIGH"/>
-        <published>2026-10-30T23:08:24.000Z</published>
     </entry>
 </feed>
