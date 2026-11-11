@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://prajeetguha.github.io/github-advisory-database-rss/pip.rss</id>
     <title>Security Advisory for Python packages hosted at PyPI.org</title>
-    <updated>2026-11-10T20:16:37.043Z</updated>
+    <updated>2026-11-11T01:02:42.792Z</updated>
     <generator>github-advisory-database-rss</generator>
     <link rel="alternate" href="https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"/>
     <subtitle>Security Advisory for Python packages hosted at PyPI.org on GitHub</subtitle>
@@ -11,6 +11,108 @@
     <category term="HIGH"/>
     <category term="MODERATE"/>
     <category term="LOW"/>
+    <entry>
+        <title type="html"><![CDATA[[compose-lint] compose-lint: File paths embedded in pull requests can inject CI workflow commands through command-line error messages ]]></title>
+        <id>https://github.com/advisories/GHSA-8v59-qmwv-4p6q</id>
+        <link href="https://github.com/advisories/GHSA-8v59-qmwv-4p6q"/>
+        <updated>2026-11-10T21:58:54.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>compose-lint</td>
+<td><code>= 0.31.0</code></td>
+<td><code>0.32.0</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="impact">Impact</h3>
+<p>0.31.0 fixed GHSA-6f4g-xm8v-pgv6, where text from a Compose file became GitHub Actions workflow commands in compose-lint's output. The fix escapes the command openers in compose-lint's own output, but not in the argument parser's error messages. When a repository path reaches compose-lint's arguments without a <code>--</code> before it, the argument parser prints it raw in its error message. That includes a carriage return, which the runner treats as a line break, so a command can also start a new line there.</p>
+<p>A pull request can therefore create annotations, fold or hide parts of the job log, or issue other commands the runner accepts, when CI runs compose-lint over it, before anyone reviews it. The pass/fail result is not changed.</p>
+<p>Affected setups pass repository paths to compose-lint without a <code>--</code> before them: the pre-commit hook when <code>args:</code> is set without the documented trailing <code>--</code>, or the <code>compose-lint</code> package or Docker image called that way in a workflow. The pre-commit hook's default configuration passes <code>--</code> and is not affected. The GitHub Action turns command processing off around each compose-lint run, so it is not affected.</p>
+<p>Found during an internal pre-1.0 security review. It was first published as part of GHSA-r7j4-crjv-h467, together with four other gaps in the same fix. Each gap now has its own advisory.</p>
+<p><strong>Docker image.</strong> <code>composelint/compose-lint</code> tag 0.31.0 and the matching minor tag are affected, as was <code>latest</code> while it pointed to 0.31.0.</p>
+<p>Releases before 0.31.0 are covered by GHSA-6f4g-xm8v-pgv6.</p>
+<h3 id="patches">Patches</h3>
+<p>Fixed in 0.32.0. The argument parser's messages go through the same sanitizer as the rest of compose-lint's output.</p>
+<h3 id="workarounds">Workarounds</h3>
+<ul>
+<li>Upgrade to 0.32.0 or later.</li>
+<li>End the pre-commit hook's <code>args:</code> with <code>--</code>, and put <code>--</code> before file paths when calling compose-lint directly.</li>
+<li>On GitHub Actions, use the <code>tmatens/compose-lint</code> Action, or bracket the compose-lint step with <code>::stop-commands::&lt;random token&gt;</code> and <code>::&lt;token&gt;::</code>, as the Action does.</li>
+</ul>
+<h3 id="reproduction">Reproduction</h3>
+<p>On compose-lint 0.31.0 on a GitHub-hosted runner (runner 2.337.0), <code>compose-lint '--##[warning]X/compose.yml'</code> with no <code>--</code> creates an annotation. The same path after <code>--</code> creates none. The <code>composelint/compose-lint:0.31.0</code> image produces byte-identical output to the package.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/tmatens/compose-lint/security/advisories/GHSA-8v59-qmwv-4p6q">https://github.com/tmatens/compose-lint/security/advisories/GHSA-8v59-qmwv-4p6q</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-125123">https://nvd.nist.gov/vuln/detail/CVE-2026-125123</a></li>
+<li><a href="https://github.com/tmatens/compose-lint/pull/945">https://github.com/tmatens/compose-lint/pull/945</a></li>
+<li><a href="https://github.com/tmatens/compose-lint/commit/542e63126f795564a65c63887ea0dc558a500688">https://github.com/tmatens/compose-lint/commit/542e63126f795564a65c63887ea0dc558a500688</a></li>
+<li><a href="https://github.com/tmatens/compose-lint/releases/tag/v0.32.0">https://github.com/tmatens/compose-lint/releases/tag/v0.32.0</a></li>
+<li><a href="https://github.com/advisories/GHSA-8v59-qmwv-4p6q">https://github.com/advisories/GHSA-8v59-qmwv-4p6q</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-8v59-qmwv-4p6q</uri>
+        </author>
+        <category label="severity" term="LOW"/>
+        <published>2026-11-10T21:58:53.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[compose-lint] compose-lint: Text in a pull request can issue CI workflow commands through JSON and SARIF output on stdout]]></title>
+        <id>https://github.com/advisories/GHSA-hr4h-4c45-v4q4</id>
+        <link href="https://github.com/advisories/GHSA-hr4h-4c45-v4q4"/>
+        <updated>2026-11-10T21:40:51.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>compose-lint</td>
+<td><code>= 0.31.0</code></td>
+<td><code>0.32.0</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="impact">Impact</h3>
+<p>0.31.0 fixed GHSA-6f4g-xm8v-pgv6, where text from a Compose file became GitHub Actions workflow commands in compose-lint's output. <code>--format json</code> and <code>--format sarif</code> output never passed through that fix, so <code>##[</code> inside a service name or other value reaches the log intact when the output is printed to stdout rather than written to a file. The runner acts on <code>##[</code> in the middle of a line, so the JSON layout does not prevent it.</p>
+<p>A pull request can therefore create annotations, fold or hide parts of the job log, or issue other commands the runner accepts, when CI runs compose-lint over it, before anyone reviews it. The pass/fail result is not changed.</p>
+<p>Affected setups print JSON or SARIF output to a CI log from the <code>compose-lint</code> package, the pre-commit hook or the Docker image. Writing that output to a file, which SARIF upload requires, is not affected. The GitHub Action turns command processing off around each compose-lint run, so it is not affected.</p>
+<p>Found during an internal pre-1.0 security review. It was first published as part of GHSA-r7j4-crjv-h467, together with four other gaps in the same fix. Each gap now has its own advisory.</p>
+<p><strong>Docker image.</strong> <code>composelint/compose-lint</code> tag 0.31.0 and the matching minor tag are affected, as was <code>latest</code> while it pointed to 0.31.0.</p>
+<p>Releases before 0.31.0 are covered by GHSA-6f4g-xm8v-pgv6.</p>
+<h3 id="patches">Patches</h3>
+<p>Fixed in 0.32.0. JSON and SARIF on stdout escape <code>##[</code> inside strings as <code>\u005b</code>, which decodes to the same data.</p>
+<h3 id="workarounds">Workarounds</h3>
+<ul>
+<li>Upgrade to 0.32.0 or later.</li>
+<li>Write <code>--format json</code> and <code>--format sarif</code> output to a file rather than the log.</li>
+<li>On GitHub Actions, use the <code>tmatens/compose-lint</code> Action, or bracket the compose-lint step with <code>::stop-commands::&lt;random token&gt;</code> and <code>::&lt;token&gt;::</code>, as the Action does.</li>
+</ul>
+<h3 id="reproduction">Reproduction</h3>
+<p>On compose-lint 0.31.0 on a GitHub-hosted runner (runner 2.337.0), a service named <code>a##[warning]X</code>, linted with <code>--format json</code> or <code>--format sarif</code> to stdout, creates annotations. The same file linted with the text report creates none. The <code>composelint/compose-lint:0.31.0</code> image produces byte-identical output to the package.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/tmatens/compose-lint/security/advisories/GHSA-hr4h-4c45-v4q4">https://github.com/tmatens/compose-lint/security/advisories/GHSA-hr4h-4c45-v4q4</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-125122">https://nvd.nist.gov/vuln/detail/CVE-2026-125122</a></li>
+<li><a href="https://github.com/tmatens/compose-lint/pull/945">https://github.com/tmatens/compose-lint/pull/945</a></li>
+<li><a href="https://github.com/tmatens/compose-lint/commit/542e63126f795564a65c63887ea0dc558a500688">https://github.com/tmatens/compose-lint/commit/542e63126f795564a65c63887ea0dc558a500688</a></li>
+<li><a href="https://github.com/tmatens/compose-lint/releases/tag/v0.32.0">https://github.com/tmatens/compose-lint/releases/tag/v0.32.0</a></li>
+<li><a href="https://github.com/advisories/GHSA-hr4h-4c45-v4q4">https://github.com/advisories/GHSA-hr4h-4c45-v4q4</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-hr4h-4c45-v4q4</uri>
+        </author>
+        <category label="severity" term="LOW"/>
+        <published>2026-11-10T21:40:50.000Z</published>
+    </entry>
     <entry>
         <title type="html"><![CDATA[[Pillow]  Pillow: Memory disclosure and segfault in libtiff encoder via crafted TIFF tags]]></title>
         <id>https://github.com/advisories/GHSA-xvh5-g6gv-559v</id>
@@ -2031,146 +2133,5 @@ template     {% with p=user_input %}{{ p }}{% endwith %}
         </author>
         <category label="severity" term="HIGH"/>
         <published>2026-09-17T20:31:48.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[djust] djust: A template binding inherits a context safety grant it never earned (XSS)]]></title>
-        <id>https://github.com/advisories/GHSA-xjw9-38cr-6372</id>
-        <link href="https://github.com/advisories/GHSA-xjw9-38cr-6372"/>
-        <updated>2026-11-09T22:09:15.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>djust</td>
-<td><code>&lt; 1.0.10</code></td>
-<td><code>1.0.10</code></td>
-</tr>
-</tbody>
-</table>
-<p>A context safety grant was inherited by a template <strong>binding</strong> that never earned it, so rebinding a name the view had marked safe left the mark attached to the new, attacker-controlled value.</p>
-<p>djust's context safety channel is keyed by <strong>name</strong>, not by value. Every bind copied the value and left the grant in place:</p>
-<pre><code>view marks   p = mark_safe('&lt;b&gt;trusted&lt;/b&gt;')
-template     {% with p=user_input %}{{ p }}{% endwith %}
-
-  djust   '&lt;img src=x onerror=alert(1)&gt;'          &lt;- executes
-  django  '&amp;lt;img src=x onerror=alert(1)&amp;gt;'
-</code></pre>
-<h2 id="affected-binds">Affected binds</h2>
-<p>Eight distinct shapes were live. All are fixed in 1.1.2:</p>
-<table>
-<thead>
-<tr>
-<th>shape</th>
-<th>example</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>{% with %}</code> rebinding a marked name</td>
-<td><code>{% with p=hostile %}{{ p }}{% endwith %}</code></td>
-</tr>
-<tr>
-<td><code>{% with %}</code> <strong>descendant</strong> of a rebound name</td>
-<td><code>{% with p=hostile %}{{ p.a }}{% endwith %}</code></td>
-</tr>
-<tr>
-<td><code>{% with %}</code> binding over a marked name</td>
-<td><code>{% with q=hostile %}{{ q }}{% endwith %}</code></td>
-</tr>
-<tr>
-<td><code>{% for %}</code> loop variable</td>
-<td><code>{% for p in hostiles %}{{ p }}{% endfor %}</code></td>
-</tr>
-<tr>
-<td><code>{% for %}</code> descendant</td>
-<td><code>{% for p in hostiles %}{{ p.a }}{% endfor %}</code></td>
-</tr>
-<tr>
-<td><code>{% for %}</code> tuple unpacking</td>
-<td><code>{% for k, v in rows %}{{ v }}{% endfor %}</code></td>
-</tr>
-<tr>
-<td><code>{% include … with %}</code></td>
-<td><code>{% include "c.html" with q=hostile %}</code></td>
-</tr>
-<tr>
-<td>assign tags</td>
-<td><code>{% … as x %}</code></td>
-</tr>
-</tbody></table>
-<p>No filter chain and no <code>|safe</code> anywhere in the template is required. The precondition is that the application marked <em>some</em> value safe under a name that a template later rebinds — an ordinary pattern, since a view commonly marks trusted markup safe and templates commonly reuse short names such as <code>p</code>, <code>item</code> or <code>row</code>.</p>
-<h2 id="impact">Impact</h2>
-<p>Stored or reflected XSS in any djust application that combines <code>mark_safe</code> (or any framework path that grants a context key safety) with a template that rebinds that name. Exploitation requires no unusual template construct.</p>
-<h2 id="patches">Patches</h2>
-<p>Fixed in <strong>1.1.2</strong>, and in 1.2.0 (<code>main</code>).</p>
-<p>The rule is that a bind <strong>replaces</strong> the grant rather than inheriting one. It is stated that way deliberately: the originally reported defects pointed the <em>opposite</em> direction — a grant being <strong>lost</strong> across some binds, causing over-escaping — and fixing only the reported direction would have left this leak in place. Both directions are the same rule.</p>
-<p><strong>Not fixed in 1.1.2</strong>, and tracked for 1.2.0: two over-escaping cases where a grant fails to travel with a value that legitimately carries one (<code>{% with body=post.text|linebreaks %}</code>, and <code>mark_safe</code> reaching a template through <code>dict.values</code> / <code>dict.items</code>). Both escape <em>more</em> than Django rather than less, so neither is a leak.</p>
-<h2 id="workarounds">Workarounds</h2>
-<p>Before upgrading, avoid reusing a context name for both <code>mark_safe</code>'d content and untrusted input, and avoid rebinding such a name in <code>{% with %}</code>, <code>{% for %}</code>, <code>{% include … with %}</code> or an assign tag.</p>
-<h2 id="credit">Credit</h2>
-<p>Found while preparing the 1.1.1 security release: the reproducer published in GHSA-9395-2g46-rj3f was run against the built 1.1.1 artifact before that advisory was published, and proved the class was still live. Publishing the original text would have reported this class as patched when it was not.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/djust-org/djust/security/advisories/GHSA-xjw9-38cr-6372">https://github.com/djust-org/djust/security/advisories/GHSA-xjw9-38cr-6372</a></li>
-<li><a href="https://github.com/djust-org/djust/releases/tag/v1.1.2">https://github.com/djust-org/djust/releases/tag/v1.1.2</a></li>
-<li><a href="https://github.com/djust-org/djust/pull/2444">https://github.com/djust-org/djust/pull/2444</a></li>
-<li><a href="https://github.com/djust-org/djust/commit/06d213dbdd82f5b1c2affe2f869ae88a71809e4a">https://github.com/djust-org/djust/commit/06d213dbdd82f5b1c2affe2f869ae88a71809e4a</a></li>
-<li><a href="https://github.com/djust-org/djust/commit/5288e5dbc8d83d8aee8a22a0a7a3a478461c8965">https://github.com/djust-org/djust/commit/5288e5dbc8d83d8aee8a22a0a7a3a478461c8965</a></li>
-<li><a href="https://github.com/djust-org/djust/releases/tag/v1.0.10">https://github.com/djust-org/djust/releases/tag/v1.0.10</a></li>
-<li><a href="https://github.com/advisories/GHSA-xjw9-38cr-6372">https://github.com/advisories/GHSA-xjw9-38cr-6372</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-xjw9-38cr-6372</uri>
-        </author>
-        <category label="severity" term="HIGH"/>
-        <published>2026-09-17T20:31:48.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[urwid] Urwid: handle_short_request() crashes on non-ASCII POST body (UnicodeEncodeError DoS)]]></title>
-        <id>https://github.com/advisories/GHSA-cp25-j9x5-p5xm</id>
-        <link href="https://github.com/advisories/GHSA-cp25-j9x5-p5xm"/>
-        <updated>2026-11-09T22:05:08.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>urwid</td>
-<td><code>&lt;= 4.0.6</code></td>
-<td><code>4.0.7</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p>The <code>handle_short_request()</code> function in <code>urwid/display/web.py</code> raises an unhandled <code>UnicodeEncodeError</code> when processing a POST request body containing non-ASCII bytes. The function reads POST input and encodes it to ASCII before writing to a named pipe. Any byte value above <code>0x7F</code> causes the CGI process to exit with an unhandled exception, returning an HTTP 500 error to the client. Additionally, a file descriptor opened earlier in the same function is not closed before the exception propagates, causing a file descriptor leak for the lifetime of the CGI process.</p>
-<p>A second instance of missing exception handling exists in the polling update path, where non-UTF-8 socket output causes an unhandled <code>UnicodeDecodeError</code>.</p>
-<h3 id="impact">Impact</h3>
-<p>An attacker who observes a valid <code>X-Urwid-ID</code> session token (transmitted in plaintext HTTP response headers) can send repeated POST requests containing non-ASCII bytes to the <code>urwid</code> CGI endpoint. Each malformed request causes the CGI handler to crash with HTTP 500. This results in a Denial of Service (DoS) for legitimate users using the <code>urwid</code> web interface.</p>
-<h3 id="affected-versions">Affected Versions</h3>
-<p><code>urwid &lt;= 4.0.6</code></p>
-<h3 id="patches">Patches</h3>
-<p>Fixed in <code>urwid 4.0.7</code>. Users should upgrade to version <code>4.0.7</code> or later.</p>
-<h3 id="workarounds">Workarounds</h3>
-<p>No direct workaround exists short of disabling the <code>urwid</code> web display interface.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/urwid/urwid/security/advisories/GHSA-cp25-j9x5-p5xm">https://github.com/urwid/urwid/security/advisories/GHSA-cp25-j9x5-p5xm</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-103022">https://nvd.nist.gov/vuln/detail/CVE-2026-103022</a></li>
-<li><a href="https://github.com/urwid/urwid/pull/1201">https://github.com/urwid/urwid/pull/1201</a></li>
-<li><a href="https://github.com/urwid/urwid/commit/b79d9a96843a6f5950bb2bfab5d059bdc61c538b">https://github.com/urwid/urwid/commit/b79d9a96843a6f5950bb2bfab5d059bdc61c538b</a></li>
-<li><a href="https://github.com/urwid/urwid/releases/tag/4.0.7">https://github.com/urwid/urwid/releases/tag/4.0.7</a></li>
-<li><a href="https://github.com/advisories/GHSA-cp25-j9x5-p5xm">https://github.com/advisories/GHSA-cp25-j9x5-p5xm</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-cp25-j9x5-p5xm</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-11-09T22:05:06.000Z</published>
     </entry>
 </feed>
