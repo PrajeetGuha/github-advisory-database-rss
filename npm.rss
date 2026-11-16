@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://prajeetguha.github.io/github-advisory-database-rss/npm.rss</id>
     <title>Security Advisory for JavaScript packages hosted at npmjs.com</title>
-    <updated>2026-11-16T05:01:59.553Z</updated>
+    <updated>2026-11-16T14:57:27.197Z</updated>
     <generator>github-advisory-database-rss</generator>
     <link rel="alternate" href="https://github.com/advisories?query=type%3Areviewed+ecosystem%3Anpm"/>
     <subtitle>Security Advisory for JavaScript packages hosted at npmjs.com on GitHub</subtitle>
@@ -11,6 +11,114 @@
     <category term="HIGH"/>
     <category term="MODERATE"/>
     <category term="LOW"/>
+    <entry>
+        <title type="html"><![CDATA[[@sveltejs/kit] SvelteKit: Private `query.batch` functions could collide, producing unexpected parameter / function combinations]]></title>
+        <id>https://github.com/advisories/GHSA-6cf5-gc4q-fm3x</id>
+        <link href="https://github.com/advisories/GHSA-6cf5-gc4q-fm3x"/>
+        <updated>2026-11-16T14:49:05.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>@sveltejs/kit</td>
+<td><code>&gt;= 2.60.1, &lt;= 3.1.0</code></td>
+<td><code>3.1.1</code></td>
+</tr>
+</tbody>
+</table>
+<p>Under certain circumstances, private (non-exported) <code>query.batch</code> functions could end up sharing a batch, resulting in the arguments from one function being passed to another. This only affects apps using the experimental remote functions flag and non-exported <code>query.batch</code> functions.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/sveltejs/kit/security/advisories/GHSA-6cf5-gc4q-fm3x">https://github.com/sveltejs/kit/security/advisories/GHSA-6cf5-gc4q-fm3x</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-128119">https://nvd.nist.gov/vuln/detail/CVE-2026-128119</a></li>
+<li><a href="https://github.com/sveltejs/kit/commit/2c190febe78a15cac21be539ed9e99dc2d414b60">https://github.com/sveltejs/kit/commit/2c190febe78a15cac21be539ed9e99dc2d414b60</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/kit@3.1.1">https://github.com/sveltejs/kit/releases/tag/@sveltejs/kit@3.1.1</a></li>
+<li><a href="https://github.com/advisories/GHSA-6cf5-gc4q-fm3x">https://github.com/advisories/GHSA-6cf5-gc4q-fm3x</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-6cf5-gc4q-fm3x</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2026-11-16T14:49:03.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[@sveltejs/kit] SvelteKit: Protocol-relative module import during server-side route resolution allows cross-origin script execution]]></title>
+        <id>https://github.com/advisories/GHSA-rqp5-r3wg-vg35</id>
+        <link href="https://github.com/advisories/GHSA-rqp5-r3wg-vg35"/>
+        <updated>2026-11-16T14:48:56.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>@sveltejs/kit</td>
+<td><code>&lt; 2.70.4</code></td>
+<td><code>2.70.4</code></td>
+</tr>
+</tbody>
+</table>
+<p>If an attacker could, using some form of social engineering or other exploit, get a user to use client-side navigation to navigate to a specially-crafted link, the attacker could cause code from another domain to be imported and run on the user's machine. This only affected apps with <code>router.resolution: 'server'</code>.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/sveltejs/kit/security/advisories/GHSA-rqp5-r3wg-vg35">https://github.com/sveltejs/kit/security/advisories/GHSA-rqp5-r3wg-vg35</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-128116">https://nvd.nist.gov/vuln/detail/CVE-2026-128116</a></li>
+<li><a href="https://github.com/sveltejs/kit/pull/17620">https://github.com/sveltejs/kit/pull/17620</a></li>
+<li><a href="https://github.com/sveltejs/kit/commit/0a2e58cbccdd46cac20aa5af4e2edf17e0da11dd">https://github.com/sveltejs/kit/commit/0a2e58cbccdd46cac20aa5af4e2edf17e0da11dd</a></li>
+<li><a href="https://github.com/sveltejs/kit/commit/a8f7c1e09f13524d3b71d814bad9c15c9f33ef49">https://github.com/sveltejs/kit/commit/a8f7c1e09f13524d3b71d814bad9c15c9f33ef49</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/kit@2.70.4">https://github.com/sveltejs/kit/releases/tag/@sveltejs/kit@2.70.4</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/kit@3.1.1">https://github.com/sveltejs/kit/releases/tag/@sveltejs/kit@3.1.1</a></li>
+<li><a href="https://github.com/advisories/GHSA-rqp5-r3wg-vg35">https://github.com/advisories/GHSA-rqp5-r3wg-vg35</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-rqp5-r3wg-vg35</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2026-11-16T14:48:54.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[@sveltejs/kit] SvelteKit: Protocol-relative module import during server-side route resolution allows cross-origin script execution]]></title>
+        <id>https://github.com/advisories/GHSA-rqp5-r3wg-vg35</id>
+        <link href="https://github.com/advisories/GHSA-rqp5-r3wg-vg35"/>
+        <updated>2026-11-16T14:48:56.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>@sveltejs/kit</td>
+<td><code>&gt;= 3.0.0, &lt; 3.1.1</code></td>
+<td><code>3.1.1</code></td>
+</tr>
+</tbody>
+</table>
+<p>If an attacker could, using some form of social engineering or other exploit, get a user to use client-side navigation to navigate to a specially-crafted link, the attacker could cause code from another domain to be imported and run on the user's machine. This only affected apps with <code>router.resolution: 'server'</code>.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/sveltejs/kit/security/advisories/GHSA-rqp5-r3wg-vg35">https://github.com/sveltejs/kit/security/advisories/GHSA-rqp5-r3wg-vg35</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-128116">https://nvd.nist.gov/vuln/detail/CVE-2026-128116</a></li>
+<li><a href="https://github.com/sveltejs/kit/pull/17620">https://github.com/sveltejs/kit/pull/17620</a></li>
+<li><a href="https://github.com/sveltejs/kit/commit/0a2e58cbccdd46cac20aa5af4e2edf17e0da11dd">https://github.com/sveltejs/kit/commit/0a2e58cbccdd46cac20aa5af4e2edf17e0da11dd</a></li>
+<li><a href="https://github.com/sveltejs/kit/commit/a8f7c1e09f13524d3b71d814bad9c15c9f33ef49">https://github.com/sveltejs/kit/commit/a8f7c1e09f13524d3b71d814bad9c15c9f33ef49</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/kit@2.70.4">https://github.com/sveltejs/kit/releases/tag/@sveltejs/kit@2.70.4</a></li>
+<li><a href="https://github.com/sveltejs/kit/releases/tag/@sveltejs/kit@3.1.1">https://github.com/sveltejs/kit/releases/tag/@sveltejs/kit@3.1.1</a></li>
+<li><a href="https://github.com/advisories/GHSA-rqp5-r3wg-vg35">https://github.com/advisories/GHSA-rqp5-r3wg-vg35</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-rqp5-r3wg-vg35</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2026-11-16T14:48:54.000Z</published>
+    </entry>
     <entry>
         <title type="html"><![CDATA[[ag-psd] ag-psd can exhaust memory when parsing crafted PSD dimensions]]></title>
         <id>https://github.com/advisories/GHSA-qfx6-q44v-9qqw</id>
@@ -766,141 +874,5 @@ const Tag = Astro.url.searchParams.get('as') ?? 'div';
         </author>
         <category label="severity" term="MODERATE"/>
         <published>2026-11-13T18:11:49.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[hono] Hono: `csrf()` does not check requests sent by hyperlink auditing (`text/ping`)]]></title>
-        <id>https://github.com/advisories/GHSA-46wx-v44x-9hh2</id>
-        <link href="https://github.com/advisories/GHSA-46wx-v44x-9hh2"/>
-        <updated>2026-11-12T23:31:26.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>hono</td>
-<td><code>&lt; 4.13.16</code></td>
-<td><code>4.13.16</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p><code>csrf()</code> validates a request only when its <code>Content-Type</code> is one of the three types an HTML form can send. Chromium's hyperlink auditing (<code>&lt;a ping&gt;</code>) sends a cross-origin POST with the user's cookies and the content type <code>text/ping</code>, which is not in that list. The middleware does not look at <code>Origin</code> or <code>Sec-Fetch-Site</code> for such a request, so it is passed to the handler.</p>
-<h3 id="details">Details</h3>
-<p>The middleware skips the origin check when the content type is not one that a form submission produces. The assumption was that any other content type requires a CORS preflight and therefore cannot be sent cross-origin with credentials. Hyperlink auditing is an exception: Chrome and Edge send the ping as a credentialed POST without a preflight, with a fixed body and <code>Content-Type: text/ping</code>.</p>
-<p>A page on another origin can therefore trigger a POST to any URL of the application. The <code>csrf()</code> options for <code>origin</code> and <code>secFetchSite</code> do not change the outcome, because neither header is evaluated for the request.</p>
-<p>The request body is fixed, so only actions whose effect does not depend on the body can be triggered. Firefox does not send pings by default. As with any CSRF, the user's cookie must be sent with the request, which with the default <code>SameSite=Lax</code> means a same-site origin or a cookie set with <code>SameSite=None</code>.</p>
-<h3 id="impact">Impact</h3>
-<p>A user who visits a malicious page in Chrome or Edge while logged in to an application protected by <code>csrf()</code> can be made to send a state-changing request to that application, such as logging out, deleting a resource, or toggling a setting that is selected by the path or query string.</p>
-<p>This issue affects applications that rely on <code>csrf()</code> as their CSRF protection and expose state-changing endpoints whose effect does not depend on the request body.</p>
-<h3 id="workarounds">Workarounds</h3>
-<p>Reject requests with a <code>Content-Type</code> of <code>text/ping</code> in a middleware registered before <code>csrf()</code>, or set session cookies with <code>SameSite=Strict</code>.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/honojs/hono/security/advisories/GHSA-46wx-v44x-9hh2">https://github.com/honojs/hono/security/advisories/GHSA-46wx-v44x-9hh2</a></li>
-<li><a href="https://github.com/honojs/hono/commit/bf16471913b5199212dac33f5d170f94745dd26a">https://github.com/honojs/hono/commit/bf16471913b5199212dac33f5d170f94745dd26a</a></li>
-<li><a href="https://github.com/honojs/hono/releases/tag/v4.13.16">https://github.com/honojs/hono/releases/tag/v4.13.16</a></li>
-<li><a href="https://github.com/advisories/GHSA-46wx-v44x-9hh2">https://github.com/advisories/GHSA-46wx-v44x-9hh2</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-46wx-v44x-9hh2</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-11-12T23:31:25.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[hono] Hono: `validator('form')` skips validation for `multipart/form-data` requests with extra parameters]]></title>
-        <id>https://github.com/advisories/GHSA-4h7h-rv7c-7m2v</id>
-        <link href="https://github.com/advisories/GHSA-4h7h-rv7c-7m2v"/>
-        <updated>2026-11-12T23:30:46.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>hono</td>
-<td><code>&gt;= 4.5.1, &lt;= 4.13.15</code></td>
-<td><code>4.13.16</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p><code>validator('form')</code> only recognizes a <code>multipart/form-data</code> <code>Content-Type</code> that carries nothing but a single <code>boundary</code> parameter. A request with another legal parameter, such as <code>charset</code>, or with extra whitespace after the <code>;</code> is not recognized as a form. The validation callback then receives an empty object, while <code>c.req.parseBody()</code> still parses the body as a form.</p>
-<h3 id="details">Details</h3>
-<p>The check that decides whether a request body is a form was written as a strict pattern over the whole <code>Content-Type</code> value. Any parameter list that does not look exactly like <code>; boundary=...</code> fails the check. When it fails, the middleware does not read the body and passes an empty object to the validation callback. If the callback accepts an empty object, the request proceeds to the handler, which can still read all submitted fields through <code>c.req.parseBody()</code> or <code>c.req.formData()</code>.</p>
-<p><code>application/x-www-form-urlencoded</code> is not affected. Only the <code>multipart/form-data</code> branch has the strict pattern.</p>
-<p>This issue arises when an application relies on <code>validator('form')</code> to reject or restrict fields and the validation callback does not fail on an empty object.</p>
-<h3 id="impact">Impact</h3>
-<p>An unauthenticated client can send form fields that the <code>form</code> validator never sees, by adding a legal parameter to the <code>Content-Type</code> header.</p>
-<p>This may lead to:</p>
-<ul>
-<li>Allow-list or required-field checks in the validator being skipped</li>
-<li>Fields the application intended to reject reaching the handler</li>
-</ul>
-<p>This issue affects applications that use <code>validator('form')</code> with <code>multipart/form-data</code> requests and whose validation callback accepts an empty object.</p>
-<h3 id="workarounds">Workarounds</h3>
-<p>Reject an empty object in the <code>validator('form')</code> callback, or validate the result of <code>await c.req.parseBody()</code> in the handler.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/honojs/hono/security/advisories/GHSA-4h7h-rv7c-7m2v">https://github.com/honojs/hono/security/advisories/GHSA-4h7h-rv7c-7m2v</a></li>
-<li><a href="https://github.com/honojs/hono/commit/d88fab372415277a9e540e895650943dd08eef4a">https://github.com/honojs/hono/commit/d88fab372415277a9e540e895650943dd08eef4a</a></li>
-<li><a href="https://github.com/honojs/hono/releases/tag/v4.13.16">https://github.com/honojs/hono/releases/tag/v4.13.16</a></li>
-<li><a href="https://github.com/advisories/GHSA-4h7h-rv7c-7m2v">https://github.com/advisories/GHSA-4h7h-rv7c-7m2v</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-4h7h-rv7c-7m2v</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-11-12T23:30:45.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[hono] Hono: `mount()` and `app.mount()` can forward a path that bypasses middleware scoped inside the mount prefix]]></title>
-        <id>https://github.com/advisories/GHSA-4m76-xfj5-7975</id>
-        <link href="https://github.com/advisories/GHSA-4m76-xfj5-7975"/>
-        <updated>2026-11-12T23:24:12.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>hono</td>
-<td><code>&lt; 4.13.16</code></td>
-<td><code>4.13.16</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p><code>mount()</code> and <code>app.mount()</code> remove the mount prefix from the request path and forward the rest to the mounted application. Two mistakes in that step let a crafted request reach a route of the mounted application that the outer application protects with path-scoped middleware, such as an authentication check on <code>/app/admin/*</code>. The outer application routes on the original path, so the middleware does not run.</p>
-<h3 id="details">Details</h3>
-<ol>
-<li><strong>Dynamic prefix</strong> (all affected versions): for a mount such as <code>/api/:tenant/*</code>, the prefix was removed by the length of the route pattern, not of the matched prefix. A request with a longer or shorter first segment is cut in the middle, so <code>/api/a/xxxxx/admin/secret</code> reaches the mounted application as <code>/admin/secret</code>.</li>
-<li><strong>Re-normalization</strong> (since 4.12.21): the forwarded path was built from the decoded request path and assigned to <code>url.pathname</code>, which turns a decoded backslash into <code>/</code> and collapses <code>..</code>. <code>/app/public%5C..%5Cadmin/secret</code> reaches the mounted application as <code>/admin/secret</code>.</li>
-</ol>
-<p>The fix removes the prefix segment by segment from the raw pathname, using the matched parameter values for its length. Route patterns that cannot be handled safely now throw: duplicate parameter names and a wildcard inside the last segment such as <code>/assets*</code>. A trailing slash in an <code>app.mount()</code> prefix no longer removes an extra segment.</p>
-<h3 id="impact">Impact</h3>
-<p>An unauthenticated client can reach a route of a mounted application that the outer application protects with path-scoped middleware.</p>
-<p>This affects applications that use <code>mount()</code> or <code>app.mount()</code> and rely on middleware registered on a sub-path inside the mount prefix for authentication or authorization.</p>
-<h3 id="workarounds">Workarounds</h3>
-<p>Register the authentication middleware inside the mounted application.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/honojs/hono/security/advisories/GHSA-4m76-xfj5-7975">https://github.com/honojs/hono/security/advisories/GHSA-4m76-xfj5-7975</a></li>
-<li><a href="https://github.com/honojs/hono/commit/34f90432a1794b28e52802670efcd01963f716d6">https://github.com/honojs/hono/commit/34f90432a1794b28e52802670efcd01963f716d6</a></li>
-<li><a href="https://github.com/honojs/hono/releases/tag/v4.13.16">https://github.com/honojs/hono/releases/tag/v4.13.16</a></li>
-<li><a href="https://github.com/advisories/GHSA-4m76-xfj5-7975">https://github.com/advisories/GHSA-4m76-xfj5-7975</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-4m76-xfj5-7975</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-11-12T23:24:11.000Z</published>
     </entry>
 </feed>
