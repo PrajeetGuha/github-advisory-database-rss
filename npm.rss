@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://prajeetguha.github.io/github-advisory-database-rss/npm.rss</id>
     <title>Security Advisory for JavaScript packages hosted at npmjs.com</title>
-    <updated>2026-11-18T06:08:53.605Z</updated>
+    <updated>2026-11-18T16:13:38.346Z</updated>
     <generator>github-advisory-database-rss</generator>
     <link rel="alternate" href="https://github.com/advisories?query=type%3Areviewed+ecosystem%3Anpm"/>
     <subtitle>Security Advisory for JavaScript packages hosted at npmjs.com on GitHub</subtitle>
@@ -523,10 +523,10 @@ if (key === this.options.cdataPropName) {
         <published>2026-11-17T16:13:26.000Z</published>
     </entry>
     <entry>
-        <title type="html"><![CDATA[[picomatch] picomatch vulnerable to ReDoS through single-branch repeated extglobs]]></title>
+        <title type="html"><![CDATA[[picomatch] Withdrawn Advisory: picomatch vulnerable to ReDoS through single-branch repeated extglobs]]></title>
         <id>https://github.com/advisories/GHSA-fc5q-39xc-vjpf</id>
         <link href="https://github.com/advisories/GHSA-fc5q-39xc-vjpf"/>
-        <updated>2026-11-17T15:56:44.000Z</updated>
+        <updated>2026-11-18T15:38:58.000Z</updated>
         <content type="html"><![CDATA[<h3>Affected versions</h3>
 <table>
 <thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
@@ -538,6 +538,9 @@ if (key === this.options.cdataPropName) {
 </tr>
 </tbody>
 </table>
+<h2 id="withdrawn-advisory">Withdrawn Advisory</h2>
+<p>This advisory has been withdrawn because it is a security issue. See <a href="https://github.com/micromatch/picomatch/pull/235#issuecomment-6315749381">https://github.com/micromatch/picomatch/pull/235#issuecomment-6315749381</a> for more information. This link is maintained to preserve external references.</p>
+<h2 id="original-description">Original Description</h2>
 <p>Picomatch through 4.0.7 contains a regular expression denial of service vulnerability that allows attackers to block the event loop by supplying single-branch repeated extglob patterns. Attackers can provide globs like +(*) or +(*a), which analyzeRepeatedExtglob in lib/parse.js skips, causing exponential backtracking against short crafted strings and denying service to Node.js applications.</p>
 <h3 id="references">References</h3>
 <ul>
