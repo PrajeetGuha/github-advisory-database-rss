@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://prajeetguha.github.io/github-advisory-database-rss/pip.rss</id>
     <title>Security Advisory for Python packages hosted at PyPI.org</title>
-    <updated>2026-11-18T16:13:39.652Z</updated>
+    <updated>2026-11-18T23:17:29.135Z</updated>
     <generator>github-advisory-database-rss</generator>
     <link rel="alternate" href="https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"/>
     <subtitle>Security Advisory for Python packages hosted at PyPI.org on GitHub</subtitle>
@@ -11,6 +11,154 @@
     <category term="HIGH"/>
     <category term="MODERATE"/>
     <category term="LOW"/>
+    <entry>
+        <title type="html"><![CDATA[[django-filer] django-filer: Missing per-object authorization on `discard` and `edit_redirect` version transitions]]></title>
+        <id>https://github.com/advisories/GHSA-vf85-8ff2-3r9w</id>
+        <link href="https://github.com/advisories/GHSA-vf85-8ff2-3r9w"/>
+        <updated>2026-11-18T21:20:43.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>django-filer</td>
+<td><code>&lt;= 3.4.4</code></td>
+<td><code>3.5.0</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="summary">Summary</h2>
+<p>When django-filer's optional per-folder permission system is enabled (<code>FILER_ENABLE_PERMISSIONS=True</code>), the "Delete files and/or folders" admin action does <strong>not</strong> enforce per-folder edit permissions the way every other mutating action does. A staff user who is scoped <strong>read-only</strong> on a folder via <code>FolderPermission</code> (<code>can_edit = DENY</code>), but who holds the global Django model-level <code>delete_*</code> permission, can delete files and entire subfolders inside that folder — even though their move, rename, copy, and resize actions on the same folder are correctly denied.</p>
+<p>This is an integrity / edit-control gap (unauthorized deletion). It is <strong>not</strong> a read-confidentiality issue: filer files are world-downloadable by design, so no confidentiality claim is made.</p>
+<h2 id="affected-versions">Affected versions</h2>
+<ul>
+<li>django-filer <code>&lt;= 3.4.4</code> (verified end-to-end on 3.4.4 and on <code>master</code> prior to   the fix).</li>
+</ul>
+<p>Only installations running with <code>FILER_ENABLE_PERMISSIONS = True</code> (the optional per-folder <code>FolderPermission</code> system) are affected. Deployments that leave permissions disabled (the default) rely solely on Django model-level permissions and are not impacted by this specific gap.</p>
+<h2 id="patched-versions">Patched versions</h2>
+<ul>
+<li>Fixed in PR <a href="https://github.com/django-cms/django-filer/pull/1605">#1605</a>.   Upgrade to the first release containing that commit (<code>3.5.0</code> or later).</li>
+</ul>
+<h2 id="details">Details</h2>
+<p>The <code>delete_files_or_folders</code> admin action in <code>filer/admin/folderadmin.py</code> authorized deletion using only:</p>
+<ol>
+<li><code>self.has_delete_permission(request)</code> — which returns <code>True</code> for <code>obj=None</code>, and</li>
+<li>the Django model-level <code>delete_file</code> / <code>delete_folder</code> / <code>delete_image</code>    permission (enforced downstream by the admin delete machinery).</li>
+</ol>
+<p>It never called <code>check_folder_edit_permissions</code> or <code>check_files_edit_permissions</code>. Every sibling mutating action — move, rename, copy, resize — <em>does</em> call these helpers, which walk the selected objects (and their descendants) and enforce the per-folder <code>can_edit</code> grant from <code>FolderPermission</code>.</p>
+<p>Because <code>FolderPermission</code> has no dedicated <code>can_delete</code> field, deletion is treated as an edit/management operation and is gated elsewhere on <code>can_edit</code>. The delete action's omission therefore let a folder-scoped read-only user bypass the per-folder control that constrains all their other write operations.</p>
+<h3 id="precondition">Precondition</h3>
+<p>The attacker must hold the Django model-level <code>delete_file</code> / <code>delete_folder</code> / <code>delete_image</code> permission. A purely read-only user (no model-level delete perm) receives <code>403</code> and cannot exploit this. This precondition matches the standard folder-scoped-staff deployment model, where staff hold model-level permissions and are further constrained per-folder by <code>FolderPermission</code>. </p>
+<h2 id="mitigation">Mitigation</h2>
+<ul>
+<li>Upgrade to the patched release.</li>
+<li>Until upgrading, avoid granting the model-level <code>delete_file</code> /
+<code>delete_folder</code> / <code>delete_image</code> permission to staff who are meant to be
+read-only on specific folders via <code>FolderPermission</code>.</li>
+</ul>
+<h2 id="credit">Credit</h2>
+<p>Reported through coordinated disclosure. Fixed in PR #1605.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/django-cms/django-filer/security/advisories/GHSA-vf85-8ff2-3r9w">https://github.com/django-cms/django-filer/security/advisories/GHSA-vf85-8ff2-3r9w</a></li>
+<li><a href="https://github.com/django-cms/django-filer/pull/1605">https://github.com/django-cms/django-filer/pull/1605</a></li>
+<li><a href="https://github.com/django-cms/django-filer/commit/29d20ec0de13d7f77fa2cea93166f8d50a3f508d">https://github.com/django-cms/django-filer/commit/29d20ec0de13d7f77fa2cea93166f8d50a3f508d</a></li>
+<li><a href="https://github.com/django-cms/django-filer/commit/742ba4c3094dd75e586ca3a05e6ad2703de4553b">https://github.com/django-cms/django-filer/commit/742ba4c3094dd75e586ca3a05e6ad2703de4553b</a></li>
+<li><a href="https://github.com/django-cms/django-filer/releases/tag/3.5.0">https://github.com/django-cms/django-filer/releases/tag/3.5.0</a></li>
+<li><a href="https://github.com/advisories/GHSA-vf85-8ff2-3r9w">https://github.com/advisories/GHSA-vf85-8ff2-3r9w</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-vf85-8ff2-3r9w</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2026-11-18T21:20:42.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[djangocms-versioning] djangocms-versioning: Authorization Bypass Through User-Controlled Key and Missing Authorization]]></title>
+        <id>https://github.com/advisories/GHSA-5g9x-qwh5-33x4</id>
+        <link href="https://github.com/advisories/GHSA-5g9x-qwh5-33x4"/>
+        <updated>2026-11-18T21:19:06.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>djangocms-versioning</td>
+<td><code>&lt;= 2.6.0</code></td>
+<td><code>2.6.1</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="summary">Summary</h2>
+<p>The <code>discard</code> and <code>edit_redirect</code> version transitions did not enforce a per-object change-permission check, while the sibling transitions (<code>archive</code>, <code>publish</code>, <code>unpublish</code>, <code>revert</code>) all did. As a result a low-privileged staff user could <strong>discard (delete) any draft version — and thereby the underlying content object — of content they have no change permission on</strong>, and could create an editable draft off any published version, by supplying a version primary key they should not have access to (an insecure direct object reference).</p>
+<h2 id="details">Details</h2>
+<p>Version state transitions are guarded by <code>Conditions</code> objects declared on <code>djangocms_versioning.models.Version</code>. Every transition that mutates content carries the <code>user_can_change</code> condition, which delegates to the <em>content</em> object's own permission check (<code>Version.has_change_permission</code> → <code>content.has_change_permission</code> / <code>has_placeholder_change_permission</code>, with a final fallback to the Django <code>change_&lt;model&gt;</code> permission).</p>
+<p>Two conditions were missing that check:</p>
+<pre><code class="language-python"># Before (vulnerable)
+check_discard = Conditions([
+    in_state([constants.DRAFT], not_draft_error),
+    is_not_locked(lock_error_message),
+])
+check_edit_redirect = Conditions([
+    in_state([constants.DRAFT, constants.PUBLISHED], _("Version is not in draft or published state")),
+    draft_is_not_locked(lock_draft_error_message),
+])
+</code></pre>
+<p>The corresponding admin views authorize <strong>only</strong> through these conditions:</p>
+<ul>
+<li><code>VersionAdmin.discard_view</code> / <code>VersionAdmin.edit_redirect_view</code> fetch the  target with the stock <code>ModelAdmin.get_object</code>, which is backed by the   <strong>unfiltered</strong> default queryset — no per-user or per-grouper scoping.</li>
+<li>The views are registered with <code>admin_site.admin_view</code>, which enforces only  <code>is_staff</code>.</li>
+<li><code>discard_view</code> deletes the version directly via <code>version.delete()</code> and   never consults <code>VersionAdmin.has_delete_permission</code> (which otherwise   delegates to the content admin and honors <code>ALLOW_DELETING_VERSIONS</code>).</li>
+</ul>
+<p>Because the only per-object gate for these two operations was the <code>Conditions</code> list, and that list omitted <code>user_can_change</code>, any staff user could invoke the operation on any version by its primary key. The changelist action buttons are disabled in the UI via <code>check_discard.as_bool</code> / <code>check_edit_redirect.as_bool</code>, but that is a client-side affordance only and does not protect the directly reachable admin URLs.</p>
+<h2 id="impact">Impact</h2>
+<ul>
+<li><strong>Type:</strong> Broken access control / missing authorization (IDOR).</li>
+<li><strong>Who is affected:</strong> Multi-editor deployments where staff users hold  differentiated per-object permissions.<ul>
+<li>Under <code>CMS_PERMISSION = True</code>, authorization for these two operations was   effectively reduced to <code>is_staff</code>, so any staff user could discard or    edit-redirect any version.</li>
+<li>Under the default <code>CMS_PERMISSION = False</code>, it degrades to the global    <code>change_&lt;model&gt;</code> permission (e.g. <code>cms.change_page</code>) — weaker than the  intended per-object check, but not absent.</li>
+</ul>
+</li>
+<li><strong>Consequence:</strong> Unauthorized deletion of draft versions and their content objects (integrity/availability of content), and unauthorized creation of drafts from published content.</li>
+</ul>
+<h2 id="patches">Patches</h2>
+<p>Fixed by adding the <code>user_can_change</code> condition to both <code>check_discard</code> and <code>check_edit_redirect</code>, restoring parity with the other content-mutating transitions:</p>
+<pre><code class="language-python"># After (fixed)
+check_discard = Conditions([
+    in_state([constants.DRAFT], not_draft_error),
+    user_can_change(change_permission_error),
+    is_not_locked(lock_error_message),
+])
+check_edit_redirect = Conditions([
+    in_state([constants.DRAFT, constants.PUBLISHED], _("Version is not in draft or published state")),
+    user_can_change(change_permission_error),
+    draft_is_not_locked(lock_draft_error_message),
+])
+</code></pre>
+<p><code>discard</code> intentionally requires <strong>change</strong> permission (not delete): it is treated as undoing changes to a draft.</p>
+<p>Upgrade to <code>djangocms-versioning</code> <code>2.6.1</code> or later.</p>
+<h2 id="workarounds">Workarounds</h2>
+<p>There is no configuration-only workaround. Operators who cannot upgrade immediately should restrict staff accounts to trusted users, since the missing gate reduces to <code>is_staff</code> under <code>CMS_PERMISSION = True</code>.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/django-cms/djangocms-versioning/security/advisories/GHSA-5g9x-qwh5-33x4">https://github.com/django-cms/djangocms-versioning/security/advisories/GHSA-5g9x-qwh5-33x4</a></li>
+<li><a href="https://github.com/django-cms/djangocms-versioning/pull/573">https://github.com/django-cms/djangocms-versioning/pull/573</a></li>
+<li><a href="https://github.com/django-cms/djangocms-versioning/commit/d8c570daa5f7805e8be51f15545fe77b24c44daf">https://github.com/django-cms/djangocms-versioning/commit/d8c570daa5f7805e8be51f15545fe77b24c44daf</a></li>
+<li><a href="https://github.com/django-cms/djangocms-versioning/releases/tag/2.6.1">https://github.com/django-cms/djangocms-versioning/releases/tag/2.6.1</a></li>
+<li><a href="https://github.com/advisories/GHSA-5g9x-qwh5-33x4">https://github.com/advisories/GHSA-5g9x-qwh5-33x4</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-5g9x-qwh5-33x4</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2026-11-18T21:19:04.000Z</published>
+    </entry>
     <entry>
         <title type="html"><![CDATA[[mobsf] Mobile Security Framework (MobSF) Allows Web Server Resource Exhaustion via ZIP of Death Attack]]></title>
         <id>https://github.com/advisories/GHSA-c5vg-26p8-q8cr</id>
@@ -1841,88 +1989,5 @@ Terminal 2 — Run attacker:
         </author>
         <category label="severity" term="CRITICAL"/>
         <published>2025-11-18T21:32:31.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[pytorch-lightning] Remote code execution in pytorch lightning]]></title>
-        <id>https://github.com/advisories/GHSA-cgwc-qvrx-rf7f</id>
-        <link href="https://github.com/advisories/GHSA-cgwc-qvrx-rf7f"/>
-        <updated>2026-11-16T15:15:31.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>pytorch-lightning</td>
-<td><code>&lt; 2.3.3</code></td>
-<td><code>2.3.3</code></td>
-</tr>
-</tbody>
-</table>
-<p>A remote code execution (RCE) vulnerability exists in the lightning-ai/pytorch-lightning library version 2.2.1 due to improper handling of deserialized user input and mismanagement of dunder attributes by the <code>deepdiff</code> library. The library uses <code>deepdiff.Delta</code> objects to modify application state based on frontend actions. However, it is possible to bypass the intended restrictions on modifying dunder attributes, allowing an attacker to construct a serialized delta that passes the deserializer whitelist and contains dunder attributes. When processed, this can be exploited to access other modules, classes, and instances, leading to arbitrary attribute write and total RCE on any self-hosted pytorch-lightning application in its default configuration, as the delta endpoint is enabled by default.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2024-5452">https://nvd.nist.gov/vuln/detail/CVE-2024-5452</a></li>
-<li><a href="https://huntr.com/bounties/486add92-275e-4a7b-92f9-42d84bc759da">https://huntr.com/bounties/486add92-275e-4a7b-92f9-42d84bc759da</a></li>
-<li><a href="https://github.com/lightning-ai/pytorch-lightning/commit/330af381de88cff17515418a341cbc1f9f127f9a">https://github.com/lightning-ai/pytorch-lightning/commit/330af381de88cff17515418a341cbc1f9f127f9a</a></li>
-<li><a href="https://github.com/Lightning-AI/pytorch-lightning/releases/tag/2.3.3">https://github.com/Lightning-AI/pytorch-lightning/releases/tag/2.3.3</a></li>
-<li><a href="https://github.com/Lightning-AI/pytorch-lightning/issues/20038">https://github.com/Lightning-AI/pytorch-lightning/issues/20038</a></li>
-<li><a href="https://github.com/advisories/GHSA-cgwc-qvrx-rf7f">https://github.com/advisories/GHSA-cgwc-qvrx-rf7f</a></li>
-<li><a href="https://github.com/lightning-ai/pytorch-lightning">https://github.com/lightning-ai/pytorch-lightning</a></li>
-<li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/lightning/PYSEC-2026-385.yaml">https://github.com/pypa/advisory-database/tree/main/vulns/lightning/PYSEC-2026-385.yaml</a></li>
-<li><a href="https://github.com/pypa/advisory-database/tree/main/vulns/pytorch-lightning/PYSEC-2026-3974.yaml">https://github.com/pypa/advisory-database/tree/main/vulns/pytorch-lightning/PYSEC-2026-3974.yaml</a></li>
-<li><a href="https://pypi.org/project/lightning">https://pypi.org/project/lightning</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-cgwc-qvrx-rf7f</uri>
-        </author>
-        <category label="severity" term="CRITICAL"/>
-        <published>2024-06-06T18:30:58.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[aiohttp] AIOHTTP: Event loop stall in add_domain() wildcard matching]]></title>
-        <id>https://github.com/advisories/GHSA-jm3w-gw2p-xjfj</id>
-        <link href="https://github.com/advisories/GHSA-jm3w-gw2p-xjfj"/>
-        <updated>2026-11-16T14:56:37.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>aiohttp</td>
-<td><code>&lt;= 3.14.3</code></td>
-<td><code>3.14.4</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p><code>Application.add_domain()</code> compiled each <code>*</code> in a host mask to <code>[^:]*</code>. With two or more wildcards in a mask, matching a long <code>Host</code> header that does not match the mask took polynomial time on the event loop.</p>
-<h3 id="impact">Impact</h3>
-<p>An attacker could stall a server that registers a domain mask with more than one wildcard by sending requests with a long <code>Host</code> header.</p>
-<h3 id="workaround">Workaround</h3>
-<p>Use at most one <code>*</code> in a domain mask.</p>
-<hr>
-<p>Patch: <a href="https://github.com/aio-libs/aiohttp/commit/c6ac0e44c3c573ff9616f4a6a532992538b31e43">https://github.com/aio-libs/aiohttp/commit/c6ac0e44c3c573ff9616f4a6a532992538b31e43</a></p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/aio-libs/aiohttp/security/advisories/GHSA-jm3w-gw2p-xjfj">https://github.com/aio-libs/aiohttp/security/advisories/GHSA-jm3w-gw2p-xjfj</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-128124">https://nvd.nist.gov/vuln/detail/CVE-2026-128124</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/pull/13943">https://github.com/aio-libs/aiohttp/pull/13943</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/pull/13945">https://github.com/aio-libs/aiohttp/pull/13945</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/commit/766b882820da0651c84090e366a3b024b4a263c9">https://github.com/aio-libs/aiohttp/commit/766b882820da0651c84090e366a3b024b4a263c9</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/commit/c6ac0e44c3c573ff9616f4a6a532992538b31e43">https://github.com/aio-libs/aiohttp/commit/c6ac0e44c3c573ff9616f4a6a532992538b31e43</a></li>
-<li><a href="https://github.com/aio-libs/aiohttp/releases/tag/v3.14.4">https://github.com/aio-libs/aiohttp/releases/tag/v3.14.4</a></li>
-<li><a href="https://github.com/advisories/GHSA-jm3w-gw2p-xjfj">https://github.com/advisories/GHSA-jm3w-gw2p-xjfj</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-jm3w-gw2p-xjfj</uri>
-        </author>
-        <category label="severity" term="HIGH"/>
-        <published>2026-11-16T14:56:35.000Z</published>
     </entry>
 </feed>
