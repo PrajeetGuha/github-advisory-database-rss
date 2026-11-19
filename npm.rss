@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://prajeetguha.github.io/github-advisory-database-rss/npm.rss</id>
     <title>Security Advisory for JavaScript packages hosted at npmjs.com</title>
-    <updated>2026-11-18T23:17:28.021Z</updated>
+    <updated>2026-11-19T06:10:33.005Z</updated>
     <generator>github-advisory-database-rss</generator>
     <link rel="alternate" href="https://github.com/advisories?query=type%3Areviewed+ecosystem%3Anpm"/>
     <subtitle>Security Advisory for JavaScript packages hosted at npmjs.com on GitHub</subtitle>
@@ -11,6 +11,230 @@
     <category term="HIGH"/>
     <category term="MODERATE"/>
     <category term="LOW"/>
+    <entry>
+        <title type="html"><![CDATA[[@connorbritain/mssql-mcp-server] mssql-mcp-core: SQL injection in mssql-mcp write tools via unparameterized table names and WHERE clauses]]></title>
+        <id>https://github.com/advisories/GHSA-2m9m-6cr5-9x25</id>
+        <link href="https://github.com/advisories/GHSA-2m9m-6cr5-9x25"/>
+        <updated>2026-11-19T00:46:41.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>@connorbritain/mssql-mcp-server</td>
+<td><code>&lt;= 0.5.2</code></td>
+<td><code>0.6.0</code></td>
+</tr>
+</tbody>
+</table>
+<p>Several tools in <code>mssql-mcp-core</code> built T-SQL by string-interpolating caller-supplied identifiers and predicates directly into the statement passed to the node-mssql <code>Request.query()</code> batch API. Only data values were parameterized.</p>
+<p>Affected tools and inputs:</p>
+<ul>
+<li><code>update_data</code>, <code>delete_data</code>: <code>tableName</code> and the free-form <code>whereClause</code> were interpolated raw.</li>
+<li><code>insert_data</code>: <code>tableName</code> and column names (object keys) were interpolated raw.</li>
+<li><code>execute_transaction</code>: the same raw <code>tableName</code>/<code>whereClause</code> interpolation per operation.</li>
+<li><code>create_table</code>, <code>create_index</code>, <code>drop_table</code>: table/column/index/schema identifiers were interpolated with no or insufficient validation.</li>
+<li><code>list_databases</code> (reader tier): the <code>stateFilter</code> argument was interpolated raw into the query, with only a non-enforced inputSchema enum guarding it.</li>
+</ul>
+<p>The only check on <code>whereClause</code> was that it was non-empty. Because the row-count and preview queries run before the <code>confirmUpdate</code>/<code>confirmDelete</code> step, a malicious <code>whereClause</code> or <code>tableName</code> executed on the first call, bypassing the preview/confirmation and <code>maxRows</code> safety controls. <code>Request.query()</code> submits a multi-statement T-SQL batch, so a crafted input enabled stacked statements (arbitrary DDL/DML), sub-selects, and (with a privileged login and <code>xp_cmdshell</code> enabled) OS command execution. Because <code>list_databases</code> is a read-only tool, the <code>stateFilter</code> sink makes the reader package injectable as well.</p>
+<h2 id="impact">Impact</h2>
+<p>An actor who can supply tool arguments (a malicious or compromised MCP client, or an LLM agent steered via indirect prompt injection) could read, modify, or drop arbitrary data, bypass the <code>read_data</code> allow/deny validation and the preview/confirmation/<code>maxRows</code> safeguards, and conditionally achieve OS command execution.</p>
+<h2 id="patches">Patches</h2>
+<p>Fixed in <code>@connorbritain/mssql-mcp-core</code> 0.6.0:</p>
+<ul>
+<li>All identifiers are validated against a strict allowlist and bracket-quoted via a shared helper.</li>
+<li>The free-form <code>whereClause</code> string parameter is removed (breaking change) and replaced with structured, parameterized filters (<code>{ column, operator, value }</code>) using an operator allowlist. Values are always bound, never interpolated.</li>
+<li><code>list_databases</code> validates <code>stateFilter</code> against a fixed allowlist before use.</li>
+</ul>
+<p>Upgrade the consumer packages: <code>mssql-mcp-reader</code> 0.5.0, <code>mssql-mcp-writer</code> 0.5.0, <code>mssql-mcp-server</code> 0.6.0 (all depend on core <code>^0.6.0</code>).</p>
+<h2 id="workarounds">Workarounds</h2>
+<p>Upgrading is the only complete fix; the <code>list_databases</code> (<code>stateFilter</code>) sink is reachable even under <code>READONLY=true</code> and in the reader package. As defense in depth, run the server under a least-privilege SQL login with <code>xp_cmdshell</code> disabled, and restrict which MCP clients can invoke the tools.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/ConnorBritain/mssql-mcp-core/security/advisories/GHSA-2m9m-6cr5-9x25">https://github.com/ConnorBritain/mssql-mcp-core/security/advisories/GHSA-2m9m-6cr5-9x25</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-63129">https://nvd.nist.gov/vuln/detail/CVE-2026-63129</a></li>
+<li><a href="https://github.com/ConnorBritain/mssql-mcp-core/pull/1">https://github.com/ConnorBritain/mssql-mcp-core/pull/1</a></li>
+<li><a href="https://github.com/ConnorBritain/mssql-mcp-core/commit/227e2efc4e3311c477b7ae509c3ae15437a4f815">https://github.com/ConnorBritain/mssql-mcp-core/commit/227e2efc4e3311c477b7ae509c3ae15437a4f815</a></li>
+<li><a href="https://github.com/ConnorBritain/mssql-mcp-core/commit/a9727f83768598e4fdbddfbc717ccfebb84ae7af">https://github.com/ConnorBritain/mssql-mcp-core/commit/a9727f83768598e4fdbddfbc717ccfebb84ae7af</a></li>
+<li><a href="https://github.com/advisories/GHSA-2m9m-6cr5-9x25">https://github.com/advisories/GHSA-2m9m-6cr5-9x25</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-2m9m-6cr5-9x25</uri>
+        </author>
+        <category label="severity" term="HIGH"/>
+        <published>2026-11-19T00:46:38.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[@connorbritain/mssql-mcp-writer] mssql-mcp-core: SQL injection in mssql-mcp write tools via unparameterized table names and WHERE clauses]]></title>
+        <id>https://github.com/advisories/GHSA-2m9m-6cr5-9x25</id>
+        <link href="https://github.com/advisories/GHSA-2m9m-6cr5-9x25"/>
+        <updated>2026-11-19T00:46:41.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>@connorbritain/mssql-mcp-writer</td>
+<td><code>&lt;= 0.4.2</code></td>
+<td><code>0.5.0</code></td>
+</tr>
+</tbody>
+</table>
+<p>Several tools in <code>mssql-mcp-core</code> built T-SQL by string-interpolating caller-supplied identifiers and predicates directly into the statement passed to the node-mssql <code>Request.query()</code> batch API. Only data values were parameterized.</p>
+<p>Affected tools and inputs:</p>
+<ul>
+<li><code>update_data</code>, <code>delete_data</code>: <code>tableName</code> and the free-form <code>whereClause</code> were interpolated raw.</li>
+<li><code>insert_data</code>: <code>tableName</code> and column names (object keys) were interpolated raw.</li>
+<li><code>execute_transaction</code>: the same raw <code>tableName</code>/<code>whereClause</code> interpolation per operation.</li>
+<li><code>create_table</code>, <code>create_index</code>, <code>drop_table</code>: table/column/index/schema identifiers were interpolated with no or insufficient validation.</li>
+<li><code>list_databases</code> (reader tier): the <code>stateFilter</code> argument was interpolated raw into the query, with only a non-enforced inputSchema enum guarding it.</li>
+</ul>
+<p>The only check on <code>whereClause</code> was that it was non-empty. Because the row-count and preview queries run before the <code>confirmUpdate</code>/<code>confirmDelete</code> step, a malicious <code>whereClause</code> or <code>tableName</code> executed on the first call, bypassing the preview/confirmation and <code>maxRows</code> safety controls. <code>Request.query()</code> submits a multi-statement T-SQL batch, so a crafted input enabled stacked statements (arbitrary DDL/DML), sub-selects, and (with a privileged login and <code>xp_cmdshell</code> enabled) OS command execution. Because <code>list_databases</code> is a read-only tool, the <code>stateFilter</code> sink makes the reader package injectable as well.</p>
+<h2 id="impact">Impact</h2>
+<p>An actor who can supply tool arguments (a malicious or compromised MCP client, or an LLM agent steered via indirect prompt injection) could read, modify, or drop arbitrary data, bypass the <code>read_data</code> allow/deny validation and the preview/confirmation/<code>maxRows</code> safeguards, and conditionally achieve OS command execution.</p>
+<h2 id="patches">Patches</h2>
+<p>Fixed in <code>@connorbritain/mssql-mcp-core</code> 0.6.0:</p>
+<ul>
+<li>All identifiers are validated against a strict allowlist and bracket-quoted via a shared helper.</li>
+<li>The free-form <code>whereClause</code> string parameter is removed (breaking change) and replaced with structured, parameterized filters (<code>{ column, operator, value }</code>) using an operator allowlist. Values are always bound, never interpolated.</li>
+<li><code>list_databases</code> validates <code>stateFilter</code> against a fixed allowlist before use.</li>
+</ul>
+<p>Upgrade the consumer packages: <code>mssql-mcp-reader</code> 0.5.0, <code>mssql-mcp-writer</code> 0.5.0, <code>mssql-mcp-server</code> 0.6.0 (all depend on core <code>^0.6.0</code>).</p>
+<h2 id="workarounds">Workarounds</h2>
+<p>Upgrading is the only complete fix; the <code>list_databases</code> (<code>stateFilter</code>) sink is reachable even under <code>READONLY=true</code> and in the reader package. As defense in depth, run the server under a least-privilege SQL login with <code>xp_cmdshell</code> disabled, and restrict which MCP clients can invoke the tools.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/ConnorBritain/mssql-mcp-core/security/advisories/GHSA-2m9m-6cr5-9x25">https://github.com/ConnorBritain/mssql-mcp-core/security/advisories/GHSA-2m9m-6cr5-9x25</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-63129">https://nvd.nist.gov/vuln/detail/CVE-2026-63129</a></li>
+<li><a href="https://github.com/ConnorBritain/mssql-mcp-core/pull/1">https://github.com/ConnorBritain/mssql-mcp-core/pull/1</a></li>
+<li><a href="https://github.com/ConnorBritain/mssql-mcp-core/commit/227e2efc4e3311c477b7ae509c3ae15437a4f815">https://github.com/ConnorBritain/mssql-mcp-core/commit/227e2efc4e3311c477b7ae509c3ae15437a4f815</a></li>
+<li><a href="https://github.com/ConnorBritain/mssql-mcp-core/commit/a9727f83768598e4fdbddfbc717ccfebb84ae7af">https://github.com/ConnorBritain/mssql-mcp-core/commit/a9727f83768598e4fdbddfbc717ccfebb84ae7af</a></li>
+<li><a href="https://github.com/advisories/GHSA-2m9m-6cr5-9x25">https://github.com/advisories/GHSA-2m9m-6cr5-9x25</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-2m9m-6cr5-9x25</uri>
+        </author>
+        <category label="severity" term="HIGH"/>
+        <published>2026-11-19T00:46:38.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[@connorbritain/mssql-mcp-reader] mssql-mcp-core: SQL injection in mssql-mcp write tools via unparameterized table names and WHERE clauses]]></title>
+        <id>https://github.com/advisories/GHSA-2m9m-6cr5-9x25</id>
+        <link href="https://github.com/advisories/GHSA-2m9m-6cr5-9x25"/>
+        <updated>2026-11-19T00:46:41.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>@connorbritain/mssql-mcp-reader</td>
+<td><code>&lt;= 0.4.2</code></td>
+<td><code>0.5.0</code></td>
+</tr>
+</tbody>
+</table>
+<p>Several tools in <code>mssql-mcp-core</code> built T-SQL by string-interpolating caller-supplied identifiers and predicates directly into the statement passed to the node-mssql <code>Request.query()</code> batch API. Only data values were parameterized.</p>
+<p>Affected tools and inputs:</p>
+<ul>
+<li><code>update_data</code>, <code>delete_data</code>: <code>tableName</code> and the free-form <code>whereClause</code> were interpolated raw.</li>
+<li><code>insert_data</code>: <code>tableName</code> and column names (object keys) were interpolated raw.</li>
+<li><code>execute_transaction</code>: the same raw <code>tableName</code>/<code>whereClause</code> interpolation per operation.</li>
+<li><code>create_table</code>, <code>create_index</code>, <code>drop_table</code>: table/column/index/schema identifiers were interpolated with no or insufficient validation.</li>
+<li><code>list_databases</code> (reader tier): the <code>stateFilter</code> argument was interpolated raw into the query, with only a non-enforced inputSchema enum guarding it.</li>
+</ul>
+<p>The only check on <code>whereClause</code> was that it was non-empty. Because the row-count and preview queries run before the <code>confirmUpdate</code>/<code>confirmDelete</code> step, a malicious <code>whereClause</code> or <code>tableName</code> executed on the first call, bypassing the preview/confirmation and <code>maxRows</code> safety controls. <code>Request.query()</code> submits a multi-statement T-SQL batch, so a crafted input enabled stacked statements (arbitrary DDL/DML), sub-selects, and (with a privileged login and <code>xp_cmdshell</code> enabled) OS command execution. Because <code>list_databases</code> is a read-only tool, the <code>stateFilter</code> sink makes the reader package injectable as well.</p>
+<h2 id="impact">Impact</h2>
+<p>An actor who can supply tool arguments (a malicious or compromised MCP client, or an LLM agent steered via indirect prompt injection) could read, modify, or drop arbitrary data, bypass the <code>read_data</code> allow/deny validation and the preview/confirmation/<code>maxRows</code> safeguards, and conditionally achieve OS command execution.</p>
+<h2 id="patches">Patches</h2>
+<p>Fixed in <code>@connorbritain/mssql-mcp-core</code> 0.6.0:</p>
+<ul>
+<li>All identifiers are validated against a strict allowlist and bracket-quoted via a shared helper.</li>
+<li>The free-form <code>whereClause</code> string parameter is removed (breaking change) and replaced with structured, parameterized filters (<code>{ column, operator, value }</code>) using an operator allowlist. Values are always bound, never interpolated.</li>
+<li><code>list_databases</code> validates <code>stateFilter</code> against a fixed allowlist before use.</li>
+</ul>
+<p>Upgrade the consumer packages: <code>mssql-mcp-reader</code> 0.5.0, <code>mssql-mcp-writer</code> 0.5.0, <code>mssql-mcp-server</code> 0.6.0 (all depend on core <code>^0.6.0</code>).</p>
+<h2 id="workarounds">Workarounds</h2>
+<p>Upgrading is the only complete fix; the <code>list_databases</code> (<code>stateFilter</code>) sink is reachable even under <code>READONLY=true</code> and in the reader package. As defense in depth, run the server under a least-privilege SQL login with <code>xp_cmdshell</code> disabled, and restrict which MCP clients can invoke the tools.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/ConnorBritain/mssql-mcp-core/security/advisories/GHSA-2m9m-6cr5-9x25">https://github.com/ConnorBritain/mssql-mcp-core/security/advisories/GHSA-2m9m-6cr5-9x25</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-63129">https://nvd.nist.gov/vuln/detail/CVE-2026-63129</a></li>
+<li><a href="https://github.com/ConnorBritain/mssql-mcp-core/pull/1">https://github.com/ConnorBritain/mssql-mcp-core/pull/1</a></li>
+<li><a href="https://github.com/ConnorBritain/mssql-mcp-core/commit/227e2efc4e3311c477b7ae509c3ae15437a4f815">https://github.com/ConnorBritain/mssql-mcp-core/commit/227e2efc4e3311c477b7ae509c3ae15437a4f815</a></li>
+<li><a href="https://github.com/ConnorBritain/mssql-mcp-core/commit/a9727f83768598e4fdbddfbc717ccfebb84ae7af">https://github.com/ConnorBritain/mssql-mcp-core/commit/a9727f83768598e4fdbddfbc717ccfebb84ae7af</a></li>
+<li><a href="https://github.com/advisories/GHSA-2m9m-6cr5-9x25">https://github.com/advisories/GHSA-2m9m-6cr5-9x25</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-2m9m-6cr5-9x25</uri>
+        </author>
+        <category label="severity" term="HIGH"/>
+        <published>2026-11-19T00:46:38.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[@connorbritain/mssql-mcp-core] mssql-mcp-core: SQL injection in mssql-mcp write tools via unparameterized table names and WHERE clauses]]></title>
+        <id>https://github.com/advisories/GHSA-2m9m-6cr5-9x25</id>
+        <link href="https://github.com/advisories/GHSA-2m9m-6cr5-9x25"/>
+        <updated>2026-11-19T00:46:41.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>@connorbritain/mssql-mcp-core</td>
+<td><code>&lt;= 0.5.0</code></td>
+<td><code>0.6.0</code></td>
+</tr>
+</tbody>
+</table>
+<p>Several tools in <code>mssql-mcp-core</code> built T-SQL by string-interpolating caller-supplied identifiers and predicates directly into the statement passed to the node-mssql <code>Request.query()</code> batch API. Only data values were parameterized.</p>
+<p>Affected tools and inputs:</p>
+<ul>
+<li><code>update_data</code>, <code>delete_data</code>: <code>tableName</code> and the free-form <code>whereClause</code> were interpolated raw.</li>
+<li><code>insert_data</code>: <code>tableName</code> and column names (object keys) were interpolated raw.</li>
+<li><code>execute_transaction</code>: the same raw <code>tableName</code>/<code>whereClause</code> interpolation per operation.</li>
+<li><code>create_table</code>, <code>create_index</code>, <code>drop_table</code>: table/column/index/schema identifiers were interpolated with no or insufficient validation.</li>
+<li><code>list_databases</code> (reader tier): the <code>stateFilter</code> argument was interpolated raw into the query, with only a non-enforced inputSchema enum guarding it.</li>
+</ul>
+<p>The only check on <code>whereClause</code> was that it was non-empty. Because the row-count and preview queries run before the <code>confirmUpdate</code>/<code>confirmDelete</code> step, a malicious <code>whereClause</code> or <code>tableName</code> executed on the first call, bypassing the preview/confirmation and <code>maxRows</code> safety controls. <code>Request.query()</code> submits a multi-statement T-SQL batch, so a crafted input enabled stacked statements (arbitrary DDL/DML), sub-selects, and (with a privileged login and <code>xp_cmdshell</code> enabled) OS command execution. Because <code>list_databases</code> is a read-only tool, the <code>stateFilter</code> sink makes the reader package injectable as well.</p>
+<h2 id="impact">Impact</h2>
+<p>An actor who can supply tool arguments (a malicious or compromised MCP client, or an LLM agent steered via indirect prompt injection) could read, modify, or drop arbitrary data, bypass the <code>read_data</code> allow/deny validation and the preview/confirmation/<code>maxRows</code> safeguards, and conditionally achieve OS command execution.</p>
+<h2 id="patches">Patches</h2>
+<p>Fixed in <code>@connorbritain/mssql-mcp-core</code> 0.6.0:</p>
+<ul>
+<li>All identifiers are validated against a strict allowlist and bracket-quoted via a shared helper.</li>
+<li>The free-form <code>whereClause</code> string parameter is removed (breaking change) and replaced with structured, parameterized filters (<code>{ column, operator, value }</code>) using an operator allowlist. Values are always bound, never interpolated.</li>
+<li><code>list_databases</code> validates <code>stateFilter</code> against a fixed allowlist before use.</li>
+</ul>
+<p>Upgrade the consumer packages: <code>mssql-mcp-reader</code> 0.5.0, <code>mssql-mcp-writer</code> 0.5.0, <code>mssql-mcp-server</code> 0.6.0 (all depend on core <code>^0.6.0</code>).</p>
+<h2 id="workarounds">Workarounds</h2>
+<p>Upgrading is the only complete fix; the <code>list_databases</code> (<code>stateFilter</code>) sink is reachable even under <code>READONLY=true</code> and in the reader package. As defense in depth, run the server under a least-privilege SQL login with <code>xp_cmdshell</code> disabled, and restrict which MCP clients can invoke the tools.</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/ConnorBritain/mssql-mcp-core/security/advisories/GHSA-2m9m-6cr5-9x25">https://github.com/ConnorBritain/mssql-mcp-core/security/advisories/GHSA-2m9m-6cr5-9x25</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-63129">https://nvd.nist.gov/vuln/detail/CVE-2026-63129</a></li>
+<li><a href="https://github.com/ConnorBritain/mssql-mcp-core/pull/1">https://github.com/ConnorBritain/mssql-mcp-core/pull/1</a></li>
+<li><a href="https://github.com/ConnorBritain/mssql-mcp-core/commit/227e2efc4e3311c477b7ae509c3ae15437a4f815">https://github.com/ConnorBritain/mssql-mcp-core/commit/227e2efc4e3311c477b7ae509c3ae15437a4f815</a></li>
+<li><a href="https://github.com/ConnorBritain/mssql-mcp-core/commit/a9727f83768598e4fdbddfbc717ccfebb84ae7af">https://github.com/ConnorBritain/mssql-mcp-core/commit/a9727f83768598e4fdbddfbc717ccfebb84ae7af</a></li>
+<li><a href="https://github.com/advisories/GHSA-2m9m-6cr5-9x25">https://github.com/advisories/GHSA-2m9m-6cr5-9x25</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-2m9m-6cr5-9x25</uri>
+        </author>
+        <category label="severity" term="HIGH"/>
+        <published>2026-11-19T00:46:38.000Z</published>
+    </entry>
     <entry>
         <title type="html"><![CDATA[[install-artifact-from-github] install-artifact-from-github loads downloaded native artifacts without integrity verification]]></title>
         <id>https://github.com/advisories/GHSA-88q3-gch3-5396</id>
@@ -1491,265 +1715,5 @@ if (key === this.options.cdataPropName) {
         </author>
         <category label="severity" term="LOW"/>
         <published>2026-11-16T15:02:22.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[nuxt] Nuxt exposes the message and data of unhandled errors thrown during server rendering]]></title>
-        <id>https://github.com/advisories/GHSA-96x6-fvhx-49hg</id>
-        <link href="https://github.com/advisories/GHSA-96x6-fvhx-49hg"/>
-        <updated>2026-11-16T15:01:28.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>nuxt</td>
-<td><code>&gt;= 3.0.0, &lt; 4.0.0</code></td>
-<td>No fix available</td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p>When a page, plugin or route middleware throws an error that is not an HTTP error, Nuxt wraps it with <code>createError</code> before rendering the error page. The wrapped error was treated as one the app raised deliberately, so in production its <code>message</code> and <code>data</code> were sent to the client in the error page payload (<code>__NUXT_DATA__</code>) and in JSON error responses. For a failed <code>$fetch</code>, that is the URL that was requested (including its query string) and the body of the upstream error response.</p>
-<h3 id="impact">Impact</h3>
-<p>An application is affected if server-rendered code lets an error with sensitive details reach the error page, for example:</p>
-<pre><code class="language-vue">&lt;script setup lang="ts"&gt;
-const route = useRoute()
-// the upstream error body, and the token in the URL, reach the client if this request fails
-await $fetch(`http://users.internal/users/${route.params.id}?token=${useRuntimeConfig().usersToken}`)
-&lt;/script&gt;
-</code></pre>
-<p>Anyone who can make the request fail (for example by requesting an id the upstream service rejects) receives <code>[GET] "http://users.internal/users/1?token=...": 502</code> and the upstream response body. This happens regardless of what a custom <code>error.vue</code> renders, because the details are part of the payload. With the default configuration, the HTTP status line is not affected.</p>
-<p>The same applies to any other error thrown during server rendering, such as a database driver error whose message names an internal host.</p>
-<p>Errors created deliberately with <code>createError</code> (or <code>showError</code>) are not affected: their <code>message</code> and <code>data</code> are meant for the client. Errors returned by <code>useFetch</code> and <code>useAsyncData</code> are also unchanged, as they are part of the payload by design. Server routes (<code>server/api</code>) are not affected.</p>
-<h3 id="patches">Patches</h3>
-<p>Fixed in <code>nuxt@4.6.4</code>. Nuxt now marks any thrown value that is not already an HTTP error as <code>unhandled</code>, so the error page and JSON responses receive its status and a generic message. As a result, the error page no longer shows the message of an error thrown with <code>throw new Error(...)</code> in production; throw a <code>createError</code> with what the client may see instead.</p>
-<p>Nuxt 3 has reached end of life and will not receive a fix. Upgrade to Nuxt 4, or apply the workaround below.</p>
-<h3 id="workarounds">Workarounds</h3>
-<p>Catch errors from server-side requests and rethrow them with only the details the client may see:</p>
-<pre><code class="language-ts">try {
-  await $fetch(url)
-} catch (error) {
-  throw createError({ statusCode: 502, statusMessage: 'Upstream request failed' })
-}
-</code></pre>
-<p>Alternatively, add a Nitro plugin that hides the details of errors Nuxt wrapped. This also hides the details of a <code>createError</code> called with an <code>Error</code> (or with a <code>cause</code>):</p>
-<pre><code class="language-ts">// server/plugins/hide-error-details.ts
-export default defineNitroPlugin((nitroApp) =&gt; {
-  nitroApp.hooks.hook('error', (error) =&gt; {
-    const cause = (error as { cause?: unknown }).cause
-    if (cause instanceof Error &amp;&amp; !(cause.constructor as { __h3_error__?: boolean }).__h3_error__) {
-      Object.assign(error, { unhandled: true, data: undefined })
-    }
-  })
-})
-</code></pre>
-<p>If secrets such as tokens in upstream URLs may have been exposed this way, rotate them.</p>
-<h3 id="credits">Credits</h3>
-<p>Thanks to abhijit_dave for reporting this through the Vercel HackerOne program.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/nuxt/nuxt/security/advisories/GHSA-96x6-fvhx-49hg">https://github.com/nuxt/nuxt/security/advisories/GHSA-96x6-fvhx-49hg</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-128075">https://nvd.nist.gov/vuln/detail/CVE-2026-128075</a></li>
-<li><a href="https://github.com/nuxt/nuxt/commit/8c56b71e4d0377c5c047799078db09c6b3d4fde5">https://github.com/nuxt/nuxt/commit/8c56b71e4d0377c5c047799078db09c6b3d4fde5</a></li>
-<li><a href="https://github.com/nuxt/nuxt/releases/tag/v4.6.4">https://github.com/nuxt/nuxt/releases/tag/v4.6.4</a></li>
-<li><a href="https://github.com/advisories/GHSA-96x6-fvhx-49hg">https://github.com/advisories/GHSA-96x6-fvhx-49hg</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-96x6-fvhx-49hg</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-11-16T15:01:26.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[nuxt] Nuxt exposes the message and data of unhandled errors thrown during server rendering]]></title>
-        <id>https://github.com/advisories/GHSA-96x6-fvhx-49hg</id>
-        <link href="https://github.com/advisories/GHSA-96x6-fvhx-49hg"/>
-        <updated>2026-11-16T15:01:28.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>nuxt</td>
-<td><code>&gt;= 4.0.0, &lt; 4.6.4</code></td>
-<td><code>4.6.4</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p>When a page, plugin or route middleware throws an error that is not an HTTP error, Nuxt wraps it with <code>createError</code> before rendering the error page. The wrapped error was treated as one the app raised deliberately, so in production its <code>message</code> and <code>data</code> were sent to the client in the error page payload (<code>__NUXT_DATA__</code>) and in JSON error responses. For a failed <code>$fetch</code>, that is the URL that was requested (including its query string) and the body of the upstream error response.</p>
-<h3 id="impact">Impact</h3>
-<p>An application is affected if server-rendered code lets an error with sensitive details reach the error page, for example:</p>
-<pre><code class="language-vue">&lt;script setup lang="ts"&gt;
-const route = useRoute()
-// the upstream error body, and the token in the URL, reach the client if this request fails
-await $fetch(`http://users.internal/users/${route.params.id}?token=${useRuntimeConfig().usersToken}`)
-&lt;/script&gt;
-</code></pre>
-<p>Anyone who can make the request fail (for example by requesting an id the upstream service rejects) receives <code>[GET] "http://users.internal/users/1?token=...": 502</code> and the upstream response body. This happens regardless of what a custom <code>error.vue</code> renders, because the details are part of the payload. With the default configuration, the HTTP status line is not affected.</p>
-<p>The same applies to any other error thrown during server rendering, such as a database driver error whose message names an internal host.</p>
-<p>Errors created deliberately with <code>createError</code> (or <code>showError</code>) are not affected: their <code>message</code> and <code>data</code> are meant for the client. Errors returned by <code>useFetch</code> and <code>useAsyncData</code> are also unchanged, as they are part of the payload by design. Server routes (<code>server/api</code>) are not affected.</p>
-<h3 id="patches">Patches</h3>
-<p>Fixed in <code>nuxt@4.6.4</code>. Nuxt now marks any thrown value that is not already an HTTP error as <code>unhandled</code>, so the error page and JSON responses receive its status and a generic message. As a result, the error page no longer shows the message of an error thrown with <code>throw new Error(...)</code> in production; throw a <code>createError</code> with what the client may see instead.</p>
-<p>Nuxt 3 has reached end of life and will not receive a fix. Upgrade to Nuxt 4, or apply the workaround below.</p>
-<h3 id="workarounds">Workarounds</h3>
-<p>Catch errors from server-side requests and rethrow them with only the details the client may see:</p>
-<pre><code class="language-ts">try {
-  await $fetch(url)
-} catch (error) {
-  throw createError({ statusCode: 502, statusMessage: 'Upstream request failed' })
-}
-</code></pre>
-<p>Alternatively, add a Nitro plugin that hides the details of errors Nuxt wrapped. This also hides the details of a <code>createError</code> called with an <code>Error</code> (or with a <code>cause</code>):</p>
-<pre><code class="language-ts">// server/plugins/hide-error-details.ts
-export default defineNitroPlugin((nitroApp) =&gt; {
-  nitroApp.hooks.hook('error', (error) =&gt; {
-    const cause = (error as { cause?: unknown }).cause
-    if (cause instanceof Error &amp;&amp; !(cause.constructor as { __h3_error__?: boolean }).__h3_error__) {
-      Object.assign(error, { unhandled: true, data: undefined })
-    }
-  })
-})
-</code></pre>
-<p>If secrets such as tokens in upstream URLs may have been exposed this way, rotate them.</p>
-<h3 id="credits">Credits</h3>
-<p>Thanks to abhijit_dave for reporting this through the Vercel HackerOne program.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/nuxt/nuxt/security/advisories/GHSA-96x6-fvhx-49hg">https://github.com/nuxt/nuxt/security/advisories/GHSA-96x6-fvhx-49hg</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-128075">https://nvd.nist.gov/vuln/detail/CVE-2026-128075</a></li>
-<li><a href="https://github.com/nuxt/nuxt/commit/8c56b71e4d0377c5c047799078db09c6b3d4fde5">https://github.com/nuxt/nuxt/commit/8c56b71e4d0377c5c047799078db09c6b3d4fde5</a></li>
-<li><a href="https://github.com/nuxt/nuxt/releases/tag/v4.6.4">https://github.com/nuxt/nuxt/releases/tag/v4.6.4</a></li>
-<li><a href="https://github.com/advisories/GHSA-96x6-fvhx-49hg">https://github.com/advisories/GHSA-96x6-fvhx-49hg</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-96x6-fvhx-49hg</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-11-16T15:01:26.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[nuxt] Nuxt payload URL generation has quadratic cost for repeated slashes in the request path]]></title>
-        <id>https://github.com/advisories/GHSA-r9jc-w898-3fv6</id>
-        <link href="https://github.com/advisories/GHSA-r9jc-w898-3fv6"/>
-        <updated>2026-11-16T15:00:43.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>nuxt</td>
-<td><code>&gt;= 4.6.0, &lt; 4.6.4</code></td>
-<td><code>4.6.4</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p>Nuxt strips trailing slashes from the request path with a regular expression whose cost grows quadratically with the length of a run of consecutive slashes. A single unauthenticated request with a long run of slashes can occupy the server's event loop for a noticeable time, delaying every other request handled by the same process.</p>
-<h3 id="impact">Impact</h3>
-<p>When a page is rendered with payload extraction (any route covered by an <code>isr</code>, <code>swr</code> or <code>cache</code> route rule), Nuxt builds the <code>_payload.json</code> URL from the raw request path. A path such as <code>/blog/a</code> followed by 16,000 slashes and <code>x</code>, which fits within Node's default header size limit, takes roughly 0.1 to 0.4 seconds of synchronous CPU time per request, depending on hardware. Concurrent requests to the same process wait for it to finish, so a modest request rate can keep a process saturated.</p>
-<p>An app is affected if it uses Nuxt 4.6.0 or later with server-side rendering and has a route rule like:</p>
-<pre><code class="language-ts">export default defineNuxtConfig({
-  routeRules: {
-    '/blog/**': { swr: true },
-  },
-})
-</code></pre>
-<p>The same pattern is also reachable through the opt-in <code>experimental.early404</code> option, for any request path.</p>
-<p>Apps without <code>isr</code>, <code>swr</code> or <code>cache</code> route rules and without <code>experimental.early404</code> are not affected, nor are fully prerendered or client-only apps. The cost is bounded by the maximum request path length, so a reverse proxy with a smaller header limit reduces it further. There is no confidentiality or integrity impact.</p>
-<h3 id="patches">Patches</h3>
-<p>Fixed in <code>nuxt</code> 4.6.4. Trailing slashes are now removed with a linear scan instead of a regular expression.</p>
-<h3 id="workarounds">Workarounds</h3>
-<p>Reject request paths containing repeated slashes before they reach the renderer, for example at the reverse proxy or with a server middleware:</p>
-<pre><code class="language-ts">// server/middleware/reject-repeated-slashes.ts
-export default defineEventHandler((event) =&gt; {
-  if (event.path.split('?')[0]!.includes('//')) {
-    throw createError({ statusCode: 404 })
-  }
-})
-</code></pre>
-<p>If you use <code>experimental.early404</code>, you can also disable it until you upgrade.</p>
-<h3 id="credits">Credits</h3>
-<p>Thanks to cryptofox9 for reporting this issue.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/nuxt/nuxt/security/advisories/GHSA-r9jc-w898-3fv6">https://github.com/nuxt/nuxt/security/advisories/GHSA-r9jc-w898-3fv6</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-128074">https://nvd.nist.gov/vuln/detail/CVE-2026-128074</a></li>
-<li><a href="https://github.com/nuxt/nuxt/commit/97424dd21c59b60cc7ece28576e15069ca0fdbc4">https://github.com/nuxt/nuxt/commit/97424dd21c59b60cc7ece28576e15069ca0fdbc4</a></li>
-<li><a href="https://github.com/nuxt/nuxt/releases/tag/v4.6.4">https://github.com/nuxt/nuxt/releases/tag/v4.6.4</a></li>
-<li><a href="https://github.com/advisories/GHSA-r9jc-w898-3fv6">https://github.com/advisories/GHSA-r9jc-w898-3fv6</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-r9jc-w898-3fv6</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-11-16T15:00:41.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[@nuxt/rspack-builder] @nuxt/webpack-builder and @nuxt/rspack-builder dev server serves built source to DNS rebinding pages]]></title>
-        <id>https://github.com/advisories/GHSA-x2wv-5868-p7v2</id>
-        <link href="https://github.com/advisories/GHSA-x2wv-5868-p7v2"/>
-        <updated>2026-11-16T15:00:13.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>@nuxt/rspack-builder</td>
-<td><code>&gt;= 3.12.2, &lt; 4.0.0</code></td>
-<td>No fix available</td>
-</tr>
-</tbody>
-</table>
-<h3 id="summary">Summary</h3>
-<p>When using the webpack or rspack builder, the dev server serves built client chunks to any request whose <code>Host</code> header matches its <code>Origin</code>/<code>Referer</code>, or that carries <code>Sec-Fetch-Site: same-origin</code>. After a DNS rebinding attack both headers name the attacker's hostname, so a malicious page opened while <code>nuxt dev</code> is running can read <code>/_nuxt/*.js</code> and exfiltrate the app's source. This bypasses the same-origin check added for <a href="https://github.com/nuxt/nuxt/security/advisories/GHSA-4gf7-ff8x-hq99">GHSA-4gf7-ff8x-hq99</a>, <a href="https://github.com/nuxt/nuxt/security/advisories/GHSA-6m52-m754-pw2g">GHSA-6m52-m754-pw2g</a> and <a href="https://github.com/nuxt/nuxt/security/advisories/GHSA-x6qj-4h56-5rj5">GHSA-x6qj-4h56-5rj5</a>.</p>
-<h3 id="impact">Impact</h3>
-<p>A developer runs <code>nuxt dev</code> with <code>builder: 'webpack'</code> or <code>builder: 'rspack'</code> (the default config is enough; <code>--host</code> is not required) and opens a page on an attacker-controlled hostname, for example <code>http://rebind.attacker.example:3000/</code>. The attacker then re-points that hostname at <code>127.0.0.1</code>. Requests from the page now reach the dev server as same-origin requests:</p>
-<pre><code class="language-bash">curl -H 'Host: rebind.attacker.example:3000' -H 'Sec-Fetch-Site: same-origin' http://127.0.0.1:3000/_nuxt/app.js
-# 200, with the compiled modules
-</code></pre>
-<p>The page can read the response with <code>fetch</code>, which exposes the compiled source and its inline source maps, module identifiers, the developer's local filesystem paths, and any developer-controlled values inlined into the client bundle (for example through a custom <code>DefinePlugin</code>). With rspack, the HMR websocket also accepts connections from the rebound hostname. Private <code>runtimeConfig</code> is not part of the client bundle.</p>
-<p>The attacker needs to know or guess the dev server port and to time the DNS change. Chrome 142+ and other Chromium-based browsers that enforce <a href="https://developer.chrome.com/release-notes/142#local_network_access_restrictions">Local Network Access restrictions</a> prompt before a public page can reach a loopback address.</p>
-<p>The default Vite builder is not affected: Vite rejects unknown <code>Host</code> headers through <code>server.allowedHosts</code>. Production builds are not affected.</p>
-<h3 id="patches">Patches</h3>
-<p>Fixed in <code>@nuxt/webpack-builder</code> 4.6.4 and <code>@nuxt/rspack-builder</code> 4.6.4. The dev middleware now rejects requests whose <code>Host</code> header is not <code>localhost</code>, <code>*.localhost</code>, an IP address, or a hostname allowed by the new <code>devServer.allowedHosts</code> option or by <code>vite.server.allowedHosts</code>, before any <code>Sec-Fetch-Site</code>/<code>Origin</code>/<code>Referer</code> checks. This includes <code>devServer.host</code> and the hosts <code>nuxt dev</code> allows for the addresses it listens on; <code>nuxt dev --public</code> allows any host, as it does with Vite. With rspack, the same list is passed to rsbuild's <code>server.allowedHosts</code>, which covers the HMR websocket.</p>
-<p>When accessing the dev server through another hostname, for example through a reverse proxy, add that hostname to <code>devServer.allowedHosts</code> (a leading <code>.</code> also allows subdomains; true allows any host).</p>
-<p>Nuxt 3 has reached end of life and will not receive a fix.</p>
-<h3 id="workarounds">Workarounds</h3>
-<ul>
-<li>Use the default Vite builder for development.</li>
-<li>Use Chrome 142+ or another Chromium-based browser that enforces Local Network Access restrictions, and don't open untrusted sites in other browsers while the dev server is running.</li>
-<li>Treat secrets inlined into the client bundle during development as exposed and rotate them.</li>
-</ul>
-<h3 id="credits">Credits</h3>
-<p>Nuxt thanks Anthropic for reporting this through coordinated disclosure (ANT-2026-VKRM97G5).</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/nuxt/nuxt/security/advisories/GHSA-x2wv-5868-p7v2">https://github.com/nuxt/nuxt/security/advisories/GHSA-x2wv-5868-p7v2</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-128072">https://nvd.nist.gov/vuln/detail/CVE-2026-128072</a></li>
-<li><a href="https://github.com/nuxt/nuxt/commit/3c9645326a2b3f5cfa09c9a935db9b1825d560e7">https://github.com/nuxt/nuxt/commit/3c9645326a2b3f5cfa09c9a935db9b1825d560e7</a></li>
-<li><a href="https://github.com/nuxt/nuxt/commit/3e1c7964e6843e1c5f218867a4ccd4cd00ad9ebb">https://github.com/nuxt/nuxt/commit/3e1c7964e6843e1c5f218867a4ccd4cd00ad9ebb</a></li>
-<li><a href="https://github.com/nuxt/nuxt/commit/8c11d965dad5bfc58d4c25e796915aec045acb78">https://github.com/nuxt/nuxt/commit/8c11d965dad5bfc58d4c25e796915aec045acb78</a></li>
-<li><a href="https://github.com/nuxt/nuxt/commit/f8d64c9aa773a033596532365d455890da9da197">https://github.com/nuxt/nuxt/commit/f8d64c9aa773a033596532365d455890da9da197</a></li>
-<li><a href="https://github.com/nuxt/nuxt/releases/tag/v4.6.4">https://github.com/nuxt/nuxt/releases/tag/v4.6.4</a></li>
-<li><a href="https://github.com/advisories/GHSA-x2wv-5868-p7v2">https://github.com/advisories/GHSA-x2wv-5868-p7v2</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-x2wv-5868-p7v2</uri>
-        </author>
-        <category label="severity" term="LOW"/>
-        <published>2026-11-16T15:00:09.000Z</published>
     </entry>
 </feed>
