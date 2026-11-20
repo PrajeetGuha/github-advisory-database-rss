@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://prajeetguha.github.io/github-advisory-database-rss/pip.rss</id>
     <title>Security Advisory for Python packages hosted at PyPI.org</title>
-    <updated>2026-11-20T15:02:23.509Z</updated>
+    <updated>2026-11-20T22:30:10.048Z</updated>
     <generator>github-advisory-database-rss</generator>
     <link rel="alternate" href="https://github.com/advisories?query=type%3Areviewed+ecosystem%3Apip"/>
     <subtitle>Security Advisory for Python packages hosted at PyPI.org on GitHub</subtitle>
@@ -11,6 +11,96 @@
     <category term="HIGH"/>
     <category term="MODERATE"/>
     <category term="LOW"/>
+    <entry>
+        <title type="html"><![CDATA[[ckan] CKAN: Session Fixation in Registration View]]></title>
+        <id>https://github.com/advisories/GHSA-6499-jgj4-2wpf</id>
+        <link href="https://github.com/advisories/GHSA-6499-jgj4-2wpf"/>
+        <updated>2026-11-20T16:25:28.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>ckan</td>
+<td><code>&gt;= 2.11.0, &lt; 2.11.6</code></td>
+<td><code>2.11.6</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="description">Description</h2>
+<p>Web user registration form is vulnerable to session fixation if the site is configured with server-side session storage (CKAN uses cookie-based session storage by default). The attacker would need to either set a cookie on the victim's browser or steal the victim's currently valid session. Session identifiers are now regenerated after registration.</p>
+<h2 id="patches">Patches</h2>
+<p>This vulnerability has been fixed in CKAN 2.10.11, 2.11.6 and 2.12.0</p>
+<h2 id="workarounds">Workarounds</h2>
+<p>switch to cookie-based session storage (the default) or disable web user registration by setting <code>ckan.auth.create_user_via_web</code> to false (the default)</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/ckan/ckan/security/advisories/GHSA-6499-jgj4-2wpf">https://github.com/ckan/ckan/security/advisories/GHSA-6499-jgj4-2wpf</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-104773">https://nvd.nist.gov/vuln/detail/CVE-2026-104773</a></li>
+<li><a href="https://github.com/ckan/ckan/commit/6eae4e9c430e163b9d6cc75a3fd2ca82e79d80f6">https://github.com/ckan/ckan/commit/6eae4e9c430e163b9d6cc75a3fd2ca82e79d80f6</a></li>
+<li><a href="https://github.com/ckan/ckan/commit/8f8e8b587461b66120ec7a85c17a34ecea213f57">https://github.com/ckan/ckan/commit/8f8e8b587461b66120ec7a85c17a34ecea213f57</a></li>
+<li><a href="https://github.com/ckan/ckan/commit/a25e2f3080a79a94eb04dcf02e16ded3e5fadeb2">https://github.com/ckan/ckan/commit/a25e2f3080a79a94eb04dcf02e16ded3e5fadeb2</a></li>
+<li><a href="https://github.com/ckan/ckan/commit/c30bae7fdd616d98a5d47cc31f9e8d5d1ad7bcd2">https://github.com/ckan/ckan/commit/c30bae7fdd616d98a5d47cc31f9e8d5d1ad7bcd2</a></li>
+<li><a href="https://github.com/ckan/ckan/commit/c72815a5afd50cf689fcfb688f431dec21a85915">https://github.com/ckan/ckan/commit/c72815a5afd50cf689fcfb688f431dec21a85915</a></li>
+<li><a href="https://github.com/ckan/ckan/releases/tag/ckan-2.10.11">https://github.com/ckan/ckan/releases/tag/ckan-2.10.11</a></li>
+<li><a href="https://github.com/ckan/ckan/releases/tag/ckan-2.11.6">https://github.com/ckan/ckan/releases/tag/ckan-2.11.6</a></li>
+<li><a href="https://github.com/ckan/ckan/releases/tag/ckan-2.12.0">https://github.com/ckan/ckan/releases/tag/ckan-2.12.0</a></li>
+<li><a href="https://github.com/advisories/GHSA-6499-jgj4-2wpf">https://github.com/advisories/GHSA-6499-jgj4-2wpf</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-6499-jgj4-2wpf</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2026-11-20T16:25:26.000Z</published>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[[ckan] CKAN: Session Fixation in Registration View]]></title>
+        <id>https://github.com/advisories/GHSA-6499-jgj4-2wpf</id>
+        <link href="https://github.com/advisories/GHSA-6499-jgj4-2wpf"/>
+        <updated>2026-11-20T16:25:28.000Z</updated>
+        <content type="html"><![CDATA[<h3>Affected versions</h3>
+<table>
+<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
+<tbody>
+<tr>
+<td>ckan</td>
+<td><code>&lt; 2.10.11</code></td>
+<td><code>2.10.11</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="description">Description</h2>
+<p>Web user registration form is vulnerable to session fixation if the site is configured with server-side session storage (CKAN uses cookie-based session storage by default). The attacker would need to either set a cookie on the victim's browser or steal the victim's currently valid session. Session identifiers are now regenerated after registration.</p>
+<h2 id="patches">Patches</h2>
+<p>This vulnerability has been fixed in CKAN 2.10.11, 2.11.6 and 2.12.0</p>
+<h2 id="workarounds">Workarounds</h2>
+<p>switch to cookie-based session storage (the default) or disable web user registration by setting <code>ckan.auth.create_user_via_web</code> to false (the default)</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://github.com/ckan/ckan/security/advisories/GHSA-6499-jgj4-2wpf">https://github.com/ckan/ckan/security/advisories/GHSA-6499-jgj4-2wpf</a></li>
+<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-104773">https://nvd.nist.gov/vuln/detail/CVE-2026-104773</a></li>
+<li><a href="https://github.com/ckan/ckan/commit/6eae4e9c430e163b9d6cc75a3fd2ca82e79d80f6">https://github.com/ckan/ckan/commit/6eae4e9c430e163b9d6cc75a3fd2ca82e79d80f6</a></li>
+<li><a href="https://github.com/ckan/ckan/commit/8f8e8b587461b66120ec7a85c17a34ecea213f57">https://github.com/ckan/ckan/commit/8f8e8b587461b66120ec7a85c17a34ecea213f57</a></li>
+<li><a href="https://github.com/ckan/ckan/commit/a25e2f3080a79a94eb04dcf02e16ded3e5fadeb2">https://github.com/ckan/ckan/commit/a25e2f3080a79a94eb04dcf02e16ded3e5fadeb2</a></li>
+<li><a href="https://github.com/ckan/ckan/commit/c30bae7fdd616d98a5d47cc31f9e8d5d1ad7bcd2">https://github.com/ckan/ckan/commit/c30bae7fdd616d98a5d47cc31f9e8d5d1ad7bcd2</a></li>
+<li><a href="https://github.com/ckan/ckan/commit/c72815a5afd50cf689fcfb688f431dec21a85915">https://github.com/ckan/ckan/commit/c72815a5afd50cf689fcfb688f431dec21a85915</a></li>
+<li><a href="https://github.com/ckan/ckan/releases/tag/ckan-2.10.11">https://github.com/ckan/ckan/releases/tag/ckan-2.10.11</a></li>
+<li><a href="https://github.com/ckan/ckan/releases/tag/ckan-2.11.6">https://github.com/ckan/ckan/releases/tag/ckan-2.11.6</a></li>
+<li><a href="https://github.com/ckan/ckan/releases/tag/ckan-2.12.0">https://github.com/ckan/ckan/releases/tag/ckan-2.12.0</a></li>
+<li><a href="https://github.com/advisories/GHSA-6499-jgj4-2wpf">https://github.com/advisories/GHSA-6499-jgj4-2wpf</a></li>
+</ul>
+]]></content>
+        <author>
+            <name>GitHub</name>
+            <email>GitHub@noreply.github.com</email>
+            <uri>https://github.com/advisories/GHSA-6499-jgj4-2wpf</uri>
+        </author>
+        <category label="severity" term="MODERATE"/>
+        <published>2026-11-20T16:25:26.000Z</published>
+    </entry>
     <entry>
         <title type="html"><![CDATA[[amqtt] aMQTT: Denial of Service (DoS) via Memory Leak in Unmanaged QoS 2 Session Handshakes]]></title>
         <id>https://github.com/advisories/GHSA-wcqj-wx85-c75p</id>
@@ -2603,170 +2693,5 @@ for line in arff.splitlines()[5:12]:
         </author>
         <category label="severity" term="HIGH"/>
         <published>2026-11-19T23:53:18.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[nltk] NLTK: Uncontrolled recursion in CCG lexicon parser causes denial of service via deeply nested category input]]></title>
-        <id>https://github.com/advisories/GHSA-3h95-x772-4765</id>
-        <link href="https://github.com/advisories/GHSA-3h95-x772-4765"/>
-        <updated>2026-11-19T23:52:55.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>nltk</td>
-<td><code>&lt;= 3.10.3</code></td>
-<td><code>3.10.4</code></td>
-</tr>
-</tbody>
-</table>
-<h2 id="root-cause">Root Cause</h2>
-<p>The CCG lexicon parser recurses on nested parenthesised categories without any depth
-bound. <code>matchBrackets</code> (<code>nltk/ccg/lexicon.py:154</code>) calls itself once per nested <code>(</code>, and
-<code>augParseCategory</code> (<code>nltk/ccg/lexicon.py:228,242</code>) recurses once per bracketed
-sub-category. Neither function tracks recursion depth nor checks
-<code>sys.getrecursionlimit()</code>, and the public entry point <code>fromstring</code>
-(<code>nltk/ccg/lexicon.py:252</code>, also re-exported via <code>nltk.ccg.chart.fromstring</code>) applies no
-length or nesting cap before handing the text to the parser.</p>
-<h2 id="impact">Impact</h2>
-<p>An application that parses an untrusted lexicon string aborts with an unhandled
-<code>RecursionError</code>, terminating the affected parse operation or request worker
-(denial of service, CWE-674). The recursion is pure Python, so CPython raises a catchable
-<code>RecursionError</code> rather than crashing the process; there is no memory-corruption or
-code-execution primitive. Confidentiality and integrity are unaffected. Plausibly, a
-service that does not wrap the parse in a handler will surface the error to the caller and
-drop the in-flight request.</p>
-<h2 id="attack-chain">Attack Chain</h2>
-<ol>
-<li>The application calls <code>nltk.ccg.lexicon.fromstring(lex_str)</code> with attacker-supplied
-text such as <code>":- S\nw =&gt; " + "(" * 2000 + "S" + ")" * 2000 + "\n"</code>.</li>
-<li><code>fromstring</code> splits the input into lines; <code>LEX_RE</code>/<code>RHS_RE</code>
-(<code>nltk/ccg/lexicon.py:275-276</code>) match and route the parenthesised category into
-<code>augParseCategory</code> (<code>nltk/ccg/lexicon.py:277</code>) with no depth or length guard.</li>
-<li>Because the category starts with <code>(</code>, <code>nextCategory</code> dispatches to <code>matchBrackets</code>,
-which recurses once per nested <code>(</code>; <code>augParseCategory</code> recurses once per bracketed
-sub-category. Each nesting level consumes call-stack frames.</li>
-<li>Once the depth exceeds the interpreter recursion limit, an unhandled <code>RecursionError</code>
-propagates out of the public API and aborts the parse.</li>
-</ol>
-<h2 id="bypass-evidence">Bypass Evidence</h2>
-<p>Running the dependency-free <code>matchBrackets</code> body verbatim from the shipped source at the
-default recursion limit (1000): a well-formed balanced input at depth 5 and 500 parses
-cleanly, while depth 2000 and 5000 raise an unhandled <code>RecursionError</code>. Because shallow,
-balanced input parses without error, the failure is depth-driven rather than a generic
-parse error. The crash triggers near ~1000 nesting levels at the default limit, so the
-payload need not be extreme. A repository-wide search confirms no depth/recursion guard
-exists anywhere under <code>nltk/ccg/</code> (the only recent change to this file routed regexes
-through <code>nltk.redos</code> and added no recursion bound).</p>
-<h2 id="suggested-fix">Suggested Fix</h2>
-<p>Add a recursion-depth choke point on the lexicon-parsing path — for example a depth
-counter that raises a bounded <code>ValueError</code> past a configurable maximum, mirroring the
-existing guards on <code>FeatStructReader</code> (<code>nltk/featstruct.py</code>), <code>Tree.fromstring</code>
-(<code>MAX_TREE_DEPTH</code>, <code>nltk/tree/tree.py</code>), and <code>LogicParser</code> (<code>MAX_PARSE_DEPTH</code>,
-<code>nltk/sem/logic.py</code>).</p>
-<p>Reported by pi (GitHub: @manus-pi).</p>
-<h2 id="fix-status-2026-09-28">Fix status (2026-09-28)</h2>
-<p>Status: MERGED on develop (unreleased; v3.10.3 of 2026-08-12 predates the fix).</p>
-<p>PR: #3885 "Bound recursion depth in parsers and traversal helpers" (ekaf), merged 2026-09-11, merge commit e521ecafc on develop.</p>
-<p>Fix commit: 30e93eb7b (nltk/ccg/lexicon.py: matchBrackets and the category parser stop at MAX_PARSE_DEPTH=500 with ValueError).</p>
-<p>Probe: nltk/test/unit/security_probes/ghsa_3h95_x772_4765.py (added in 2a6704952 on that PR); verdict on develop 2fa3f48fe: FIXED (bounded (ValueError)).</p>
-<p>Release: none yet; no release tag contains e521ecafc.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/nltk/nltk/security/advisories/GHSA-3h95-x772-4765">https://github.com/nltk/nltk/security/advisories/GHSA-3h95-x772-4765</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-129224">https://nvd.nist.gov/vuln/detail/CVE-2026-129224</a></li>
-<li><a href="https://github.com/nltk/nltk/pull/3885">https://github.com/nltk/nltk/pull/3885</a></li>
-<li><a href="https://github.com/nltk/nltk/commit/30e93eb7b69021293e019042fe0cedb99c95b054">https://github.com/nltk/nltk/commit/30e93eb7b69021293e019042fe0cedb99c95b054</a></li>
-<li><a href="https://github.com/nltk/nltk/releases/tag/v3.10.4">https://github.com/nltk/nltk/releases/tag/v3.10.4</a></li>
-<li><a href="https://github.com/advisories/GHSA-3h95-x772-4765">https://github.com/advisories/GHSA-3h95-x772-4765</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-3h95-x772-4765</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-11-19T23:52:54.000Z</published>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[[nltk] NLTK: Uncontrolled recursion in DependencyGraph traversal causes denial of service via deep dependency chains]]></title>
-        <id>https://github.com/advisories/GHSA-xfcv-m889-fmqg</id>
-        <link href="https://github.com/advisories/GHSA-xfcv-m889-fmqg"/>
-        <updated>2026-11-19T23:52:22.000Z</updated>
-        <content type="html"><![CDATA[<h3>Affected versions</h3>
-<table>
-<thead><tr><th>Package</th><th>Vulnerable versions</th><th>Patched version</th></tr></thead>
-<tbody>
-<tr>
-<td>nltk</td>
-<td><code>&lt;= 3.10.3</code></td>
-<td><code>3.10.4</code></td>
-</tr>
-</tbody>
-</table>
-<h2 id="root-cause">Root Cause</h2>
-<p>The dependency-graph traversal helpers recurse over dependency links without any depth
-bound or visited set. <code>DependencyGraph._tree</code> (<code>nltk/parse/dependencygraph.py:404</code>)
-recurses once per dependency link, <code>triples</code> (<code>nltk/parse/dependencygraph.py:432</code>) is a
-recursive generator, and <code>get_cycle_path</code> (<code>nltk/parse/dependencygraph.py:520</code>) recurses
-over dependencies. The neighbouring <code>contains_cycle</code> method was deliberately rewritten as
-an iterative depth-first search, but these sibling helpers on the public traversal path
-were left recursive with no depth counter.</p>
-<h2 id="impact">Impact</h2>
-<p>An application that parses an untrusted CoNLL/Malt-TAB dependency structure and then walks
-it via <code>tree()</code> or <code>triples()</code> aborts with an unhandled <code>RecursionError</code>, terminating the
-affected operation or request worker (denial of service, CWE-674). The recursion is pure
-Python, so the result is a catchable <code>RecursionError</code>, not memory corruption or code
-execution. Confidentiality and integrity are unaffected. <code>get_cycle_path</code> additionally
-lacks a visited set and will not terminate on a genuine cycle.</p>
-<h2 id="attack-chain">Attack Chain</h2>
-<ol>
-<li>The application constructs <code>DependencyGraph(conll_str)</code> from attacker-supplied text
-where token <em>k</em>'s head is token <em>k+1</em>, forming a linear dependency chain of length <em>N</em>.
-Graph construction (<code>_parse</code>) is iterative and completes without error.</li>
-<li>The application calls the public <code>DependencyGraph.tree()</code>
-(<code>nltk/parse/dependencygraph.py:408</code>), which invokes <code>_tree(root)</code>.</li>
-<li><code>_tree</code> recurses once per chain link with no depth guard and no visited set, consuming
-one stack frame per link (the list comprehension costs roughly two frames per level).</li>
-<li>Once the chain length exceeds the interpreter recursion limit, an unhandled
-<code>RecursionError</code> propagates out of the public API. <code>triples()</code> fails the same way.</li>
-</ol>
-<h2 id="bypass-evidence">Bypass Evidence</h2>
-<p>Against the shipped source at the default recursion limit, a chain of length 5 walks
-cleanly through <code>tree()</code>, while a chain of length 5000 raises an unhandled
-<code>RecursionError</code>; <code>triples()</code> fails identically. The minimal trigger is roughly <em>N</em>=500
-tokens at the default recursion limit — a modest, realistic parse. Because the graph
-builds iteratively in both cases, the fault is isolated to the recursive traversal rather
-than to parsing. A repository-wide search confirms no depth guard exists in this file; the
-iterative rewrite was applied only to <code>contains_cycle</code>.</p>
-<h2 id="suggested-fix">Suggested Fix</h2>
-<p>Convert <code>_tree</code>, <code>triples</code>, and <code>get_cycle_path</code> to iterative traversals, or add a
-recursion-depth bound (and, for <code>get_cycle_path</code>, a visited set) analogous to the
-iterative rewrite already applied to <code>contains_cycle</code>.</p>
-<p>Reported by pi (GitHub: @manus-pi).</p>
-<h2 id="fix-status-2026-09-28">Fix status (2026-09-28)</h2>
-<p>Status: MERGED on develop (unreleased; v3.10.3 of 2026-08-12 predates the fix).</p>
-<p>PR: #3885 "Bound recursion depth in parsers and traversal helpers" (ekaf), merged 2026-09-11, merge commit e521ecafc on develop.</p>
-<p>Fix commit: a74682757 (nltk/parse/dependencygraph.py: _tree, tree and triples stop at MAX_DEPTH=200 with ValueError).</p>
-<p>Probe: nltk/test/unit/security_probes/ghsa_xfcv_m889_fmqg.py (added in 2a6704952 on that PR); verdict on develop 2fa3f48fe: FIXED (bounded in tree() (ValueError)).</p>
-<p>Release: none yet; no release tag contains e521ecafc.</p>
-<h3 id="references">References</h3>
-<ul>
-<li><a href="https://github.com/nltk/nltk/security/advisories/GHSA-xfcv-m889-fmqg">https://github.com/nltk/nltk/security/advisories/GHSA-xfcv-m889-fmqg</a></li>
-<li><a href="https://nvd.nist.gov/vuln/detail/CVE-2026-129225">https://nvd.nist.gov/vuln/detail/CVE-2026-129225</a></li>
-<li><a href="https://github.com/nltk/nltk/pull/3885">https://github.com/nltk/nltk/pull/3885</a></li>
-<li><a href="https://github.com/nltk/nltk/commit/a74682757cee8c11128ad277d2f2bd0b8e1884ff">https://github.com/nltk/nltk/commit/a74682757cee8c11128ad277d2f2bd0b8e1884ff</a></li>
-<li><a href="https://github.com/nltk/nltk/releases/tag/v3.10.4">https://github.com/nltk/nltk/releases/tag/v3.10.4</a></li>
-<li><a href="https://github.com/advisories/GHSA-xfcv-m889-fmqg">https://github.com/advisories/GHSA-xfcv-m889-fmqg</a></li>
-</ul>
-]]></content>
-        <author>
-            <name>GitHub</name>
-            <email>GitHub@noreply.github.com</email>
-            <uri>https://github.com/advisories/GHSA-xfcv-m889-fmqg</uri>
-        </author>
-        <category label="severity" term="MODERATE"/>
-        <published>2026-11-19T23:52:20.000Z</published>
     </entry>
 </feed>
